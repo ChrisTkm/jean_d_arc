@@ -27,7 +27,16 @@ export default defineConfig({
         {
           label: 'Sistema Contable',
           items: [
-            { label: 'Visión General', link: '/accounting/sistema-contable/' }
+            { label: 'Visión General', link: '/accounting/sistema-contable/' },
+            {
+              label: 'Remuneraciones',
+              items: [
+                { label: 'Overview', link: '/accounting/remuneraciones/' },
+                { label: 'Tablas', link: '/accounting/remuneraciones/tablas/' },
+                { label: 'Cálculos', link: '/accounting/remuneraciones/calculos/' },
+                { label: 'Diagramas', link: '/accounting/remuneraciones/diagramas/' }
+              ]
+            }
           ]
         },
         {
