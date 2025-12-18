@@ -1,0 +1,213 @@
+---
+// jean_d_arc/src/pages/demo-api.astro
+// Página de demostración que consume Orchestrator API
+import Layout from '../layouts/Layout.astro';
+
+const title = "Demo: Jean d'Arc ↔ Orchestrator";
+const description = "Ejemplo de integración en tiempo real con el backend Orchestrator";
+---
+
+<Layout title={title} description={description}>
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold text-blue-600 mb-2">
+        🔗 Demo de Integración
+      </h1>
+      <p class="text-gray-600">
+        Esta página consume la API de <code class="bg-gray-100 px-2 py-1 rounded">Orchestrator</code> 
+        para mostrar datos en tiempo real.
+      </p>
+    </header>
+
+    <!-- Sección de Estado de Conexión -->
+    <section class="mb-8 p-6 bg-white rounded-lg shadow-md border border-gray-200">
+      <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2">
+        <span class="text-green-500">●</span> Estado del Backend
+      </h2>
+      <div id="connection-status" class="space-y-2">
+        <p class="text-gray-500">Verificando conexión...</p>
+      </div>
+    </section>
+
+    <!-- Sección de Parámetros del Sistema -->
+    <section class="mb-8 p-6 bg-white rounded-lg shadow-md border border-gray-200">
+      <h2 class="text-2xl font-semibold mb-4">📊 Parámetros del Sistema</h2>
+      <div id="parameters-container" class="space-y-4">
+        <p class="text-gray-500">Cargando parámetros...</p>
+      </div>
+    </section>
+
+    <!-- Sección de AFPs -->
+    <section class="mb-8 p-6 bg-white rounded-lg shadow-md border border-gray-200">
+      <h2 class="text-2xl font-semibold mb-4">🏦 AFPs Disponibles</h2>
+      <div id="afp-container" class="space-y-2">
+        <p class="text-gray-500">Cargando AFPs...</p>
+      </div>
+    </section>
+
+    <!-- Sección de Información Técnica -->
+    <section class="p-6 bg-blue-50 rounded-lg border border-blue-200">
+      <h3 class="text-xl font-semibold mb-3 text-blue-800">
+        💡 ¿Cómo funciona esto?
+      </h3>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li><strong>Frontend:</strong> Jean d'Arc (Astro) - Esta página estática</li>
+        <li><strong>Backend:</strong> Orchestrator (Express + TypeScript) - Puerto 8000</li>
+        <li><strong>Base de datos:</strong> PostgreSQL (mother container)</li>
+        <li><strong>Comunicación:</strong> Fetch API desde el navegador</li>
+        <li><strong>Autenticación:</strong> JWT en cookies (sid)</li>
+      </ul>
+      
+      <div class="mt-4 p-4 bg-white rounded border border-blue-300">
+        <h4 class="font-semibold text-blue-800 mb-2">Endpoints consumidos:</h4>
+        <ul class="text-xs font-mono space-y-1 text-gray-600">
+          <li>GET http://localhost:8000/api/parameters</li>
+          <li>GET http://localhost:8000/api/afp</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  // Estado de conexión
+  async function checkConnection() {
+    const statusDiv = document.getElementById('connection-status');
+    if (!statusDiv) return;
+
+    try {
+      const response = await fetch('http://localhost:8000/api/parameters', {
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        statusDiv.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">✅</span>
+            <div>
+              <p class="font-semibold text-green-700">Orchestrator conectado</p>
+              <p class="text-sm text-gray-600">Puerto 8000 respondiendo correctamente</p>
+            </div>
+          </div>
+        `;
+      } else {
+        throw new Error(`HTTP ${response.status}`);
+      }
+    } catch (error) {
+      statusDiv.innerHTML = `
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">❌</span>
+          <div>
+            <p class="font-semibold text-red-700">Error de conexión</p>
+            <p class="text-sm text-gray-600">Asegúrate de que Orchestrator esté corriendo en el puerto 8000</p>
+            <p class="text-xs text-red-500 mt-1">${error}</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Cargar parámetros del sistema
+  async function loadParameters() {
+    const container = document.getElementById('parameters-container');
+    if (!container) return;
+
+    try {
+      const response = await fetch('http://localhost:8000/api/parameters', {
+        credentials: 'include'
+      });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data = await response.json();
+      
+      if (Array.isArray(data) && data.length > 0) {
+        container.innerHTML = `
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="px-4 py-2 text-left">Código</th>
+                  <th class="px-4 py-2 text-left">Descripción</th>
+                  <th class="px-4 py-2 text-left">Valor</th>
+                  <th class="px-4 py-2 text-left">Estado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                ${data.slice(0, 5).map((param: any) => `
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2 font-mono text-xs">${param.codigo || 'N/A'}</td>
+                    <td class="px-4 py-2">${param.descripcion || 'N/A'}</td>
+                    <td class="px-4 py-2 font-semibold">${param.valor || 'N/A'}</td>
+                    <td class="px-4 py-2">
+                      <span class="px-2 py-1 rounded text-xs ${param.activo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}">
+                        ${param.activo ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            ${data.length > 5 ? `<p class="text-xs text-gray-500 mt-2">Mostrando 5 de ${data.length} parámetros</p>` : ''}
+          </div>
+        `;
+      } else {
+        container.innerHTML = '<p class="text-gray-500">No hay parámetros disponibles</p>';
+      }
+    } catch (error) {
+      container.innerHTML = `
+        <p class="text-red-600">Error al cargar parámetros: ${error}</p>
+        <p class="text-xs text-gray-500 mt-2">Verifica que Orchestrator esté corriendo y la base de datos esté disponible</p>
+      `;
+    }
+  }
+
+  // Cargar AFPs
+  async function loadAFPs() {
+    const container = document.getElementById('afp-container');
+    if (!container) return;
+
+    try {
+      const response = await fetch('http://localhost:8000/api/afp', {
+        credentials: 'include'
+      });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data = await response.json();
+      
+      if (Array.isArray(data) && data.length > 0) {
+        container.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${data.map((afp: any) => `
+              <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
+                <h4 class="font-semibold text-gray-800">${afp.nombre || afp.id}</h4>
+                ${afp.codigo ? `<p class="text-xs text-gray-500 font-mono mt-1">Código: ${afp.codigo}</p>` : ''}
+                ${afp.tasa ? `<p class="text-sm text-gray-600 mt-2">Tasa: ${afp.tasa}%</p>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        container.innerHTML = '<p class="text-gray-500">No hay AFPs disponibles</p>';
+      }
+    } catch (error) {
+      container.innerHTML = `
+        <p class="text-red-600">Error al cargar AFPs: ${error}</p>
+      `;
+    }
+  }
+
+  // Ejecutar al cargar la página
+  document.addEventListener('DOMContentLoaded', () => {
+    checkConnection();
+    loadParameters();
+    loadAFPs();
+  });
+</script>
+
+<style>
+  code {
+    @apply bg-gray-100 px-2 py-1 rounded text-sm;
+  }
+</style>
