@@ -1,29 +1,56 @@
-# Jean d'Arc Docs
+# 📚 Project Jean d'Arc
 
-Sitio de documentación basado en Astro + Starlight.
+> **"La Sabiduría" del Ecosistema Contable.**
 
-## Estructura
+Este repositorio contiene la **documentación centralizada, guías de arquitectura y manuales de usuario** para el Sistema Contable compuesto por **Sevastopol** (Frontend) y **Nostromo** (Core Backend).
 
-```txt
-astro.config.mjs        # Configuración Astro + Starlight
-src/content/docs/       # Contenido de documentación
+Construido sobre **Astro Starlight**, Jean d'Arc sirve como la fuente de verdad única para desarrolladores y usuarios finales.
+
+## 🎯 Objetivo
+
+En un sistema complejo con múltiples módulos (Contabilidad, Remuneraciones, Inventario) y una arquitectura distribuida (Islands + API REST), la información dispersa es un riesgo. **Jean d'Arc** resuelve esto centralizando:
+
+*   **Documentación Técnica**: Diagramas ER, flujos de datos (ETLs), y contratos de API.
+*   **Guías de Estilo**: Sistema de Diseño Atómico, uso de componentes UI.
+*   **Manuales de Usuario**: Guías paso a paso para operar el sistema contable.
+*   **Onboarding**: Cómo levantar el entorno de desarrollo (Sevastopol + Nostromo).
+
+## 🛠️ Stack Tecnológico
+
+*   **Framework**: [Astro](https://astro.build/)
+*   **Theme**: [Starlight](https://starlight.astro.build/) (Optimizado para documentación)
+*   **Despliegue**: Estático / Vercel (o similar)
+*   **Contenido**: Markdown / MDX
+
+## 📂 Estructura del Conocimiento
+
+```text
+src/content/docs/
+├── intro/              # Visión general del proyecto
+├── arquitectura/       # Decisiones técnicas (Islands, FastAPI, DB Schema)
+├── modulos/            # Documentación específica por dominio
+│   ├── contabilidad/   # Plan de cuentas, Asientos
+│   ├── rrhh/           # Fórmulas de sueldos, Asistencia
+│   └── inventario/     # Kardex, Bodegas
+└── guias/              # Manuales de usuario final
 ```
 
-## Desarrollo
+## 🚀 Inicio Rápido
 
-Instalar dependencias y levantar entorno:
+Para correr la documentación localmente:
 
 ```bash
+# Instalar dependencias
 npm install
+
+# Iniciar servidor de desarrollo
 npm run dev
 ```
 
-Visita `http://localhost:4321`.
+Visita `http://localhost:4321` para ver la documentación.
 
-## Añadir páginas
+---
 
-Crear nuevas carpetas o archivos dentro de `src/content/docs/`.
-
-## Deploy
-
-Ajusta en `astro.config.mjs` el campo `site` y configura tu plataforma (Netlify, Vercel, etc.).
+<div align="center">
+  <sub>Parte del ecosistema <b>Albornoz Accounting System</b>.</sub>
+</div>
