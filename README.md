@@ -10,17 +10,17 @@ Construido sobre **Astro Starlight**, Jean d'Arc sirve como la fuente de verdad 
 
 En un sistema complejo con múltiples módulos (Contabilidad, Remuneraciones, Inventario) y una arquitectura distribuida (Islands + API REST), la información dispersa es un riesgo. **Jean d'Arc** resuelve esto centralizando:
 
-*   **Documentación Técnica**: Diagramas ER, flujos de datos (ETLs), y contratos de API.
-*   **Guías de Estilo**: Sistema de Diseño Atómico, uso de componentes UI.
-*   **Manuales de Usuario**: Guías paso a paso para operar el sistema contable.
-*   **Onboarding**: Cómo levantar el entorno de desarrollo (Sevastopol + Nostromo).
+* **Documentación Técnica**: Diagramas ER, flujos de datos (ETLs), y contratos de API.
+* **Guías de Estilo**: Sistema de Diseño Atómico, uso de componentes UI.
+* **Manuales de Usuario**: Guías paso a paso para operar el sistema contable.
+* **Onboarding**: Cómo levantar el entorno de desarrollo (Sevastopol + Nostromo).
 
 ## 🛠️ Stack Tecnológico
 
-*   **Framework**: [Astro](https://astro.build/)
-*   **Theme**: [Starlight](https://starlight.astro.build/) (Optimizado para documentación)
-*   **Despliegue**: Estático / Vercel (o similar)
-*   **Contenido**: Markdown / MDX
+* **Framework**: [Astro](https://astro.build/)
+* **Theme**: [Starlight](https://starlight.astro.build/) (Optimizado para documentación)
+* **Despliegue**: Estático / Vercel (o similar)
+* **Contenido**: Markdown / MDX
 
 ## 📂 Estructura del Conocimiento
 

@@ -59,7 +59,7 @@ sequenceDiagram
 
     FE->>SP: Generar Liquidación (Mes X)
     
-    rect rgb(240, 248, 255)
+    rect rgb(57, 68, 70)
     note right of SP: Fase 1: Cálculo en Memoria
     SP->>FX: Calcular montos (sin guardar)
     FX->>FX: Cargar Contrato + Asistencia
@@ -69,7 +69,7 @@ sequenceDiagram
     FX-->>SP: Retorna Estructura {Header, Detalles[]}
     end
 
-    rect rgb(255, 240, 245)
+    rect rgb(26, 31, 32)
     note right of SP: Fase 2: Persistencia
     SP->>DB: INSERT/UPDATE liquidaciones (Header)
     SP->>DB: DELETE liquidaciones_detalle (Limpieza)

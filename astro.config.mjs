@@ -1,12 +1,17 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwind from '@astrojs/tailwind';
+import mermaid from 'astro-mermaid';
+import starlightThemeNova from 'starlight-theme-nova';
+
 
 export default defineConfig({
   site: 'https://docs.jean-d-arc.local', // TODO: reemplazar por dominio definitivo
   integrations: [
+    mermaid(),
     tailwind({ applyBaseStyles: false }), // No sobrescribir estilos de Starlight
     starlight({
+      plugins: [starlightThemeNova()],
       title: "Documentación Jean d'Arc",
       favicon: '/favicon.svg',
       head: [],
@@ -34,6 +39,7 @@ export default defineConfig({
                 { label: 'Overview', link: '/accounting/remuneraciones/' },
                 { label: 'Tablas', link: '/accounting/remuneraciones/tablas/' },
                 { label: 'Cálculos', link: '/accounting/remuneraciones/calculos/' },
+                { label: 'Motor de Cálculo', link: '/accounting/remuneraciones/motor-calculo/' },
                 { label: 'Diagramas', link: '/accounting/remuneraciones/diagramas/' }
               ]
             }
