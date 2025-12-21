@@ -58,6 +58,11 @@ graph TD
 Todos los objetos de base de datos se encuentran en:
 `Nostromo/db/accounting_template/remuneraciones/`
 
-- **Tablas**: `/tbl`
 - **Funciones (Lógica)**: `/fx`
 - **Procedimientos (Orquestación)**: `/sp`
+
+## 4. Procesos Mensuales
+
+Una vez calculadas las liquidaciones, el sistema permite ejecutar procesos de consolidación:
+
+- **[Generación de Imposiciones](./generacion-imposiciones)**: Consolida montos para AFP, Isapres, Mutual y SII (Previred/F29).

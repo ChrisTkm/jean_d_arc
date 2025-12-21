@@ -11,13 +11,17 @@ La lógica de negocio de remuneraciones ha sido migrada desde SQL a **TypeScript
 
 Ubicación del código fuente: `src/domain/payroll/calculators/`
 
+> Para el proceso de consolidación y pago de estas leyes, ver [Generación de Imposiciones](./generacion-imposiciones).
+
 ## 1. Sueldo Base (BaseSalaryCalculator)
 
 Determina el sueldo base efectivo a pagar, respetando la proporcionalidad por días trabajados y asegurando el sueldo mínimo.
 
 **Ubicación**: `BaseSalaryCalculator.ts`
 
+
 ### Reglas de Negocio
+
 1. **Prorrateo**: Se calcula el monto proporcional del sueldo base contrato según los días trabajados.
    - Fórmula: `(SueldoBase / 30) * DíasTrabajados`
 2. **Sueldo Mínimo**: Se calcula igualmente el proporcional de la Renta Mínima Mensual (IMM).
@@ -39,7 +43,8 @@ Calcula el monto de gratificación legal según el artículo 47 o 50 del Código
 - **`25pct` (Artículo 47)**: Paga el 25% de la remuneración imponible devengada.
 - **`abono_anual` (Artículo 50)**: Paga un monto fijo garantizado (Tope Mensual).
 
-### Algoritmo
+### Algoritmo General
+
 1. **Calcular Topes**:
    - Tope Anual: `4.75 * IMM (Ingreso Mínimo Mensual)`
    - Tope Mensual: `Tope Anual / 12`
@@ -61,6 +66,7 @@ Calcula todas las cotizaciones previsionales obligatorias para el trabajador y e
 **Ubicación**: `SocialLawsCalculator.ts`
 
 ### Aportes del Trabajador (Descuentos)
+
 1. **AFP**: `Base Imponible * (10% + Comisión AFP)`. 
    - La base imponible tiene un tope (Tope Imponible para Pensiones, ej: 84.3 UF).
 2. **Salud**: Ver `HealthPlanCalculator`. Normalmente 7% o Plan Pactado.
@@ -69,6 +75,7 @@ Calcula todas las cotizaciones previsionales obligatorias para el trabajador y e
    - Tiene su propio tope imponible (Tope AFC, ej: 126.6 UF), distinto al de pensiones.
 
 ### Aportes del Empleador (Costo Empresa)
+
 1. **SIS** (Seguro Invalidez y Sobrevivencia): `Base Imponible * Tasa SIS`.
 2. **Mutual** (Accidentes del Trabajo): `Base Imponible * (Tasa Base + Adicional)`.
 3. **AFC Empleador**: `Base Imponible AFC * Tasa Empleador (2.4%)`.
@@ -84,6 +91,7 @@ Resuelve la complejidad de Isapres vs Fonasa y la aplicación del 7% legal.
 **Ubicación**: `HealthPlanCalculator.ts`
 
 ### Reglas
+
 1. **Base Imponible**: `MIN(Sueldo Imponible, Tope Legal UF)`.
 2. **FONASA**: 
    - El descuento es siempre el **7%** de la base imponible.
@@ -103,7 +111,8 @@ Calcula el Impuesto Único de Segunda Categoría (IUSC) aplicado a las rentas de
 
 **Ubicación**: `TaxCalculator.ts`
 
-### Algoritmo
+### Algoritmo de Cálculo
+
 1. **Base Tributaria**:
    - `Total Imponible - Descuentos Legales (AFP + Salud + AFC) - APV - Otros Descuentos Legales`.
    

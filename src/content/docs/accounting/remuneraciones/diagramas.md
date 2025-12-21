@@ -80,3 +80,34 @@ sequenceDiagram
 
     SP-->>FE: Retorna ID Liquidación + Resumen
 ```
+
+## Generación de Imposiciones
+
+Flujo de consolidación de aportes previsionales (Post-Liquidación).
+
+```mermaid
+graph TD
+    LIQ[Liquidaciones Detalle] -->|Agregación por Concepto| SVC(Previsions Service)
+    HON[Honorarios] -->|Agregación Retención| SVC
+    
+    SVC -->|Mapeo| ENT[Entidades Previsionales]
+    
+    ENT -->|AFP| AFP[Tabla Imposiciones: AFP]
+    ENT -->|Salud| SAL[Tabla Imposiciones: ISAPRE/FONASA]
+    ENT -->|Mutual| MUT[Tabla Imposiciones: MUTUAL]
+    ENT -->|Impuesto| SII[Tabla Imposiciones: SII]
+    
+    subgraph Orchestrator Domain
+    SVC
+    end
+    
+    subgraph PostgreSQL Tables
+    LIQ
+    HON
+    AFP
+    SAL
+    MUT
+    SII
+    end
+```
+
