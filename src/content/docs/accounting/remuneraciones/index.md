@@ -29,10 +29,10 @@ Tabla `conceptos_remuneracion`. Catálogo maestro que define:
 - **Dónde se contabiliza**: Cuentas de Gasto, Pasivo, etc.
 
 ### 3. Motor de Cálculo
-Stored Procedure `sp_liquidacion_generar`. Orquesta el proceso:
-1. Calcula haberes y descuentos usando funciones especializadas.
-2. Genera una "pre-liquidación" en memoria.
-3. Persiste el resultado en `liquidaciones` (totales) y `liquidaciones_detalle` (desglose).
+Arquitectura Híbrida (**TypeScript** + PostgreSQL).
+1. **Orchestrator**: Calcula haberes y descuentos usando lógica de negocio en TypeScript (ver *Motor de Cálculo*).
+2. **Repositorio**: Obtiene contratos y asistencia de forma eficiente.
+3. **Persistencia**: Guarda el resultado final en `liquidaciones` y su detalle.
 
 ## Flujo de Datos
 

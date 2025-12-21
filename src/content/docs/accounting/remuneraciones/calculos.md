@@ -1,79 +1,128 @@
 ---
-title: Cálculos y Funciones
-description: Lógica de negocio y funciones SQL de remuneraciones
+title: Cálculos y Lógica de Negocio
+description: Especificación detallada de la lógica de negocio implementada en las calculadoras de TypeScript.
 sidebar:
   label: Cálculos
   order: 3
-updated: 2025-12-17
+updated: 2025-12-21
 ---
 
-El motor de remuneraciones reside completamente en PostgreSQL. La lógica se divide en **funciones de cálculo** (fx) y **procedimientos de orquestación** (sp).
+La lógica de negocio de remuneraciones ha sido migrada desde SQL a **TypeScript**, encapsulada en "Calculadoras" puras de dominio. Cada calculadora es una clase estática sin efectos secundarios que resuelve un aspecto específico de la liquidación.
 
-## Orquestador Principal
+Ubicación del código fuente: `src/domain/payroll/calculators/`
 
-### `sp_liquidacion_generar`
-**Ubicación**: `sp/018_sp_liquidacion_generar.sql`
+## 1. Sueldo Base (BaseSalaryCalculator)
 
-Es el punto de entrada para generar una liquidación. Su responsabilidad es:
-1. **Invocar el cálculo**: Llama a `fx_liquidacion_previa`.
-2. **Gestionar concurrencia**: Bloquea o valida si ya existe una liquidación aprobada.
-3. **Persistir datos**: 
-   - Inserta/Actualiza `liquidaciones`.
-   - Limpia y reinserta `liquidaciones_detalle` usando `fx_insert_detalle_concepto`.
+Determina el sueldo base efectivo a pagar, respetando la proporcionalidad por días trabajados y asegurando el sueldo mínimo.
 
-```sql
--- Ejemplo de uso
-SELECT * FROM remuneraciones.sp_liquidacion_generar(
-  'uuid-contrato',
-  'uuid-empleado', 
-  '2025-11-01',    -- Fecha del periodo
-  'uuid-usuario',  -- Usuario que ejecuta
-  '{}',            -- Overrides (JSON)
-  FALSE            -- Dry Run (FALSE = Guardar cambios)
-);
-```
+**Ubicación**: `BaseSalaryCalculator.ts`
 
-## Motor de Lógica
+### Reglas de Negocio
+1. **Prorrateo**: Se calcula el monto proporcional del sueldo base contrato según los días trabajados.
+   - Fórmula: `(SueldoBase / 30) * DíasTrabajados`
+2. **Sueldo Mínimo**: Se calcula igualmente el proporcional de la Renta Mínima Mensual (IMM).
+3. **Garantía**: El sistema paga el **MAYOR** valor entre:
+   - El proporcional del sueldo pactado.
+   - El proporcional del sueldo mínimo legal.
 
-### `fx_liquidacion_previa`
-**Ubicación**: `fx/011_fx_liquidacion_previa.sql`
+Esto asegura que si el sueldo base pactado es inferior al mínimo (por error o desactualización), el sistema "floors" el pago al mínimo legal proporcional.
 
-Realiza todos los cálculos matemáticos en memoria sin guardar nada. Retorna un registro tipo `liquidaciones`.
+---
 
-**Pasos del algoritmo:**
-1. **Carga de Datos**: Obtiene contrato, sueldo base, parámetros mensuales (UF, UTM).
-2. **Cálculo de Asistencia**: Días trabajados, licencias, ausencias.
-3. **Cálculo de Haberes**: 
-   - Sueldo Base proporcional.
-   - Gratificación (Topes legales).
-   - Horas Extras.
-4. **Cálculo de Imponible**: Suma de haberes imponibles.
-5. **Cálculo de Descuentos Legales**: 
-   - AFP (Topes de imponible).
-   - Salud (7% o pactado en UF).
-   - Seguro de Cesantía.
-6. **Cálculo de Impuestos**: Impuesto Único de Segunda Categoría (Tabla SII).
-7. **Totales Finales**: Líquido a pagar.
+## 2. Gratificación Legal (GratificationCalculator)
 
-## Funciones Específicas
+Calcula el monto de gratificación legal según el artículo 47 o 50 del Código del Trabajo, aplicando los topes legales.
 
-### Impuesto Único
-`fx_impuesto_unico(monto_tributable, fecha)`
-Calcula el impuesto basándose en la tabla de tramos del SII cargada en el sistema.
+**Ubicación**: `GratificationCalculator.ts`
 
-### Horas Extras
-`fx_horas_extra_50` / `fx_horas_extra_100`
-Calcula el valor de la hora extra basándose en el sueldo base y el factor correspondiente (0.0077777... multiplicado por 1.5 o 2.0).
+### Modalidades Soportadas
+- **`25pct` (Artículo 47)**: Paga el 25% de la remuneración imponible devengada.
+- **`abono_anual` (Artículo 50)**: Paga un monto fijo garantizado (Tope Mensual).
 
-### Gratificación Legal
-`fx_gratificacion_legal`
-Aplica el menor valor entre:
-- 25% del sueldo base proporcional.
-- Tope legal (4.75 IMM / 12).
+### Algoritmo
+1. **Calcular Topes**:
+   - Tope Anual: `4.75 * IMM (Ingreso Mínimo Mensual)`
+   - Tope Mensual: `Tope Anual / 12`
+   
+2. **Determinar Monto**:
+   - Si es **`abono_anual`**: El monto es igual al Tope Mensual directamente.
+   - Si es **`25pct`**: 
+     - Se calcula el 25% de los haberes imponibles (Sueldo Base + Horas Extra + Bonos Imponibles).
+     - Se aplica el `MIN(25% Calculado, Tope Mensual)`.
 
-## Persistencia de Detalle
+3. **Prorrateo (Opcional)**: Si el trabajador laboró menos de 30 días, el monto resultante se prorratea.
 
-### `fx_insert_detalle_concepto`
-Helper crítico que inserta cada ítem calculado en la tabla `liquidaciones_detalle`. Solo inserta si el monto es mayor a 0.
+---
 
-Realiza el link con la tabla `conceptos_remuneracion` usando el código del concepto (ej: `HAB-001`), lo que automáticamente asigna la cuenta contable correcta.
+## 3. Leyes Sociales (SocialLawsCalculator)
+
+Calcula todas las cotizaciones previsionales obligatorias para el trabajador y el aportes del empleador.
+
+**Ubicación**: `SocialLawsCalculator.ts`
+
+### Aportes del Trabajador (Descuentos)
+1. **AFP**: `Base Imponible * (10% + Comisión AFP)`. 
+   - La base imponible tiene un tope (Tope Imponible para Pensiones, ej: 84.3 UF).
+2. **Salud**: Ver `HealthPlanCalculator`. Normalmente 7% o Plan Pactado.
+   - Usa el mismo tope imponible que la AFP.
+3. **Seguro de Cesantía (AFC)**: `Base Imponible * Tasa Trabajador (0.6%)`.
+   - Tiene su propio tope imponible (Tope AFC, ej: 126.6 UF), distinto al de pensiones.
+
+### Aportes del Empleador (Costo Empresa)
+1. **SIS** (Seguro Invalidez y Sobrevivencia): `Base Imponible * Tasa SIS`.
+2. **Mutual** (Accidentes del Trabajo): `Base Imponible * (Tasa Base + Adicional)`.
+3. **AFC Empleador**: `Base Imponible AFC * Tasa Empleador (2.4%)`.
+4. **Ley Sanna / Seguro Social**: Pequeño porcentaje adicional.
+5. **Indemnización** (Casa Particular): Aporte especial si aplica.
+
+---
+
+## 4. Plan de Salud (HealthPlanCalculator)
+
+Resuelve la complejidad de Isapres vs Fonasa y la aplicación del 7% legal.
+
+**Ubicación**: `HealthPlanCalculator.ts`
+
+### Reglas
+1. **Base Imponible**: `MIN(Sueldo Imponible, Tope Legal UF)`.
+2. **FONASA**: 
+   - El descuento es siempre el **7%** de la base imponible.
+   - Ignora cualquier plan pactado.
+3. **ISAPRE**:
+   - Calcula el **7% Legal Obligatorio**.
+   - Calcula el valor del **Plan Pactado** (UF * ValorUF + CLP).
+   - El descuento es: `MAX(7% Legal, Plan Pactado)`.
+   
+   > **Nota**: Si el plan es mayor al 7%, el trabajador paga la diferencia. Si es menor, el empleador descuenta el 7% legal y la diferencia genera excedentes en la Isapre (fuera del alcance del motor de nómina, pero el descuento contable es el 7%).
+
+---
+
+## 5. Impuesto Único (TaxCalculator)
+
+Calcula el Impuesto Único de Segunda Categoría (IUSC) aplicado a las rentas del trabajo.
+
+**Ubicación**: `TaxCalculator.ts`
+
+### Algoritmo
+1. **Base Tributaria**:
+   - `Total Imponible - Descuentos Legales (AFP + Salud + AFC) - APV - Otros Descuentos Legales`.
+   
+2. **Determinar Tramo**:
+   - Busca en la tabla de impuesto mensual (Service Internal Revenue - SII) el tramo donde cae la base tributaria.
+   
+3. **Cálculo**:
+   - `Impuesto = (Base Tributaria * Factor) - Rebaja`.
+   - Si existen **Créditos** (ej: Donaciones), se restan al impuesto determinado.
+   - El impuesto no puede ser negativo (piso cero).
+
+---
+
+## 6. Prorrateo (ProrrataCalculator)
+
+Utilidad transversal para proporciones lineales.
+
+**Ubicación**: `ProrrataCalculator.ts`
+
+- **Regla**: `(Monto / 30) * DíasTrabajados`.
+- **Clamp**: Los días trabajados se limitan entre 0 y 30.
+- **Redondeo**: Al entero más cercano.

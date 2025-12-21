@@ -40,6 +40,7 @@ export default defineConfig({
                 { label: 'Tablas', link: '/accounting/remuneraciones/tablas/' },
                 { label: 'Cálculos', link: '/accounting/remuneraciones/calculos/' },
                 { label: 'Motor de Cálculo', link: '/accounting/remuneraciones/motor-calculo/' },
+                { label: 'Testing', link: '/accounting/remuneraciones/test-payroll/' },
                 { label: 'Diagramas', link: '/accounting/remuneraciones/diagramas/' }
               ]
             }
