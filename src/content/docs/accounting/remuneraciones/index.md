@@ -20,16 +20,21 @@ A diferencia de sistemas antiguos, aquí **cada concepto de remuneración** (hab
 ## Componentes Principales
 
 ### 1. Maestro de Empleados
+
 Tabla `empleados`. Contiene la información contractual, personal y previsional. Es la base para cualquier cálculo.
 
 ### 2. Definición de Conceptos
+
 Tabla `conceptos_remuneracion`. Catálogo maestro que define:
+
 - **Qué es**: Haber, Descuento, Aporte Patronal.
 - **Cómo se calcula**: Fórmula, Monto Fijo, Porcentaje.
 - **Dónde se contabiliza**: Cuentas de Gasto, Pasivo, etc.
 
 ### 3. Motor de Cálculo
+
 Arquitectura Híbrida (**TypeScript** + PostgreSQL).
+
 1. **Orchestrator**: Calcula haberes y descuentos usando lógica de negocio en TypeScript (ver *Motor de Cálculo*).
 2. **Repositorio**: Obtiene contratos y asistencia de forma eficiente.
 3. **Persistencia**: Guarda el resultado final en `liquidaciones` y su detalle.
@@ -42,7 +47,7 @@ graph TD
     CON[Conceptos] --> CALC
     NOV[Novedades/Asistencia] --> CALC
     
-    CALC -->|Genera| LIQ[Liquidaciones (Header)]
+    CALC -->|Genera| LIQ[Liquidaciones Header]
     CALC -->|Desglosa| DET[Liquidaciones Detalle]
     
     DET -.->|Imputación| CONT[Contabilidad]
