@@ -46,6 +46,7 @@ Almacena el desglose ítem por ítem. Es la **fuente de verdad** para la contabi
 | `origen` | Text | `AUTOMATICO` (motor) o `MANUAL` (modificación user). |
 
 ### Trigger de Recálculo
+
 Existe un trigger `trg_recalcular_totales_detalle` que, al modificar esta tabla, actualiza automáticamente los totales (`total_haberes`, `total_liquido`, etc.) en la tabla padre `liquidaciones`.
 
 ## 3. Conceptos de Remuneración
@@ -56,17 +57,21 @@ Archivo: `tbl/001_conceptos_remuneracion_refactored.sql`
 Catálogo maestro que define las reglas de negocio y contables para cada ítem.
 
 ### Tipos de Concepto (`tipo_concepto`)
+
 - **HABER**: Aumenta el líquido (Sueldo, Bonos).
 - **DESCUENTO**: Disminuye el líquido (AFP, Salud).
 - **APORTE_PATRONAL**: Costo empresa, no afecta líquido trabajador (SIS, Mutual).
 - **PROVISION**: Reservas de dinero (Vacaciones, Gratificación).
 
 ### Integración Contable
+
 Cada concepto tiene asignado:
+
 - `cuenta_debe_codigo`: Dónde cargar (Gasto).
 - `cuenta_haber_codigo`: Dónde abonar (Pasivo).
 
 Ejemplo:
+
 - **Sueldo Base**: Debe `3201001` (Gasto Sueldos) / Haber `2104001` (Sueldos por Pagar).
 
 ## 4. Empleados

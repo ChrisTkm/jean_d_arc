@@ -19,7 +19,6 @@ Determina el sueldo base efectivo a pagar, respetando la proporcionalidad por d�
 
 **Ubicación**: `BaseSalaryCalculator.ts`
 
-
 ### Reglas de Negocio
 
 1. **Prorrateo**: Se calcula el monto proporcional del sueldo base contrato según los días trabajados.
@@ -40,6 +39,7 @@ Calcula el monto de gratificación legal según el artículo 47 o 50 del Código
 **Ubicación**: `GratificationCalculator.ts`
 
 ### Modalidades Soportadas
+
 - **`25pct` (Artículo 47)**: Paga el 25% de la remuneración imponible devengada.
 - **`abono_anual` (Artículo 50)**: Paga un monto fijo garantizado (Tope Mensual).
 
@@ -48,10 +48,10 @@ Calcula el monto de gratificación legal según el artículo 47 o 50 del Código
 1. **Calcular Topes**:
    - Tope Anual: `4.75 * IMM (Ingreso Mínimo Mensual)`
    - Tope Mensual: `Tope Anual / 12`
-   
+
 2. **Determinar Monto**:
    - Si es **`abono_anual`**: El monto es igual al Tope Mensual directamente.
-   - Si es **`25pct`**: 
+   - Si es **`25pct`**:
      - Se calcula el 25% de los haberes imponibles (Sueldo Base + Horas Extra + Bonos Imponibles).
      - Se aplica el `MIN(25% Calculado, Tope Mensual)`.
 
@@ -67,7 +67,7 @@ Calcula todas las cotizaciones previsionales obligatorias para el trabajador y e
 
 ### Aportes del Trabajador (Descuentos)
 
-1. **AFP**: `Base Imponible * (10% + Comisión AFP)`. 
+1. **AFP**: `Base Imponible * (10% + Comisión AFP)`.
    - La base imponible tiene un tope (Tope Imponible para Pensiones, ej: 84.3 UF).
 2. **Salud**: Ver `HealthPlanCalculator`. Normalmente 7% o Plan Pactado.
    - Usa el mismo tope imponible que la AFP.
@@ -93,14 +93,14 @@ Resuelve la complejidad de Isapres vs Fonasa y la aplicación del 7% legal.
 ### Reglas
 
 1. **Base Imponible**: `MIN(Sueldo Imponible, Tope Legal UF)`.
-2. **FONASA**: 
+2. **FONASA**:
    - El descuento es siempre el **7%** de la base imponible.
    - Ignora cualquier plan pactado.
 3. **ISAPRE**:
    - Calcula el **7% Legal Obligatorio**.
    - Calcula el valor del **Plan Pactado** (UF * ValorUF + CLP).
    - El descuento es: `MAX(7% Legal, Plan Pactado)`.
-   
+
    > **Nota**: Si el plan es mayor al 7%, el trabajador paga la diferencia. Si es menor, el empleador descuenta el 7% legal y la diferencia genera excedentes en la Isapre (fuera del alcance del motor de nómina, pero el descuento contable es el 7%).
 
 ---
@@ -115,10 +115,10 @@ Calcula el Impuesto Único de Segunda Categoría (IUSC) aplicado a las rentas de
 
 1. **Base Tributaria**:
    - `Total Imponible - Descuentos Legales (AFP + Salud + AFC) - APV - Otros Descuentos Legales`.
-   
+
 2. **Determinar Tramo**:
    - Busca en la tabla de impuesto mensual (Service Internal Revenue - SII) el tramo donde cae la base tributaria.
-   
+
 3. **Cálculo**:
    - `Impuesto = (Base Tributaria * Factor) - Rebaja`.
    - Si existen **Créditos** (ej: Donaciones), se restan al impuesto determinado.

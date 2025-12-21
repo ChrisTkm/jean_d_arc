@@ -16,7 +16,9 @@ Las pruebas unitarias validan la lógica matemática sin dependencias externas (
 **Ubicación**: `src/domain/payroll/**/*.test.ts`
 
 ### PayrollEngine.test.ts
+
 Prueba el núcleo del motor (`PayrollEngine.calculate`).
+
 - **Mocking**: Se inyectan datos de entrada simulados (`PayrollInput`) y tablas de parámetros (impuestos, leyes sociales).
 - **Cobertura**:
   - Cálculo de sueldo líquido standard.
@@ -24,7 +26,9 @@ Prueba el núcleo del motor (`PayrollEngine.calculate`).
   - Verificación de topes legales (Gratificación, Imponibles).
 
 ### Calculadoras Individuales
+
 Cada calculadora tiene su propio suite de pruebas aislado:
+
 - `BaseSalaryCalculator.test.ts`
 - `GratificationCalculator.test.ts`
 - `SocialLawsCalculator.test.ts`
@@ -37,6 +41,7 @@ Las pruebas de integración validan el flujo completo desde el servicio hasta la
 **Ubicación**: `src/domain/payroll/PayrollService.test.ts`
 
 Estas pruebas son críticas porque validan:
+
 1. Las consultas SQL del repositorio.
 2. La consistencia de los tipos de datos PostgreSQL vs TypeScript.
 3. La correcta persistencia (INSERT) de la liquidación final.
@@ -46,6 +51,7 @@ Estas pruebas son críticas porque validan:
 Para evitar ensuciar la base de datos de desarrollo, se utiliza una infraestructura de bases de datos efímeras.
 
 #### TestDbManager
+
 **Ubicación**: `src/test/db-manager.ts`
 
 - Crea una base de datos única por ejecución (ej: `test_acc_a1b2c3d4`) basada en un template (`accounting_template`).
@@ -53,6 +59,7 @@ Para evitar ensuciar la base de datos de desarrollo, se utiliza una infraestruct
 - Al finalizar las pruebas, elimina la base de datos temporal.
 
 #### PayrollSeeder
+
 **Ubicación**: `src/test/payroll-seeder.ts`
 
 - Rellena la base de datos efímera con datos mínimos necesarios.

@@ -53,28 +53,32 @@ sequenceDiagram
     Service-->>API: Resultado (Rows created)
 ```
 
-
 ## Lógica de Consolidación
 
 La consolidación se realiza en 6 bloques principales. En todos los casos, solo se consideran liquidaciones en estado `CALCULADA`, `APROBADA` o `PAGADA`.
 
 ### 1. Cotización Obligatoria AFP (Trabajador)
+
 - **Concepto Fuente**: `DESC-001` (Cotización AFP + Comisión).
 - **Agrupación**: Por AFP.
 - **Salida**: Un registro por AFP con el total descontado a los trabajadores.
 
 ### 2. Cotización Salud (Trabajador)
+
 - **Concepto Fuente**: `DESC-002` (7% Salud / Pactado).
 - **Agrupación**: Por ISAPRE. Si no tiene Isapre, se agrupa bajo `FONASA`.
 - **Salida**: Un registro por Isapre y uno para Fonasa.
 
 ### 3. Seguro de Cesantía (Trabajador)
+
 - **Concepto Fuente**: `DESC-003` (0.6% cargo trabajador, si aplica).
 - **Agrupación**: Por AFP (La AFC se paga usualmente junto a la planilla de la AFP o en planilla separada pero desglosada).
 - **Nota**: El sistema actual lo agrupa bajo la entidad `AFP` para efectos visuales, pero con glosa "Seguro Cesantía Trabajador".
 
 ### 4. Aportes Patronales (Empleador)
+
 Incluye todos los costos empresa calculados en la liquidación:
+
 - **SIS** (`APT-003`): Se paga a las AFP.
 - **Seguro Cesantía Empleador** (`APT-002`): Se paga a la AFC (vía AFP o directo).
 - **Mutual** (`APT-004`): Se paga a la Mutual de Seguridad.
@@ -83,11 +87,13 @@ Incluye todos los costos empresa calculados en la liquidación:
 **Agrupación**: Automática según el tipo de aporte. Mutales van a Mutual, SIS/AFC van a la AFP/AFC correspondiente.
 
 ### 5. Impuesto Único (SII)
+
 - **Concepto Fuente**: `DESC-004`.
 - **Destino**: SII (Tesorería).
 - **Uso**: Para declarar en Formulario 29 (Línea de Impuesto Único).
 
 ### 6. Retención de Honorarios (SII)
+
 - **Fuente**: Tabla `remuneraciones.honorarios`.
 - **Lógica**: Suma todas las retenciones (13.75% o vigente) de boletas `RECIBIDA` o superior.
 - **Destino**: SII (F29, Retención 2da Categoría).
@@ -95,6 +101,7 @@ Incluye todos los costos empresa calculados en la liquidación:
 ## Persistencia y Transaccionalidad
 
 El proceso es **Idempotente** para un periodo dado:
+
 1. Se abre una transacción.
 2. Se eliminan **todas** las imposiciones existentes para el `Año-Mes` con estado `CALCULADA`.
    - *Nota*: Si existen imposiciones `DECLARADA` o `PAGADA`, el sistema debería bloquear la regeneración (regla de negocio a nivel de UI/Service).
