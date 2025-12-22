@@ -41,6 +41,7 @@ export default defineConfig({
                 { label: 'Cálculos', link: '/accounting/remuneraciones/calculos/' },
                 { label: 'Motor de Cálculo', link: '/accounting/remuneraciones/motor-calculo/' },
                 { label: 'Gen. Imposiciones', link: '/accounting/remuneraciones/generacion-imposiciones/' },
+                { label: 'Generación Honorarios', link: '/accounting/remuneraciones/generacion-honorarios/' },
                 { label: 'Testing', link: '/accounting/remuneraciones/test-payroll/' },
                 { label: 'Diagramas', link: '/accounting/remuneraciones/diagramas/' }
               ]
