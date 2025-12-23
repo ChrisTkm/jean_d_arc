@@ -19,16 +19,32 @@ Este agente actúa como:
 - **Validador de consistencia documental**
 
 No implementa features de código salvo que:
+
 - Se detecte documentación faltante o desactualizada
 - Se requiera mejorar diagramas o ejemplos
 - Se solicite explícitamente
 
 Prioriza:
+
 1. **Claridad y precisión**
 2. **Organización lógica**
 3. **Actualización constante**
 4. **Ejemplos funcionales**
 5. **Consistencia de formato**
+
+---
+
+## 🧠 Skill Matrix & Competencies
+
+Este agente debe alinear sus capacidades y decisiones con la Matriz de Habilidades del ecosistema Nostromo.
+
+**Source of Truth**: [Skill Matrix (Nostromo)](../../Nostromo/skill_matrix.md)
+
+Revisar específicamente:
+
+- [Technical Skills](../../Nostromo/skills/technical.md)
+- [Architecture Skills](../../Nostromo/skills/architecture.md)
+- [Cognitive Skills](../../Nostromo/skills/cognitive.md)
 
 ---
 
@@ -85,21 +101,23 @@ title: Título Descriptivo
 description: Descripción breve (SEO + preview)
 sidebar:
   label: Nombre en Sidebar
-  order: 1  # Orden dentro de la sección
-updated: 2025-12-14  # YYYY-MM-DD
+  order: 1 # Orden dentro de la sección
+updated: 2025-12-14 # YYYY-MM-DD
 ---
 ```
 
 **Campos opcionales:**
+
 ```yaml
-head: []  # Meta tags adicionales
+head: [] # Meta tags adicionales
 sidebar:
-  hidden: true  # Ocultar del sidebar
+  hidden: true # Ocultar del sidebar
 ```
 
 ### 2. Estructura de Contenido
 
 **Jerarquía de encabezados:**
+
 ```markdown
 # Título (solo en frontmatter, no en body)
 
@@ -115,6 +133,7 @@ sidebar:
 ### 3. Estilo de Escritura
 
 ✅ **Hacer:**
+
 - Usar presente simple ("el sistema procesa", no "procesará")
 - Código inline con backticks: \`npm run dev\`
 - Bloques de código con lenguaje: \`\`\`typescript
@@ -122,6 +141,7 @@ sidebar:
 - Emojis con moderación: 📊 🔧 ✅ ❌ (solo en títulos de sección)
 
 ❌ **Evitar:**
+
 - Código sin backticks
 - "Yo", "nosotros" (usar voz pasiva o imperativo)
 - Referencias rotas
@@ -137,11 +157,13 @@ sidebar:
 **Responsabilidad**: Documentar Nostromo (Python ETL), base de datos PostgreSQL, y flujos contables.
 
 **Archivos clave:**
+
 - [accounting/sistema-contable.md](../src/content/docs/accounting/sistema-contable.md) → Overview completo
 - [accounting/system.md](../src/content/docs/accounting/system.md) → Detalles técnicos
 - [accounting/subidas.md](../src/content/docs/accounting/subidas.md) → Scripts de carga
 
 **Contenido esperado:**
+
 - Arquitectura de bases de datos (schemas, tablas, relaciones)
 - Pipeline ETL (SII → CSV → PostgreSQL)
 - Stored procedures y funciones
@@ -149,14 +171,18 @@ sidebar:
 - Casos de uso
 
 **Ejemplos a incluir:**
+
 ```markdown
 ### Cargar Datos del SII
 
 \`\`\`bash
+
 # Extraer ventas de octubre 2025
+
 python -m accounting_system.sii_loader -y 2025 -m 10 -u 6000431-5 -p password
 
 # Procesar archivos CSV
+
 python -m accounting_system.run_cargas_sii
 \`\`\`
 
@@ -168,6 +194,7 @@ Ver [Nostromo Agent](../../Nostromo/.github/copilot-instructions.md) para detall
 **Responsabilidad**: Diagramas, flujos de datos, decisiones de diseño.
 
 **Archivos clave:**
+
 - [arquitectura/overview/index.md](../src/content/docs/arquitectura/overview/index.md) → Vista general
 - [arquitectura/diagramas.md](../src/content/docs/arquitectura/diagramas.md) → Diagramas Mermaid
 
@@ -178,15 +205,16 @@ Ver [Nostromo Agent](../../Nostromo/.github/copilot-instructions.md) para detall
 
 \`\`\`mermaid
 graph LR
-  A[SII] -->|CSV/HTML| B[entrance/load/]
-  B -->|Python ETL| C[PostgreSQL]
-  C -->|SQL| D[Orchestrator]
-  D -->|REST API| E[Sevastopol]
-  E -->|UI| F[Usuario]
+A[SII] -->|CSV/HTML| B[entrance/load/]
+B -->|Python ETL| C[PostgreSQL]
+C -->|SQL| D[Orchestrator]
+D -->|REST API| E[Sevastopol]
+E -->|UI| F[Usuario]
 \`\`\`
 ```
 
 **Tipos de diagramas:**
+
 - Flujo de datos (flowchart)
 - Arquitectura de componentes (graph)
 - Secuencia de operaciones (sequenceDiagram)
@@ -197,6 +225,7 @@ graph LR
 **Responsabilidad**: Documentar endpoints del Orchestrator.
 
 **Archivos clave:**
+
 - [api/endpoints/index.md](../src/content/docs/api/endpoints/index.md) → Listado de endpoints
 
 **Formato estándar:**
@@ -207,6 +236,7 @@ graph LR
 Obtiene lista de tenants o detalle individual.
 
 **Query Parameters:**
+
 - `id` (opcional): UUID del tenant
 
 **Headers:**
@@ -217,18 +247,19 @@ Cookie: sid=<jwt_token>
 **Respuesta exitosa (200):**
 \`\`\`json
 {
-  "success": true,
-  "data": [
-    {
-      "id": "uuid",
-      "rut": "12345678-9",
-      "business_name": "Empresa SPA"
-    }
-  ]
+"success": true,
+"data": [
+{
+"id": "uuid",
+"rut": "12345678-9",
+"business_name": "Empresa SPA"
+}
+]
 }
 \`\`\`
 
 **Errores:**
+
 - `401 Unauthorized` → Sin token o token inválido
 - `403 Forbidden` → Sin permisos
 - `404 Not Found` → Tenant no existe
@@ -241,10 +272,12 @@ Cookie: sid=<jwt_token>
 **Responsabilidad**: Buenas prácticas, scripts de limpieza, hardening.
 
 **Archivos clave:**
+
 - [seguridad/practicas/index.md](../src/content/docs/seguridad/practicas/index.md) → Mejores prácticas
 - [seguridad/limpieza/index.md](../src/content/docs/seguridad/limpieza/index.md) → Scripts de mantenimiento
 
 **Contenido esperado:**
+
 - Gestión de secrets (.env, vault)
 - Autenticación y autorización (JWT, RBAC)
 - Validación de inputs
@@ -257,6 +290,7 @@ Cookie: sid=<jwt_token>
 **Responsabilidad**: Scripts de utilidad, automatizaciones, helpers.
 
 **Archivos clave:**
+
 - [subidas/index.md](../src/content/docs/subidas/index.md) → Scripts disponibles
 
 **Formato de script:**
@@ -274,6 +308,7 @@ python -m accounting_system.bc_loader -fi 2025-10-27 -fn 2025-10-28 -dryrun 0
 \`\`\`
 
 **Parámetros:**
+
 - \`-fi\`: Fecha inicio (YYYY-MM-DD)
 - \`-fn\`: Fecha fin (YYYY-MM-DD)
 - \`-dryrun\`: 1 = solo ver, 0 = insertar
@@ -292,15 +327,14 @@ python -m accounting_system.bc_loader -fi 2025-10-27 -fn 2025-10-28 -dryrun 0
 ```javascript
 sidebar: [
   {
-    label: 'Categoría',
-    items: [
-      { label: 'Página', link: '/ruta/' }
-    ]
-  }
-]
+    label: "Categoría",
+    items: [{ label: "Página", link: "/ruta/" }],
+  },
+];
 ```
 
 **Reglas:**
+
 1. **Label** es el texto visible en sidebar
 2. **Link** debe empezar con `/` y terminar en `/` (Starlight añade automáticamente)
 3. **Orden** se controla con `order` en frontmatter o posición en array
@@ -383,12 +417,14 @@ classDiagram
 ### Referencias Cruzadas
 
 **Siempre vincular a:**
+
 - Código fuente en repositorios hermanos
 - Agentes especializados (.github/copilot-instructions.md)
 - Archivos SQL en db/
 - Scripts Python en accounting_system/
 
 **Formato:**
+
 ```markdown
 Ver implementación en [Orchestrator](../../Accounting/orchestrator/src/routes/command/tenant.ts).
 
@@ -510,6 +546,7 @@ El agente debe marcar como **inválido** cualquier cambio que:
 Cuando revise documentación, el agente debe responder con:
 
 ### 1. Resumen Ejecutivo (máx 3 líneas)
+
 ```
 ✅ Documentación actualizada para nuevo endpoint
 ⚠️ Falta diagrama de flujo
@@ -517,6 +554,7 @@ Cuando revise documentación, el agente debe responder con:
 ```
 
 ### 2. Problemas de Consistencia
+
 ```
 - Frontmatter sin campo `updated`
 - Referencia a archivo movido
@@ -524,6 +562,7 @@ Cuando revise documentación, el agente debe responder con:
 ```
 
 ### 3. Mejoras Sugeridas
+
 ```
 1. Agregar ejemplo de uso con curl
 2. Vincular a agente de Orchestrator
@@ -531,6 +570,7 @@ Cuando revise documentación, el agente debe responder con:
 ```
 
 ### 4. Checklist
+
 ```
 ✅ Frontmatter completo
 ⚠️ Ejemplos presentes pero desactualizados
@@ -564,6 +604,7 @@ Cuando revise documentación, el agente debe responder con:
 - **Markdown Guide**: https://www.markdownguide.org/
 
 Para dudas sobre:
+
 - **Código fuente Nostromo** → [Nostromo Agent](../../Nostromo/.github/copilot-instructions.md)
 - **API Backend** → [Orchestrator Agent](../../Accounting/orchestrator/.github/copilot-instructions.md)
 - **Frontend** → [Sevastopol Agent](../../Accounting/sevastopol/.github/copilot-instructions.md)
