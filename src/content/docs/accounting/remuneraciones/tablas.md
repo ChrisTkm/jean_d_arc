@@ -91,3 +91,95 @@ Maestro de trabajadores. Centraliza datos personales, previsionales y de pago.
 :::tip[Indices]
 La tabla está altamente indexada por `rut`, `email` y `estado_empleado` para optimizar búsquedas en el sistema administrativo.
 :::
+
+## 5. Imposiciones y APV
+
+### Imposiciones Consolidadas
+
+Tabla: `remuneraciones.imposiciones`
+Archivo: `tbl/019_tbl_imposiciones.sql`
+
+Consolidado mensual de leyes sociales agrupado por institución (AFP, Isapre, Mutual). Es la base para la declaración de **Previred** y **F29**.
+
+| Columna | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `periodo` | Integer | Año * 100 + Mes (ej: 202511). |
+| `institucion_tipo` | Text | `AFP`, `ISAPRE`, `MUTUAL`, `IPS`, `SII`. |
+| `monto_trabajador` | Numeric | Suma de descuentos a empleados. |
+| `monto_empleador` | Numeric | Suma de aportes patronales (SIS, AFC Empleador). |
+| `estado` | Enum | `CALCULADA`, `DECLARADA`, `PAGADA`. |
+
+### Contratos de APV
+
+Tabla: `remuneraciones.contrato_apv`
+Archivo: `tbl/015_tbl_contrato_apv.sql`
+
+Registro de Ahorro Previsional Voluntario (APV) asociado a un contrato y una AFP/Institución.
+
+| Columna | Descripción |
+| :--- | :--- |
+| `regimen` | `A` (Bonificación estatal) o `B` (Rebaja tributaria). |
+| `monto_tipo` | `UF`, `CLP` o `PORCENTAJE`. |
+| `vigencia` | Rango de fechas (`daterange`) para la vigencia del descuento. |
+
+## 6. Terminación de Contrato (Finiquitos)
+
+### Finiquitos (Header)
+
+Tabla: `remuneraciones.finiquitos`
+Archivo: `tbl/026_tbl_finiquitos.sql`
+
+Cabecera del proceso de término de relación laboral. Calcula indemnizaciones y vacaciones pendientes.
+
+| Columna | Descripción |
+| :--- | :--- |
+| `causal_codigo` | Código legal de terminación (ej: `161` - Necesidades de la empresa). |
+| `total_indemnizaciones` | Suma de años de servicio + aviso previo. |
+| `monto_vacaciones` | Valor monetario de las vacaciones pendientes. |
+| `estado` | `BORRADOR`, `FIRMADO`, `PAGADO`, `ANULADO`. |
+
+### Detalle Finiquito
+
+Tabla: `remuneraciones.finiquitos_detalle`
+Archivo: `tbl/027_tbl_finiquitos_detalle.sql`
+
+Desglose de los conceptos pagados en el finiquito. Similar a la liquidación pero simplificado.
+
+## 7. Boletas de Honorarios
+
+### Honorarios (Header)
+
+Tabla: `remuneraciones.honorarios`
+Archivo: `tbl/028_tbl_honorarios.sql`
+
+Registro de boletas de honorarios (emitidas o recibidas). Se integra directamente con la carga del SII.
+
+| Columna | Descripción |
+| :--- | :--- |
+| `rut_prestador` | RUT del emisor de la boleta. |
+| `numero_boleta` | Folio oficial ante el SII. |
+| `monto_liquido` | Monto final a pagar (`neto - retencion`). |
+| `enviado_sii` | Flag `true` si ya fue reportada o cargada desde SII. |
+
+### Detalle Honorarios
+
+Tabla: `remuneraciones.honorarios_detalle`
+Archivo: `tbl/029_tbl_honorarios_detalle.sql`
+
+Permite imputar una misma boleta a múltiples conceptos o centros de costo.
+
+### Prestadores Externos
+
+Tabla: `remuneraciones.prestadores_externos`
+Archivo: `tbl/031_tbl_prestadores_externos.sql`
+
+Maestro de terceros que prestan servicios. Permite pre-definir la cuenta contable de gasto por defecto.
+
+- **Routing Contable**: Si el prestador es "LEGAL", el sistema sugiere automáticamente la cuenta `3203001` (Asesoría Legal).
+
+### Códigos Actividad SII
+
+Tabla: `remuneraciones.codigos_actividad_sii`
+Archivo: `tbl/040_tbl_codigos_actividad_sii.sql`
+
+Catálogo oficial de actividades económicas para clasificar correctamente el gasto tributario.
