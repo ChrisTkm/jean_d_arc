@@ -66,6 +66,7 @@ export default defineConfig({
           label: 'Seguridad',
           items: [
             { label: 'Buenas Prácticas', link: '/seguridad/practicas/' },
+            { label: 'Autenticación', link: '/seguridad/autenticacion/' },
             { label: 'Limpieza', link: '/seguridad/limpieza/' }
           ]
         },

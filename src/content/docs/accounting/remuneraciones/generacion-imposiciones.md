@@ -111,7 +111,7 @@ El proceso es **Idempotente** para un periodo dado:
 ### Modelo de Datos (`remuneraciones.imposiciones`)
 
 | Campo | Descripción |
-|-------|-------------|
+| --- | --- |
 | `institucion_tipo` | `AFP`, `ISAPRE`, `MUTUAL`, `SII`, `CCAF`. |
 | `institucion_codigo` | Código interno (ej: `MODELO`, `BANMEDICA`). |
 | `monto_trabajador` | Suma de descuentos a empleados. |
