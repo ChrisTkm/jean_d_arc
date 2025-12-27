@@ -23,6 +23,13 @@ erDiagram
     PLAN_CONTABLE ||--o{ CONCEPTOS_REMUNERACION : imputa_debe
     PLAN_CONTABLE ||--o{ CONCEPTOS_REMUNERACION : imputa_haber
 
+    %% -- Modulo Asistencia --
+    EMPLEADOS ||--o{ ASISTENCIA : registra
+    EMPLEADOS ||--o{ VACACIONES : solicita
+    
+    CONTRATOS }o--|| JORNADAS : asigna
+    ASISTENCIA }o--|| JORNADAS : cumple
+
     LIQUIDACIONES {
         uuid id PK
         uuid empleado_id
@@ -43,6 +50,15 @@ erDiagram
         string codigo
         string cuenta_debe_codigo
         string cuenta_haber_codigo
+    }
+    
+    ASISTENCIA {
+        uuid empleado_id PK
+        date fecha PK
+        uuid jornada_id FK
+        text estado_asistencia
+        time hora_entrada
+        time hora_salida
     }
 ```
 

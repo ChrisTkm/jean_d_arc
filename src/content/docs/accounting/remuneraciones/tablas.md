@@ -17,7 +17,7 @@ Archivo: `tbl/012_tbl_liquidaciones.sql`
 Representa la **cabecera** de una liquidación de sueldo. Almacena los totales consolidados y el estado del proceso.
 
 | Columna | Tipo | Descripción |
-| :--- | :--- | :--- |
+| --- | --- | --- |
 | `id` | UUID | Identificador único. |
 | `empleado_id` | UUID | Referencia al empleado. |
 | `contrato_id` | UUID | Referencia al contrato vigente. |
@@ -145,7 +145,40 @@ Archivo: `tbl/027_tbl_finiquitos_detalle.sql`
 
 Desglose de los conceptos pagados en el finiquito. Similar a la liquidación pero simplificado.
 
-## 7. Boletas de Honorarios
+## 7. Gestión de Tiempo y Ausencias
+
+Tablas relacionadas con el control de asistencia y justificación de inasistencias.
+
+### Asistencia Diaria
+
+Tabla: `remuneraciones.asistencia`
+Archivo: `tbl/022_tbl_asistencia.sql`
+
+Registro diario de presencia. Es la base para el cálculo de días trabajados y horas extra.
+
+| Columna | Descripción |
+| :--- | :--- |
+| `fecha` | Día calendario. PK compuesta junto a `empleado_id`. |
+| `jornada_id` | Jornada aplicada ese día. |
+| `estado_asistencia` | `PRESENTE`, `AUSENTE`, `VACACIONES`, `LICENCIA`, etc. |
+| `horas_extras` | Cantidad de horas extra calculadas para el día. |
+
+### Jornadas Laborales
+
+Tabla: `remuneraciones.jornadas`
+Archivo: `tbl/005_tbl_jornadas.sql`
+
+Configuración de horarios semanales. Define qué días son laborales y los turnos esperados.
+
+### Ausentismo (Vacaciones, Licencias, Permisos)
+
+Estas tablas justifican los días no trabajados y bloquean la generación de asistencia "PRESENTE".
+
+- **Vacaciones** (`remuneraciones.vacaciones`): Solicitudes de feriado legal. Descuentan del saldo del empleado.
+- **Licencias Médicas** (`remuneraciones.licencias_medicas`): Reposo médico. Justifica ausencia y afecta cálculo de subsidio.
+- **Permisos** (`remuneraciones.permisos`): Ausencias administrativas (con o sin goce de sueldo).
+
+## 8. Boletas de Honorarios
 
 ### Honorarios (Header)
 
