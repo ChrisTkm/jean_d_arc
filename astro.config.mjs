@@ -52,7 +52,11 @@ export default defineConfig({
         {
           label: 'Orchestrator (Backend)',
           items: [
-            { label: 'Overview', link: '/orchestrator/' }
+            { label: 'Overview', link: '/orchestrator/' },
+            { 
+              label: 'Services', 
+              autogenerate: { directory: 'orchestrator/services' } 
+            }
           ]
         },
         {

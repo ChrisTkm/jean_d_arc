@@ -1,0 +1,64 @@
+---
+title: Honorarios Service
+description: Procesamiento automático de Boletas de Honorarios (SII)
+sidebar:
+  order: 3
+updated: 2025-12-28
+---
+
+import { Code } from "@astrojs/starlight/components";
+
+El `HonorariosService` automatiza la importación y clasificación de Boletas de Honorarios Electrónicas obtenidas desde el Servicio de Impuestos Internos (SII).
+
+## Ubicación
+
+**Archivo**: `src/domain/payroll/honorarios/HonorariosService.ts`
+
+## Flujo de Procesamiento
+
+El método `generate` orquesta la transformación de "Boletas SII" a "Asientos de Honorarios" en el sistema.
+
+### 1. Obtención de Datos
+
+Recupera las boletas crudas (JSON/CSV) desde el repositorio, filtrando por rango de fechas.
+
+### 2. Clasificación Inteligente (Routing)
+
+El servicio intenta clasificar automáticamente el tipo de servicio basándose en el **RUT del Prestador** previamente configurado en el sistema.
+
+| Tipo Servicio Prestador | Concepto Asignado | Código Concepto |
+| :---------------------- | :---------------- | :-------------- |
+| **CONTABILIDAD**        | Consultoría       | `HON-004`       |
+| **LEGAL**               | Consultoría       | `HON-005`       |
+| **TECNICO**             | Técnico           | `HON-002`       |
+| **CAPACITACION**        | Capacitación      | `HON-003`       |
+| _Default_               | Profesional       | `HON-001`       |
+
+### 3. Generación de Estructura
+
+Por cada boleta válida, se crean dos niveles de registros dentro de una transacción:
+
+1.  **Encabezado (`Honorario`)**: Datos administrativos (Fecha, Montos Totales, Emisor).
+2.  **Detalle (`HonorarioDetalle`)**:
+    - Línea de Gasto (Monto Bruto asignado al concepto).
+    - Línea de Retención (Si aplica, `HON-RET` por el 10% o tasa vigente).
+
+### Ejemplo de Lógica de Clasificación
+
+```typescript
+// src/domain/payroll/honorarios/HonorariosService.ts
+
+if (prestador) {
+  switch (prestador.tipo_servicio) {
+    case "CONTABILIDAD":
+      conceptoCode = "HON-004";
+      tipoServicio = "CONSULTORIA";
+      break;
+    // ... otros casos
+    default:
+      conceptoCode = "HON-001";
+      tipoServicio = "OTRO";
+      break;
+  }
+}
+```

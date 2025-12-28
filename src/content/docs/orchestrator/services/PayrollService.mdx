@@ -1,0 +1,73 @@
+---
+title: Payroll Service
+description: Motor de cálculo y orquestación de remuneraciones
+sidebar:
+  order: 1
+updated: 2025-12-28
+---
+
+import { FileTree } from "@astrojs/starlight/components";
+import { Code } from "@astrojs/starlight/components";
+
+El `PayrollService` es el componente central del módulo de Remuneraciones. Es responsable de coordinar la obtención de datos, la ejecución del motor de cálculo (`PayrollEngine`) y la persistencia de los resultados (`PayrollRepository`).
+
+## Estructura de Archivos
+
+<FileTree>
+  - src/domain/payroll/ - calculators/ - BaseSalaryCalculator.ts -
+  GratificationCalculator.ts - SocialLawsCalculator.ts - TaxCalculator.ts - ...
+  - PayrollEngine.ts - PayrollRepository.ts - PayrollService.ts
+</FileTree>
+
+## Payroll Engine
+
+El **Engine** (`PayrollEngine.ts`) es una clase pura (sin dependencias de base de datos) que encapsula la lógica matemática y legal chilena.
+
+### Flujo de Cálculo
+
+El método estático `calculate(input: PayrollInput)` sigue estrictamente este orden:
+
+1.  **Haberes Imponibles**:
+    - Sueldo Base (ajustado por días trabajados).
+    - Horas Extra (Art. 32, factores 50% y 100%).
+    - Gratificación (Art. 50, tope 4.75 IMM).
+2.  **Leyes Sociales**:
+    - Cálculo de cotizaciones obligatorias (AFP, Salud, SIS).
+    - Cálculo de Seguro de Cesantía (AFC) diferenciado por tipo de contrato.
+3.  **Impuesto Único**:
+    - Aplicación de la tabla del SII sobre la base tributable.
+4.  **Haberes No Imponibles**:
+    - Colación y Movilización (prorrateables).
+5.  **Descuentos**:
+    - Anticipos, préstamos, etc.
+6.  **Líquido a Pagar**.
+
+### Calculadoras Especializadas
+
+El Engine delega lógica compleja en calculadoras específicas ubicadas en `src/domain/payroll/calculators/`:
+
+- **`SocialLawsCalculator`**: Maneja topes imponibles (UF) y tasas variables de AFP/Salud.
+- **`TaxCalculator`**: Aplica los tramos del Impuesto de Segunda Categoría.
+- **`GratificationCalculator`**: Lógica de tope anual y mensual.
+
+## Payroll Service
+
+El **Service** (`PayrollService.ts`) actúa como la capa de aplicación.
+
+### Responsabilidades
+
+- **Hidratación de Contexto**: Obtiene contratos, asistencia e indicadores económicos (UF, UTM) desde el `PayrollRepository`.
+- **Mapeo de Input**: Transforma datos crudos de DB a `PayrollInput`, aplicando reglas de negocio como la selección de tasas AFC según el tipo de contrato.
+- **Gestión de Transacciones**: Opcionalmente persiste los resultados si `dryRun` es `false`.
+
+### Ejemplo de Uso
+
+```typescript
+// Previsualización de liquidación
+const result = await PayrollService.previewPayroll(
+  "nostromo_client_x",
+  "contract-uuid-123",
+  new Date("2025-10-01"),
+  { horas_extra_50: 5 } // Overrides
+);
+```

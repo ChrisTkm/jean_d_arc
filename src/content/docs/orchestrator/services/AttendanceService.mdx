@@ -1,0 +1,62 @@
+---
+title: Attendance Service
+description: Gestión de asistencia, turnos y marcajes
+sidebar:
+  order: 2
+updated: 2025-12-28
+---
+
+import { Code } from "@astrojs/starlight/components";
+
+El `AttendanceService` administra la información de asistencia de los empleados, proporcionando métodos para la lectura y escritura de marcajes diarios y resúmenes mensuales.
+
+## Ubicación
+
+**Archivo**: `src/domain/payroll/attendance/AttendanceService.ts`
+
+## Funcionalidades Principales
+
+### 1. Gestión de Grilla Mensual
+
+Permite obtener una vista calendario de la asistencia de un empleado para un mes específico.
+
+- **`getMonthlyGrid`**: Retorna la estructura detallada día a día.
+- **`getMonthlySummary`**: Retorna totales acumulados (días trabajados, licencias, horas extra) listos para ser usados por el `PayrollEngine`.
+
+### 2. Guardado Transaccional
+
+El servicio asegura la consistencia de los datos mediante transacciones SQL explícitas (`BEGIN`, `COMMIT`, `ROLLBACK`) al guardar lotes de registros.
+
+#### Ejemplo de Guardado Masivo
+
+```typescript
+static async saveMonthlyAttendance(
+  pool: Pool,
+  employeeId: string,
+  records: AttendanceRecord[],
+  userId: string
+): Promise<number> {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const processed = await AttendanceRepository.upsertAttendanceBatch(
+        client, employeeId, records, userId
+    );
+    await client.query('COMMIT');
+    return processed;
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+```
+
+## Integración con Payroll
+
+Los datos gestionados por este servicio son consumidos directamente por el `PayrollService` durante la fase de "Hidratación de Contexto" para determinar:
+
+- Días trabajados efectivos.
+- Días de ausencia (Licencias mínimas).
+- Horas extra al 50% y 100%.
