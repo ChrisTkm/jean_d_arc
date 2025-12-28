@@ -64,6 +64,9 @@ export default defineConfig({
           autogenerate: { directory: 'subidas' }
         },
       ],
+      expressiveCode: {
+        themes: ['github-dark', 'github-light'],
+      },
   // i18n: {
   //   defaultLocale: 'es',
   //   locales: {
