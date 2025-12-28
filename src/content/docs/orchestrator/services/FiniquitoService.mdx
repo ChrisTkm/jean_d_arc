@@ -1,0 +1,59 @@
+---
+title: Finiquito Service
+description: Servicio de dominio para simulación y generación de finiquitos.
+sidebar:
+  order: 14
+updated: 2025-12-28
+---
+
+El `FiniquitoService` gestiona el proceso de desvinculación laboral, incluyendo simulación de montos y generación formal del finiquito.
+
+## Ubicación
+
+**Archivo**: `src/domain/finiquitos/FiniquitoService.ts`
+
+## Métodos Disponibles
+
+| Método | Descripción |
+|:-------|:------------|
+| `findAll(tenantDb, filter)` | Lista finiquitos con filtros |
+| `simulate(tenantDb, data)` | Simula cálculo de indemnizaciones |
+| `generate(tenantDb, userId, data)` | Genera finiquito definitivo |
+
+## Simulación
+
+Retorna un objeto con:
+- **Años de servicio** calculados.
+- **Indemnizaciones**: IAS, Aviso previo, Vacaciones proporcionales.
+- **Tope UF** aplicable.
+
+## Generación
+
+Requiere:
+- `empleadoId`: UUID del empleado.
+- `fechaTermino`: Fecha de desvinculación.
+- `causalCodigo`: Código de causal legal.
+
+## Ejemplo de Uso
+
+```typescript
+import { FiniquitoService } from '@/domain/finiquitos/FiniquitoService';
+
+// Simular
+const sim = await FiniquitoService.simulate('tenant_db', {
+  empleadoId: 'emp-uuid',
+  fechaTermino: '2025-12-31'
+});
+
+// Generar
+await FiniquitoService.generate('tenant_db', 'user-123', {
+  empleadoId: 'emp-uuid',
+  fechaTermino: '2025-12-31',
+  causalCodigo: '161-1' // Necesidades de la empresa
+});
+```
+
+## Dependencias
+
+- **FiniquitoRepository**: Acceso a datos y SP de generación.
+- **FiniquitoCalculator**: Lógica de cálculo de indemnizaciones.

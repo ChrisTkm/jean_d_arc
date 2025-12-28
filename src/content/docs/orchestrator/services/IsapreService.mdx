@@ -1,0 +1,60 @@
+---
+title: Isapre Service
+description: Servicio de dominio para gestión de Isapres y planes de salud.
+sidebar:
+  order: 15
+updated: 2025-12-28
+---
+
+El `IsapreService` administra el catálogo de Instituciones de Salud Previsional y los contratos de planes de salud por empleado.
+
+## Ubicación
+
+**Archivo**: `src/domain/isapre/IsapreService.ts`
+
+## Métodos Disponibles
+
+### Catálogo
+
+| Método | Descripción |
+|:-------|:------------|
+| `findAll(tenantDb)` | Lista todas las Isapres |
+| `findById(tenantDb, id)` | Obtiene Isapre por ID |
+
+### Contratos de Salud
+
+| Método | Descripción |
+|:-------|:------------|
+| `findContractsByContrato(tenantDb, contratoId)` | Contratos por contrato laboral |
+| `findContractById(tenantDb, id)` | Contrato por ID |
+| `findContractVigente(tenantDb, contratoId, year?, month?)` | Contrato vigente en período |
+| `listContracts(tenantDb, limit, activeOnly)` | Lista paginada |
+| `createContract(tenantDb, userId, data)` | Crea contrato de salud |
+| `updateContract(tenantDb, userId, id, data)` | Actualiza contrato |
+| `deleteContract(tenantDb, id)` | Elimina contrato |
+
+## Validaciones
+
+- `contrato_id`, `isapre_id`, `vigente_desde` son obligatorios.
+- `plan_uf` debe ser >= 0.
+
+## Ejemplo de Uso
+
+```typescript
+import { IsapreService } from '@/domain/isapre/IsapreService';
+
+// Crear contrato de salud
+await IsapreService.createContract('tenant_db', 'user-123', {
+  contrato_id: 'contrato-uuid',
+  isapre_id: 'isapre-uuid',
+  vigente_desde: '2025-01-01',
+  plan_uf: 3.5
+});
+
+// Obtener contrato vigente
+const vigente = await IsapreService.findContractVigente('tenant_db', 'contrato-uuid');
+```
+
+## Dependencias
+
+- **IsapreRepository**: Acceso a datos de Isapres y contratos.

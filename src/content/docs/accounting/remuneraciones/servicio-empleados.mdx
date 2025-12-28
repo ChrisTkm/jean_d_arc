@@ -1,0 +1,54 @@
+---
+title: Servicio de Empleados
+description: Maestro de empleados y gestión de información personal y contractual.
+sidebar:
+  order: 12
+updated: 2025-12-28
+---
+
+import { Tabs, TabItem, LinkCard } from "@astrojs/starlight/components";
+
+El **Servicio de Empleados** es el maestro central que almacena toda la información personal, contractual y previsional de cada trabajador.
+
+<LinkCard
+  title="📘 Ver Implementación Técnica"
+  description="EmployeeService: Validaciones, sanitización y código fuente"
+  href="/orchestrator/services/EmployeeService/"
+/>
+
+## Funcionalidades
+
+1. **Registro de Empleados**:
+   Alta, modificación y baja de trabajadores con su información completa.
+
+2. **Datos Personales**:
+   RUT, nombres, fecha de nacimiento, dirección, contacto de emergencia, estado civil.
+
+3. **Información Previsional**:
+   AFP asignada, Isapre/Fonasa, cargas familiares reconocidas.
+
+4. **Historial Laboral**:
+   Registro de todos los contratos, anexos y movimientos del empleado en la empresa.
+
+## Datos Principales
+
+| Campo             | Tipo     | Descripción                      |
+| :---------------- | :------- | :------------------------------- |
+| `id`              | UUID     | Identificador único              |
+| `rut`             | VARCHAR  | RUT del trabajador               |
+| `nombres`         | VARCHAR  | Nombres                          |
+| `apellido_paterno`| VARCHAR  | Apellido paterno                 |
+| `apellido_materno`| VARCHAR  | Apellido materno                 |
+| `fecha_nacimiento`| DATE     | Fecha de nacimiento              |
+| `fecha_ingreso`   | DATE     | Fecha de ingreso a la empresa    |
+| `estado`          | ENUM     | ACTIVO, LICENCIA, DESVINCULADO   |
+| `afp_id`          | UUID     | Referencia a AFP                 |
+| `isapre_id`       | UUID     | Referencia a Isapre (nullable)   |
+
+## Integración con Otros Módulos
+
+El empleado es la entidad central que conecta:
+- **Contratos**: Condiciones laborales y sueldo base.
+- **Asistencia**: Registro de tiempos trabajados.
+- **Liquidaciones**: Cálculo y pago de remuneraciones.
+- **Vacaciones**: Acumulación y uso de días.

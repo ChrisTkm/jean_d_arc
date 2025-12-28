@@ -1,0 +1,44 @@
+---
+title: Servicio AFP
+description: Gestión de Administradoras de Fondos de Pensiones y cotizaciones previsionales.
+sidebar:
+  order: 10
+updated: 2025-12-28
+---
+
+import { Tabs, TabItem, LinkCard } from "@astrojs/starlight/components";
+
+El **Servicio de AFP** administra la información de las Administradoras de Fondos de Pensiones y los cálculos de cotización obligatoria para cada empleado.
+
+<LinkCard
+  title="📘 Ver Implementación Técnica"
+  description="AfpService: Métodos, validaciones y código fuente"
+  href="/orchestrator/services/AfpService/"
+/>
+
+## Funcionalidades
+
+1. **Catálogo de AFPs**:
+   Mantiene el listado de todas las AFPs vigentes con sus tasas de cotización actualizadas (Capital, Cuprum, Habitat, Modelo, Planvital, Provida, Uno).
+
+2. **Asignación por Empleado**:
+   Permite vincular a cada trabajador con su AFP correspondiente y tipo de fondo (A, B, C, D, E).
+
+3. **Cálculo de Cotizaciones**:
+   Calcula automáticamente el descuento de AFP según la tasa vigente aplicada sobre la remuneración imponible.
+
+## Tasas Vigentes (2025)
+
+| AFP       | Cotización Obligatoria | Comisión | Total  |
+| :-------- | :--------------------- | :------- | :----- |
+| Capital   | 10%                    | 1.44%    | 11.44% |
+| Cuprum    | 10%                    | 1.44%    | 11.44% |
+| Habitat   | 10%                    | 1.27%    | 11.27% |
+| Modelo    | 10%                    | 0.58%    | 10.58% |
+| Planvital | 10%                    | 1.16%    | 11.16% |
+| Provida   | 10%                    | 1.45%    | 11.45% |
+| Uno       | 10%                    | 0.49%    | 10.49% |
+
+## Integración con Liquidaciones
+
+El descuento de AFP se calcula en el **Motor de Cálculo** y se persiste en el detalle de la liquidación como un descuento legal obligatorio.

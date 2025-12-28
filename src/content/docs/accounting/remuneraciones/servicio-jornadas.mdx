@@ -1,0 +1,59 @@
+---
+title: Servicio de Jornadas
+description: Gestión de tipos de jornada laboral y configuración de horarios.
+sidebar:
+  order: 15
+updated: 2025-12-28
+---
+
+import { Tabs, TabItem, LinkCard } from "@astrojs/starlight/components";
+
+El **Servicio de Jornadas Laborales** administra los distintos tipos de jornada, horarios y la generación de la grilla de asistencia esperada.
+
+<LinkCard
+  title="📘 Ver Implementación Técnica"
+  description="WorkingDayService: Catálogo, validaciones y código fuente"
+  href="/orchestrator/services/WorkingDayService/"
+/>
+
+## Tipos de Jornada
+
+<Tabs>
+  <TabItem label="Jornada Completa">
+    - **Horas Semanales**: 45 horas (máximo legal).
+    - **Distribución**: Lunes a Viernes (9 hrs/día) o Lunes a Sábado (7.5 hrs/día).
+    - **Horario Tipo**: 08:30 - 18:30 con 1 hora de colación.
+  </TabItem>
+  <TabItem label="Jornada Parcial">
+    - **Horas Semanales**: Menos de 30 horas.
+    - **Proporcionalidad**: Sueldo y beneficios proporcionales.
+    - **Horario Flexible**: Según acuerdo contractual.
+  </TabItem>
+  <TabItem label="Turnos">
+    - **Turnos Rotativos**: Mañana, Tarde, Noche.
+    - **Turnos Especiales**: Fines de semana, feriados.
+    - **Recargo Nocturno**: 50% adicional entre 21:00 y 07:00.
+  </TabItem>
+</Tabs>
+
+## Estructura de Datos
+
+| Campo             | Tipo     | Descripción                          |
+| :---------------- | :------- | :----------------------------------- |
+| `id`              | UUID     | Identificador único                  |
+| `codigo`          | VARCHAR  | Código de la jornada                 |
+| `nombre`          | VARCHAR  | Nombre descriptivo                   |
+| `horas_semanales` | DECIMAL  | Total de horas por semana            |
+| `dias_laborales`  | JSONB    | Array de días (L,M,X,J,V,S,D)        |
+| `hora_entrada`    | TIME     | Hora de entrada estándar             |
+| `hora_salida`     | TIME     | Hora de salida estándar              |
+| `colacion_minutos`| INTEGER  | Duración del almuerzo                |
+
+## Generación de Grilla
+
+El sistema genera automáticamente la **grilla de asistencia esperada** para cada empleado según su jornada asignada:
+
+1. Lee el contrato activo del empleado.
+2. Obtiene la jornada asociada.
+3. Genera los días esperados del mes excluyendo feriados.
+4. Marca cada día con estado inicial `PENDIENTE`.

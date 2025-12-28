@@ -1,0 +1,44 @@
+---
+title: Servicio de Cargos
+description: Gestión del catálogo de cargos y estructura organizacional.
+sidebar:
+  order: 11
+updated: 2025-12-28
+---
+
+import { Tabs, TabItem, LinkCard } from "@astrojs/starlight/components";
+
+El **Servicio de Cargos** administra el catálogo maestro de posiciones laborales dentro de la organización, incluyendo descripciones, bandas salariales y jerarquías.
+
+<LinkCard
+  title="📘 Ver Implementación Técnica"
+  description="CargoService: CRUD, validaciones y código fuente"
+  href="/orchestrator/services/CargoService/"
+/>
+
+## Funcionalidades
+
+1. **Catálogo de Cargos**:
+   Mantiene la definición de cada cargo con su código, descripción y área funcional.
+
+2. **Bandas Salariales**:
+   Asocia rangos de remuneración mínima y máxima por cargo para control de equidad interna.
+
+3. **Jerarquía Organizacional**:
+   Define relaciones de dependencia entre cargos para reportería y flujos de aprobación.
+
+## Estructura de Datos
+
+| Campo           | Tipo     | Descripción                          |
+| :-------------- | :------- | :----------------------------------- |
+| `id`            | UUID     | Identificador único del cargo        |
+| `codigo`        | VARCHAR  | Código interno (ej: "GER-001")       |
+| `nombre`        | VARCHAR  | Nombre del cargo                     |
+| `descripcion`   | TEXT     | Funciones y responsabilidades        |
+| `sueldo_minimo` | NUMERIC  | Banda salarial inferior              |
+| `sueldo_maximo` | NUMERIC  | Banda salarial superior              |
+| `cargo_padre`   | UUID     | Referencia al cargo superior         |
+
+## Uso en Contratos
+
+Al crear un contrato laboral, se selecciona el cargo del catálogo, heredando automáticamente las bandas salariales sugeridas.

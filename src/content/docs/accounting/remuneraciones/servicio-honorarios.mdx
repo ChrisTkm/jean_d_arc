@@ -6,13 +6,15 @@ sidebar:
 updated: 2025-12-28
 ---
 
-import { Steps } from "@astrojs/starlight/components";
+import { Steps, LinkCard } from "@astrojs/starlight/components";
 
 El **Servicio de Honorarios** automatiza la recepción y contabilidad de las Boletas de Honorarios Electrónicas (BHE) emitidas o recibidas.
 
-:::note[Implementación Técnica]
-Para ver la lógica de clasificación automática (Routing) y conexión con SII, ver [Orchestrator: Honorarios Service](../../orchestrator/services/HonorariosService).
-:::
+<LinkCard
+  title="📘 Ver Implementación Técnica"
+  description="HonorariosService: Clasificación, routing y código fuente"
+  href="/orchestrator/services/HonorariosService/"
+/>
 
 ## Funcionalidades
 

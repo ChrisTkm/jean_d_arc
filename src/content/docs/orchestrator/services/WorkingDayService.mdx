@@ -1,0 +1,59 @@
+---
+title: WorkingDay Service
+description: Servicio de dominio para gestión de tipos de jornada laboral.
+sidebar:
+  order: 19
+updated: 2025-12-28
+---
+
+El `WorkingDayService` administra el catálogo de jornadas laborales y sus configuraciones horarias.
+
+## Ubicación
+
+**Archivo**: `src/domain/working_day/WorkingDayService.ts`
+
+## Métodos Disponibles
+
+| Método | Descripción |
+|:-------|:------------|
+| `findById(tenantDb, id)` | Obtiene jornada por ID |
+| `findAll(tenantDb, filter)` | Lista jornadas con filtros |
+| `create(tenantDb, userId, data)` | Crea nueva jornada |
+| `update(tenantDb, userId, id, data)` | Actualiza jornada |
+
+## Validaciones
+
+- **Código** y **Nombre** son obligatorios.
+- **Tipo de Jornada** válido: `COMPLETA`, `PARCIAL`, `ESPECIAL`.
+
+## Tipos de Jornada
+
+| Tipo | Descripción |
+|:-----|:------------|
+| `COMPLETA` | 45 horas semanales (máximo legal) |
+| `PARCIAL` | Menos de 30 horas semanales |
+| `ESPECIAL` | Turnos, fines de semana, etc. |
+
+## Ejemplo de Uso
+
+```typescript
+import { WorkingDayService } from '@/domain/working_day/WorkingDayService';
+
+// Crear jornada
+const jornada = await WorkingDayService.create('tenant_db', 'user-123', {
+  codigo: 'JC-001',
+  nombre: 'Jornada Completa Estándar',
+  tipo_jornada: 'COMPLETA',
+  horas_semanales: 45,
+  hora_entrada: '08:30',
+  hora_salida: '18:30',
+  almuerzo: 60
+});
+
+// Obtener por ID
+const detalle = await WorkingDayService.findById('tenant_db', jornada.id);
+```
+
+## Dependencias
+
+- **WorkingDayRepository**: Acceso a datos de jornadas en PostgreSQL.

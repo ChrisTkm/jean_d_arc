@@ -1,0 +1,36 @@
+---
+title: AFP Service
+description: Servicio de dominio para gestión de AFPs y cotizaciones previsionales.
+sidebar:
+  order: 10
+updated: 2025-12-28
+---
+
+El `AfpService` gestiona el catálogo de Administradoras de Fondos de Pensiones y proporciona acceso a tasas de cotización vigentes.
+
+## Ubicación
+
+**Archivo**: `src/domain/afp/AfpService.ts`
+
+## Métodos Disponibles
+
+| Método | Descripción |
+|:-------|:------------|
+| `findAll(tenantDb)` | Lista todas las AFPs del catálogo |
+| `findById(tenantDb, id)` | Obtiene una AFP por su ID |
+| `getCatalog(tenantDb)` | Retorna el catálogo completo con tasas |
+
+## Ejemplo de Uso
+
+```typescript
+import { AfpService } from '@/domain/afp/AfpService';
+
+// Obtener catálogo de AFPs
+const afps = await AfpService.getCatalog('tenant_db');
+
+// Resultado: [{ id, nombre, tasa_cotizacion, tasa_comision, ... }]
+```
+
+## Dependencias
+
+- **AfpRepository**: Acceso a datos de AFPs en PostgreSQL.

@@ -1,0 +1,55 @@
+---
+title: Servicio Isapre
+description: Gestión de Instituciones de Salud Previsional y planes de salud.
+sidebar:
+  order: 13
+updated: 2025-12-28
+---
+
+import { Tabs, TabItem, LinkCard } from "@astrojs/starlight/components";
+
+El **Servicio de Isapre** administra la información de las Instituciones de Salud Previsional, planes contratados y cálculo de cotizaciones de salud.
+
+<LinkCard
+  title="📘 Ver Implementación Técnica"
+  description="IsapreService: Catálogo, contratos y código fuente"
+  href="/orchestrator/services/IsapreService/"
+/>
+
+## Funcionalidades
+
+1. **Catálogo de Isapres**:
+   Mantiene el listado de Isapres vigentes (Banmédica, Colmena, Cruz Blanca, Nueva Masvida, Vida Tres, etc.) y Fonasa como alternativa estatal.
+
+2. **Planes de Salud**:
+   Registra los planes contratados por cada trabajador, incluyendo el valor en UF y cotización pactada.
+
+3. **Cálculo de Cotización**:
+   Determina el descuento de salud según:
+   - **Fonasa**: 7% de la remuneración imponible.
+   - **Isapre**: 7% legal + diferencia hasta cubrir el plan en UF.
+
+## Estructura de Datos
+
+| Campo           | Tipo     | Descripción                           |
+| :-------------- | :------- | :------------------------------------ |
+| `id`            | UUID     | Identificador único                   |
+| `codigo`        | VARCHAR  | Código de la Isapre                   |
+| `nombre`        | VARCHAR  | Nombre comercial                      |
+| `es_fonasa`     | BOOLEAN  | True si es Fonasa                     |
+
+### Planes por Empleado
+
+| Campo           | Tipo     | Descripción                           |
+| :-------------- | :------- | :------------------------------------ |
+| `empleado_id`   | UUID     | Referencia al empleado                |
+| `isapre_id`     | UUID     | Referencia a la Isapre                |
+| `valor_plan_uf` | DECIMAL  | Valor del plan en UF                  |
+| `cotizacion_pactada` | DECIMAL | Cotización adicional pactada     |
+
+## Cálculo en Liquidación
+
+El sistema calcula automáticamente:
+1. **Cotización Legal** (7%): Descuento obligatorio.
+2. **Cotización Adicional**: Diferencia para cubrir el plan Isapre.
+3. **Excedentes**: Si el 7% supera el valor del plan, genera excedente.

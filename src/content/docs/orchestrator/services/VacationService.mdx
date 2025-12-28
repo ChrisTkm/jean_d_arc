@@ -1,0 +1,60 @@
+---
+title: Vacation Service
+description: Servicio de dominio para gestión de vacaciones y saldos.
+sidebar:
+  order: 18
+updated: 2025-12-28
+---
+
+El `VacationService` administra solicitudes de vacaciones, cálculo de días hábiles y control de saldos por empleado.
+
+## Ubicación
+
+**Archivo**: `src/domain/vacations/VacationService.ts`
+
+## Métodos Disponibles
+
+| Método | Descripción |
+|:-------|:------------|
+| `findById(tenantDb, id)` | Obtiene solicitud por ID |
+| `findAll(tenantDb, filter)` | Lista solicitudes con filtros |
+| `findRecent(tenantDb)` | Últimas solicitudes |
+| `getBalances(tenantDb, filter)` | Saldos de vacaciones por empleado |
+| `create(tenantDb, userId, data)` | Crea nueva solicitud |
+| `update(tenantDb, userId, id, data)` | Actualiza solicitud |
+| `delete(tenantDb, id)` | Elimina solicitud |
+
+## Cálculo de Días Hábiles
+
+El servicio calcula automáticamente los días hábiles entre dos fechas:
+- Excluye sábados y domingos.
+- Excluye feriados de la tabla `parametros.feriados`.
+
+## Validaciones
+
+- `empleado_id`, `fecha_inicio`, `fecha_fin` son obligatorios.
+- `fecha_fin` >= `fecha_inicio`.
+- Estados válidos: `PENDIENTE`, `APROBADA`, `RECHAZADA`, `ANULADA`.
+- Constraint de exclusión: No permite solapamiento con otra solicitud APROBADA.
+
+## Ejemplo de Uso
+
+```typescript
+import { VacationService } from '@/domain/vacations/VacationService';
+
+// Crear solicitud (días hábiles calculados automáticamente)
+await VacationService.create('tenant_db', 'user-123', {
+  empleado_id: 'emp-uuid',
+  fecha_inicio: '2025-02-01',
+  fecha_fin: '2025-02-15',
+  estado_solicitud: 'PENDIENTE',
+  comentario: 'Vacaciones de verano'
+});
+
+// Obtener saldos
+const { rows } = await VacationService.getBalances('tenant_db', {});
+```
+
+## Dependencias
+
+- **VacationRepository**: Acceso a datos de vacaciones y feriados.

@@ -6,13 +6,15 @@ sidebar:
 updated: 2025-12-28
 ---
 
-import { Steps, Aside } from "@astrojs/starlight/components";
+import { Steps, Aside, LinkCard } from "@astrojs/starlight/components";
 
 El **Servicio de Contratos** administra la relación legal entre la empresa y el colaborador. Es la fuente de verdad para el cálculo de remuneraciones (Sueldo Base, Jornada, Antigüedad).
 
-:::note[Implementación Técnica]
-La lógica de validación y CRUD reside en los controladores de la API, mientras que la generación de PDFs utiliza un servicio externo renderizador de plantillas.
-:::
+<LinkCard
+  title="📘 Ver Implementación Técnica"
+  description="ContractService: Creación transaccional, PDF y código fuente"
+  href="/orchestrator/services/ContractService/"
+/>
 
 ## Ciclo de Vida del Contrato
 

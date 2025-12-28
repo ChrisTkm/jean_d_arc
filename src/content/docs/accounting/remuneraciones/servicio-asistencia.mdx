@@ -6,13 +6,15 @@ sidebar:
 updated: 2025-12-28
 ---
 
-import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Tabs, TabItem, LinkCard } from "@astrojs/starlight/components";
 
 El **Boletín de Asistencia** y su gestión es el insumo primario para el cálculo de remuneraciones. Este servicio administra la captura, validación y consolidación de los tiempos trabajados.
 
-:::note[Implementación Técnica]
-Para detalles de código, lógica de transacciones y optimización SQL, ver [Orchestrator: Attendance Service](../../orchestrator/services/AttendanceService).
-:::
+<LinkCard
+  title="📘 Ver Implementación Técnica"
+  description="AttendanceService: Grillas, transacciones y código fuente"
+  href="/orchestrator/services/AttendanceService/"
+/>
 
 ## Funcionalidades Funcionales
 

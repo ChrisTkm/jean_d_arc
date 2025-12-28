@@ -1,0 +1,54 @@
+---
+title: Contract Service
+description: Servicio de dominio para gestión de contratos laborales.
+sidebar:
+  order: 12
+updated: 2025-12-28
+---
+
+El `ContractService` administra el ciclo de vida de contratos laborales, incluyendo creación transaccional con generación automática de PDF.
+
+## Ubicación
+
+**Archivo**: `src/domain/contracts/ContractService.ts`
+
+## Métodos Disponibles
+
+| Método | Descripción |
+|:-------|:------------|
+| `getContracts(tenantDb, filter)` | Lista contratos con filtros |
+| `createContract(tenantDb, userId, data)` | Crea contrato con PDF |
+| `updateContract(tenantDb, userId, id, data)` | Actualiza contrato |
+| `deleteContract(tenantDb, id)` | Elimina contrato |
+| `getDownloadPath(tenantDb, id, format)` | Obtiene ruta del documento |
+
+## Flujo de Creación
+
+1. **Validación** de campos obligatorios (empleado, tipo, fecha, sueldo, jornada).
+2. **Transacción**: Recolecta contexto (empleado, cargo, jornada).
+3. **Persistencia**: Crea registro en `contratos`.
+4. **Generación PDF**: Llama a `ContractGenerator` si `GENERATOR_URL` está configurado.
+
+## Validaciones
+
+- Campos obligatorios: `empleado_id`, `tipo_contrato`, `fecha_inicio`, `sueldo_base`, `jornada_id`.
+- Categoría válida: `DEPENDIENTE`, `MENOR_MAYOR`, `CASA_PARTICULAR`.
+
+## Ejemplo de Uso
+
+```typescript
+import { ContractService } from '@/domain/contracts/ContractService';
+
+const contratoId = await ContractService.createContract('tenant_db', 'user-123', {
+  empleado_id: 'emp-uuid',
+  tipo_contrato: 'INDEFINIDO',
+  fecha_inicio: '2025-01-01',
+  sueldo_base: 800000,
+  jornada_id: 'jornada-uuid'
+});
+```
+
+## Dependencias
+
+- **ContractRepository**: Acceso a datos de contratos.
+- **ContractGenerator**: Generación de PDFs.

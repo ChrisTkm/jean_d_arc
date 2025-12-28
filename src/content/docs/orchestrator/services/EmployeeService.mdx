@@ -1,0 +1,58 @@
+---
+title: Employee Service
+description: Servicio de dominio para gestión del maestro de empleados.
+sidebar:
+  order: 13
+updated: 2025-12-28
+---
+
+El `EmployeeService` administra el maestro central de trabajadores con validaciones exhaustivas de datos personales y contractuales.
+
+## Ubicación
+
+**Archivo**: `src/domain/employees/EmployeeService.ts`
+
+## Métodos Disponibles
+
+| Método | Descripción |
+|:-------|:------------|
+| `getEmployeeById(tenantDb, id)` | Obtiene empleado por ID |
+| `getEmployees(tenantDb, filter)` | Lista empleados con filtros |
+| `createEmployee(tenantDb, userId, data)` | Crea nuevo empleado |
+| `updateEmployee(tenantDb, userId, id, data)` | Actualiza empleado |
+| `deleteEmployee(tenantDb, id)` | Elimina empleado |
+
+## Validaciones
+
+- **RUT**: Formato `12345678-9`.
+- **Sexo**: `M` o `F`.
+- **Estado Civil**: `SOLTERO`, `CASADO`, `VIUDO`, `DIVORCIADO`, `SEPARADO`.
+- **Estado Empleado**: `ACTIVO`, `INACTIVO`, `VACACIONES`, `LICENCIA`, `FINIQUITADO`.
+- **Tipo Cuenta**: `CUENTA_CORRIENTE`, `CUENTA_VISTA`, `CUENTA_AHORRO`.
+
+## Sanitización de Datos
+
+El servicio sanitiza automáticamente:
+- Conversión a mayúsculas (sexo, estados).
+- Trim de espacios en strings.
+- Parseo de booleanos (`asignacion_familiar`).
+- Valores por defecto (nacionalidad: `CHILENA`).
+
+## Ejemplo de Uso
+
+```typescript
+import { EmployeeService } from '@/domain/employees/EmployeeService';
+
+await EmployeeService.createEmployee('tenant_db', 'user-123', {
+  rut: '12345678-9',
+  nombres: 'Juan',
+  apellidos: 'Pérez González',
+  fecha_nacimiento: '1990-05-15',
+  fecha_ingreso: '2025-01-01',
+  sexo: 'M'
+});
+```
+
+## Dependencias
+
+- **EmployeeRepository**: Acceso a datos de empleados en PostgreSQL.

@@ -17,20 +17,91 @@ import { FileTree, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
 
 <FileTree>
 
-- src
-  - app.ts
-  - server.ts
-  - domain/
-    - command/
-    - payroll/
-  - lib/
-    - Shared libraries
-  - middleware/
-    - Express middlewares
-  - routes/
-    - API Definitions
-  - test/
-    - Integration tests
+- src/
+  - app.ts — Configuración Express
+  - server.ts — Entry point
+  - domain/ — **Capa de Dominio (DDD)**
+    - afp/ — AFP y Previsión
+      - AfpRepository.ts
+      - AfpService.ts
+      - \_\_tests\_\_/
+    - attendance/ — Control de Asistencia
+      - AttendanceRepository.ts
+      - AttendanceService.ts
+      - \_\_tests\_\_/
+    - cargos/ — Gestión de Cargos
+      - CargoRepository.ts
+      - CargoService.ts
+      - \_\_tests\_\_/
+    - command/ — **Gestión del Sistema**
+      - MonitoringRepository.ts
+      - MonitoringService.ts
+      - SessionRepository.ts
+      - SessionService.ts
+      - TenantRepository.ts
+      - TenantService.ts
+      - types.ts
+      - \_\_tests\_\_/
+    - contracts/ — Contratos Laborales
+      - ContractGenerator.ts
+      - ContractRepository.ts
+      - ContractService.ts
+      - \_\_tests\_\_/
+    - employees/ — Maestro de Empleados
+      - EmployeeRepository.ts
+      - EmployeeService.ts
+      - \_\_tests\_\_/
+    - finiquitos/ — Finiquitos y Desvinculación
+      - FiniquitoCalculator.ts
+      - FiniquitoRepository.ts
+      - FiniquitoService.ts
+      - \_\_tests\_\_/
+    - honorarios/ — Boletas de Honorarios
+      - HonorariosRepository.ts
+      - HonorariosService.ts
+      - types.ts
+      - \_\_tests\_\_/
+    - isapre/ — Instituciones de Salud
+      - IsapreRepository.ts
+      - IsapreService.ts
+      - \_\_tests\_\_/
+    - payroll/ — **Motor de Remuneraciones**
+      - PayrollEngine.ts — Orquestador de cálculo
+      - PayrollRepository.ts
+      - PayrollService.ts
+      - types.ts
+      - calculators/ — Calculadoras especializadas
+        - BaseSalaryCalculator.ts
+        - GratificationCalculator.ts
+        - HealthPlanCalculator.ts
+        - ProrrataCalculator.ts
+        - SocialLawsCalculator.ts
+        - TaxCalculator.ts
+        - \_\_tests\_\_/
+      - \_\_tests\_\_/
+    - permissions/ — Permisos y Licencias
+      - PermissionRepository.ts
+      - PermissionService.ts
+      - \_\_tests\_\_/
+    - previsions/ — Previsiones (AFP + APV)
+      - ApvRepository.ts
+      - ApvService.ts
+      - PrevisionsRepository.ts
+      - PrevisionsService.ts
+      - types.ts
+      - \_\_tests\_\_/
+    - vacations/ — Vacaciones
+      - VacationRepository.ts
+      - VacationService.ts
+      - \_\_tests\_\_/
+    - working_day/ — Jornadas Laborales
+      - WorkingDayRepository.ts
+      - WorkingDayService.ts
+      - \_\_tests\_\_/
+  - lib/ — Utilidades compartidas
+  - middleware/ — Middlewares Express
+  - routes/ — Definiciones de API
+  - test/ — Tests de integración
 - package.json
 - tsconfig.json
 

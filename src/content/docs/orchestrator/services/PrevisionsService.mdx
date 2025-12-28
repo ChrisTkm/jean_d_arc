@@ -1,0 +1,78 @@
+---
+title: Previsions Service
+description: Servicio de dominio para generación de imposiciones y consolidados previsionales.
+sidebar:
+  order: 17
+updated: 2025-12-28
+---
+
+El `PrevisionsService` orquesta la generación mensual de imposiciones, consolidando cotizaciones de AFP, Salud, AFC, aportes patronales e impuestos.
+
+## Ubicación
+
+**Archivo**: `src/domain/previsions/PrevisionsService.ts`
+
+## Método Principal
+
+```typescript
+async generate(
+  year: number, 
+  month: number, 
+  userId: string, 
+  dryRun: boolean = true
+): Promise<GenerationResult>
+```
+
+### Parámetros
+
+| Parámetro | Tipo | Descripción |
+|:----------|:-----|:------------|
+| `year` | number | Año del período |
+| `month` | number | Mes del período (1-12) |
+| `userId` | string | Usuario que ejecuta |
+| `dryRun` | boolean | `true` = simulación, `false` = persistir |
+
+### Resultado
+
+```typescript
+interface GenerationResult {
+  mensaje: string;
+  registros_generados: number;
+  monto_total_consolidado: number;
+}
+```
+
+## Flujo de Generación
+
+1. **Lectura de Agregados** (paralelo):
+   - AFP (cotización trabajador)
+   - Salud (Isapre/Fonasa)
+   - AFC (Seguro Cesantía trabajador)
+   - Aportes Patronales (SIS, Mutual, AFC empleador)
+   - Impuesto Único (SII)
+   - Retención Honorarios (10%)
+
+2. **Mapeo a Entidades**: Transforma agregados en `PrevisionEntity`.
+
+3. **Persistencia**: Si `dryRun = false`, reemplaza transaccionalmente los registros del período.
+
+## Ejemplo de Uso
+
+```typescript
+import { PrevisionsService } from '@/domain/previsions/PrevisionsService';
+import { PrevisionsRepository } from '@/domain/previsions/PrevisionsRepository';
+
+const repo = new PrevisionsRepository(pool);
+const service = new PrevisionsService(repo);
+
+// Simular
+const sim = await service.generate(2025, 12, 'user-123', true);
+console.log(sim.registros_generados); // Ej: 15
+
+// Ejecutar
+const result = await service.generate(2025, 12, 'user-123', false);
+```
+
+## Dependencias
+
+- **PrevisionsRepository**: Acceso a agregados y persistencia.

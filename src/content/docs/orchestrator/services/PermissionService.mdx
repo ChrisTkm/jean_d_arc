@@ -1,0 +1,62 @@
+---
+title: Permission Service
+description: Servicio de dominio para gestión de permisos y licencias.
+sidebar:
+  order: 16
+updated: 2025-12-28
+---
+
+El `PermissionService` administra solicitudes de permisos, licencias médicas y ausencias justificadas con validación de reglas de negocio.
+
+## Ubicación
+
+**Archivo**: `src/domain/permissions/PermissionService.ts`
+
+## Métodos Disponibles
+
+| Método | Descripción |
+|:-------|:------------|
+| `getById(tenantDb, id)` | Obtiene permiso por ID |
+| `list(tenantDb, filter)` | Lista permisos con filtros |
+| `create(tenantDb, userId, data)` | Crea nueva solicitud |
+| `update(tenantDb, userId, id, data)` | Actualiza solicitud |
+| `delete(tenantDb, id)` | Elimina solicitud |
+
+## Validaciones
+
+- Campos obligatorios: `empleado_id`, `fecha_desde`, `fecha_hasta`, `tipo_permiso`, `motivo`.
+- Estados válidos: `SOLICITADO`, `APROBADO`, `RECHAZADO`, `CANCELADO`, `USADO`.
+- `fecha_hasta` >= `fecha_desde`.
+- Permisos parciales requieren `hora_desde` y `hora_hasta`.
+- Fecha de recuperación > fecha hasta (si es recuperable).
+
+## Flags Disponibles
+
+| Flag | Tipo | Descripción |
+|:-----|:-----|:------------|
+| `es_parcial` | boolean | Permiso de horas (no días) |
+| `requiere_documento` | boolean | Necesita adjunto de respaldo |
+| `es_con_goce_sueldo` | boolean | Con remuneración (default: true) |
+| `descuenta_vacaciones` | boolean | Se descuenta del saldo |
+| `es_recuperable` | boolean | Las horas se recuperan |
+
+## Ejemplo de Uso
+
+```typescript
+import { PermissionService } from '@/domain/permissions/PermissionService';
+
+await PermissionService.create('tenant_db', 'user-123', {
+  empleado_id: 'emp-uuid',
+  fecha_desde: '2025-01-15',
+  fecha_hasta: '2025-01-15',
+  tipo_permiso: 'MEDICO',
+  motivo: 'Examen preventivo',
+  es_parcial: true,
+  hora_desde: '09:00',
+  hora_hasta: '12:00'
+});
+```
+
+## Dependencias
+
+- **PermissionRepository**: Acceso a datos de permisos en PostgreSQL.

@@ -6,13 +6,15 @@ sidebar:
 updated: 2025-12-28
 ---
 
-import { Steps, Aside } from "@astrojs/starlight/components";
+import { Steps, Aside, LinkCard } from "@astrojs/starlight/components";
 
 El **Servicio de Liquidaciones** es el corazón del sistema de remuneraciones. Orquesta la transformación de datos contractuales y de asistencia en un documento legal de pago.
 
-:::note[Implementación Técnica]
-Para detalles del **Payroll Engine**, fórmulas matemáticas y código fuente, ver [Orchestrator: Payroll Service](../../orchestrator/services/PayrollService).
-:::
+<LinkCard
+  title="📘 Ver Implementación Técnica"
+  description="PayrollService & PayrollEngine: Motor de cálculo y código fuente"
+  href="/orchestrator/services/PayrollService/"
+/>
 
 ## Flujo Operativo
 
@@ -32,7 +34,8 @@ Para detalles del **Payroll Engine**, fórmulas matemáticas y código fuente, v
 
 4. **Revisión y Cierre**:
    Se emiten pre-nóminas. Una vez validadas, se "Cierra" el mes, impidiendo modificaciones futuras.
-   </Steps>
+
+</Steps>
 
 <Aside type="tip" title="Reproceso">
   El sistema permite recalcular liquidaciones individuales tantas veces como sea

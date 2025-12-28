@@ -1,0 +1,46 @@
+---
+title: Cargo Service
+description: Servicio de dominio para gestión del catálogo de cargos.
+sidebar:
+  order: 11
+updated: 2025-12-28
+---
+
+El `CargoService` administra el catálogo maestro de posiciones laborales, incluyendo operaciones CRUD con validación de datos.
+
+## Ubicación
+
+**Archivo**: `src/domain/cargos/CargoService.ts`
+
+## Métodos Disponibles
+
+| Método | Descripción |
+|:-------|:------------|
+| `findAll(tenantDb)` | Lista todos los cargos |
+| `findById(tenantDb, id)` | Obtiene un cargo por ID |
+| `create(tenantDb, userId, data)` | Crea un nuevo cargo |
+| `update(tenantDb, userId, id, data)` | Actualiza un cargo existente |
+| `delete(tenantDb, id)` | Elimina un cargo |
+
+## Validaciones
+
+- **Código** y **Nombre** son obligatorios.
+- El código se convierte automáticamente a mayúsculas.
+- Validación de existencia antes de update/delete.
+
+## Ejemplo de Uso
+
+```typescript
+import { CargoService } from '@/domain/cargos/CargoService';
+
+// Crear un nuevo cargo
+await CargoService.create('tenant_db', 'user-123', {
+  codigo: 'GER-001',
+  nombre: 'Gerente General',
+  descripcion: 'Responsable de la dirección estratégica'
+});
+```
+
+## Dependencias
+
+- **CargoRepository**: Acceso a datos de cargos en PostgreSQL.
