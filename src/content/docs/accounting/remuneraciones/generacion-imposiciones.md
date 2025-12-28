@@ -30,7 +30,7 @@ sequenceDiagram
 
     API->>Service: generate(year, month)
     
-    rect rgb(57, 68, 70)
+    rect rgba(0, 0, 0, 0.1)
     note right of Service: 1. Agregación (Read-Only)
     Service->>Repo: getAFPWorkerAggregates()
     Repo->>DB: SELECT SUM(...) FROM liquidaciones_detalle
@@ -41,7 +41,7 @@ sequenceDiagram
     Service->>Repo: getTaxAggregates()
     end
 
-    rect rgb(26, 31, 32)
+    rect rgba(0, 0, 0, 0.1)
     note right of Service: 2. Persistencia (Transactional)
     Service->>Repo: transactionalReplace(Entity[])
     Repo->>DB: BEGIN

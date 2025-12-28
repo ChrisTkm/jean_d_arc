@@ -28,23 +28,29 @@ El sistema se compone de tres capas principales:
 
 ```mermaid
 classDiagram
-    class PayrollService {
+    %% Estilos adaptativos
+    classDef domain stroke:#8e44ad,stroke-width:2px,fill-opacity:0.1;
+    classDef data stroke:#2b95d6,stroke-width:2px,fill-opacity:0.1;
+    classDef engine stroke:#d35400,stroke-width:2px,fill-opacity:0.1;
+    classDef calc stroke:#27ae60,stroke-width:2px,fill-opacity:0.1;
+
+    class PayrollService:::domain {
         +previewPayroll(contractId, period) PayrollResult
     }
 
-    class PayrollRepository {
+    class PayrollRepository:::data {
         +getPayrollContext(contractId, period) PayrollContext
     }
 
-    class PayrollEngine {
+    class PayrollEngine:::engine {
         +calculate(PayrollInput) PayrollResult
     }
 
-    class SocialLawsCalculator {
+    class SocialLawsCalculator:::calc {
         +calculate(SocialLawsInput) SocialLawsOutput
     }
 
-    class TaxCalculator {
+    class TaxCalculator:::calc {
         +calculate(TaxInput) TaxOutput
     }
 
@@ -68,7 +74,7 @@ sequenceDiagram
 
     API->>Service: previewPayroll(contractId, oct-2025)
     
-    rect rgb(57, 68, 70)
+    rect rgba(0, 0, 0, 0.1)
     note right of Service: 1. Obtención de Datos
     Service->>Repo: getPayrollContext(contractId, oct-2025)
     Repo->>DB: SELECT Contrato + Empleado
@@ -79,7 +85,7 @@ sequenceDiagram
     Repo-->>Service: PayrollContext (Objetos Tipados)
     end
 
-   rect rgb(26, 31, 32)
+    rect rgba(0, 0, 0, 0.1)
     note right of Service: 2. Adaptación y Cálculo
     Service->>Service: Map Context -> PayrollInput
     Service->>Engine: calculate(PayrollInput)
@@ -95,8 +101,6 @@ sequenceDiagram
     end
 
     Service-->>API: Retorna JSON (Liquidación Previa)
-
-
 ```
 
 ## Componentes Clave

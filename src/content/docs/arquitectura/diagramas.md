@@ -25,153 +25,111 @@ Este diagrama muestra el flujo completo de datos desde servicios externos hasta 
 
 ```mermaid
 ---
-title: USER Diagram - Accounting Systems
+title: Ecosistema Contable (Overview)
 ---
-%%{init:{
-  "themeVariables":{
-    "primaryColor":"#8073ff",
-    "lineColor":"#26ff8e",
-    "nodeBorder":"#8073ff",
-    "clusterBkg":"#2d2c2cff",
-    "fontColor":"#fff",
-    "fontFamily":"Cascadia Code",
-    "edgeLabelBackground":"#181818ff",
-    "tertiaryColor":"#1a1a1a"
-  }
-}}%%
-
 flowchart LR
-    A["Sii (Servicio de Impuestos Internos)"]
-    B["Previred"]
-    C["Banco Central"]
-    D["Openai"]
-    DDOC@{ shape: lin-doc, label: "indicadores-previred-2025-11.json", animate: true}
-
-    subgraph E["Accounting System (Python)"]
-        E1["bc_loader.py"]
-        E2["impuesto_2cat_loader.py"]
-        E3["previred_loader.py"]
-        E4["sii_loader.py"]
-        E5["run_cargas_sii.py"]
-     end
-
-    subgraph F["Database (PostgreSQL)"]
-        SH1["Activo Fijo"]
-        SH2["Administración"]
-        SH3["Declaraciones"]
-        SH4["Ext_Auth"]
-        SH5["Financieros"]
-        SH6["Inventario"]
-
-        subgraph SH7["Parametros"]
-          SH71["afc"]
-          SH72["afp_tasas"]
-          SH73["asignacion_familiar_tramos"]
-          SH74["Comunas Vacaciones"]
-          SH75["Impuesto_2cat"]
-          SH76["Indicadores"]
-          SH77["Laboral Causales Termino"]
-          SH78["Monedas"]
-          SH79["Regiones Vacaciones"]
-          SH710["Renta Minima"]
-          SH711["Topes"]
-          SH712["Feriados"]
-        end
-
-        subgraph SH8["Operaciones"]
-          SH81["Boletas"]
-          SH82["Compras"]
-          SH83["Ventas"]
-          SH84["Boletas Honorarios"]
-          SH85["Compras_Ventas Detalle"]
-          SH86["Conceptos Operaciones"]
-          SH87(["sp_generar_compras_ventas_detalle"])
-        end
-
-        subgraph SH9["Remuneraciones"]
-          SH9TBL1["Afp"]
-          SH9TBL2["Asistencia"]
-          SH9TBL3["Cargos"]
-          SH9TBL7["Contratos"]
-          SH9TBL9["Empleados"]
-          SH9TBL10["Finiquitos"]
-          SH9TBL12["Honorarios"]
-          SH9TBL14["Imposiciones"]
-          SH9TBL18["Liquidaciones"]
-
-          SH9SP1(["sp_generar_honorarios"])
-          SH9SP2(["sp_calcular_finiquito"])
-          SH9SP3(["sp_liquidacion_generar"])
-          SH9SP4(["sp_generar_imposiciones"])
-
-          SH9FN1{{"fx_sueldo_base_prorrateado"}}
-          SH9FN3{{"fx_imposiciones"}}
-          SH9FN4{{"fx_base_e_impuesto_unico"}}
-        end
-        SH10["Reportes"]
+    %% External Services
+    subgraph External["🌐 Servicios Externos"]
+        SII["SII"]
+        PREVIRED["Previred"]
+        BC["Banco Central"]
+        OPENAI["OpenAI"]
     end
 
-    subgraph G["Sevastopol"]
-        subgraph G1["Backend"]
-        G11["API REST - Employees"]
-        G12["API REST - Contracts"]
-        end
-        subgraph G2["Frontend"]
-        G21["EmployeesViewIsland"]
-        G22["ContractsViewIsland"]
-        end
+    %% Loaders Layer
+    subgraph Loaders["⚙️ Python Loaders"]
+        BCL["bc_loader.py"]
+        I2C["impuesto_2cat_loader.py"]
+        PRL["previred_loader.py"]
+        SIIL["sii_loader.py"]
+        RCS["run_cargas_sii.py"]
     end
 
-    C -->|Extrae monedas vía API| E1
-    E1 -->|Inserta monedas| SH78
+    %% Database Layer
+    subgraph DB["🗄️ Nostromo (PostgreSQL)"]
+        direction TB
+        
+        subgraph Parametros["Schema: Parametros"]
+            direction TB
+            PAR_MON["Monedas"]
+            PAR_IND["Indicadores"]
+            PAR_TAX["Impuestos"]
+            PAR_AFP["Tasas AFP/AFC"]
+        end
 
-    A -->|Extrae impuestos 2 categorías vía Web Scraping| E2
-    E2 -->|Inserta impuestos 2 categorías| SH75
+        subgraph Operaciones["Schema: Operaciones"]
+            OP_COM["Compras"]
+            OP_VEN["Ventas"]
+            OP_DET["Detalle C/V"]
+        end
 
-    B -->|Extrae tasas e indicadores + topes Previred| D
-    D -->|Entrega archivo JSON| E3
-    DDOC --- D
+        subgraph Remuneraciones["Schema: Remuneraciones"]
+            REM_EMP["Empleados"]
+            REM_CON["Contratos"]
+            REM_LIQ["Liquidaciones"]
+            REM_HON["Honorarios"]
+        end
+        
+        %% SPs
+        SP_CALC(["⚡ sp_liquidacion_generar"])
+        SP_DET(["⚡ sp_generar_detalle"])
+    end
 
-    E3 -->|Inserta indicadores Previred| SH76
-    E3 -->|Inserta tasas AFC| SH71
-    E3 -->|Inserta tasas AFP| SH72
+    %% Sevastopol Layer
+    subgraph Frontend["🖥️ Sevastopol"]
+        VIEWS["Islands UI (React)"]
+        API["API Clients"]
+    end
 
-    A -->|Extrae datos SII vía Playwright| E4
-    E4 -->|Ejecuta cargas SII| E5
-    E5 -->|Inserta compras SII| SH82
-    E5 -->|Inserta ventas SII| SH83
+    %% Connections
+    BC -->|API Reference| BCL
+    BCL -->|Upsert| PAR_MON
 
-    SH82 -->|Genera detalle compras| SH87
-    SH87 -->|Inserta detalle compras y ventas| SH85
+    PREVIRED -->|Scraping| OPENAI
+    OPENAI -->|JSON| PRL
+    PRL -->|Upsert| PAR_IND & PAR_AFP
 
-    G21 -->|Consume API REST| G11
-    G11 -->|Obtiene e inserta empleados| SH9TBL9
+    SII -->|Playwright| SIIL & RCS
+    SIIL -->|Auth Cookie| RCS
+    RCS -->|Insert| OP_COM & OP_VEN
+    
+    OP_COM & OP_VEN -->|Trigger| SP_DET
+    SP_DET -->|Gen| OP_DET
 
-    G22 -->|Consume API REST| G12
-    G12 -->|Obtiene e inserta contratos| SH9TBL7
+    VIEWS -->|HTTPS/JWT| API
+    API -->|SQL/Pool| Remuneraciones
+    API -->|Exec| SP_CALC
+    SP_CALC -->|Read| REM_EMP & REM_CON & PAR_IND
+    SP_CALC -->|Write| REM_LIQ
 
-    classDef externos fill:#000,stroke:#d3095f,stroke-width:3px
-    classDef functions fill:#000,stroke:#01579b,stroke-width:3px
-    classDef producers fill:#000,stroke:#ffd45a,stroke-width:3px
-    classDef finales fill:#5a86ff,stroke:#5a86ff,stroke-width:3px
+    %% Styles
+    classDef ext fill:#2d2d2d,stroke:#d3095f,stroke-width:2px,color:#fff;
+    classDef py fill:#0d1117,stroke:#e3b341,stroke-width:2px,color:#fff;
+    classDef db fill:#0d1117,stroke:#2b95d6,stroke-width:2px,color:#fff;
+    classDef sp fill:#1f1235,stroke:#8e44ad,stroke-width:2px,stroke-dasharray: 5 5,color:#fff;
+    classDef front fill:#0d1117,stroke:#27ae60,stroke-width:2px,color:#fff;
 
-    class SH9FN1,SH9FN3,SH9FN4 functions
-    class SH9SP1,SH9SP2,SH9SP3,SH9SP4,SH87 producers
-    class A,B,C,D externos
-    class SH85,SH9TBL10,SH9TBL18,SH9TBL12,SH9TBL14 finales
+    class SII,PREVIRED,BC,OPENAI ext;
+    class BCL,I2C,PRL,SIIL,RCS py;
+    class PAR_MON,PAR_IND,PAR_TAX,PAR_AFP,OP_COM,OP_VEN,OP_DET,REM_EMP,REM_CON,REM_LIQ,REM_HON db;
+    class SP_CALC,SP_DET sp;
+    class VIEWS,API front;
 ```
 
-### Leyenda
+### Leyenda Estilizada
 
-| Símbolo | Tipo | Descripción |
-| --- | --- | --- |
-| 📊 Rectángulo | Tabla/Esquema | Entidad de base de datos |
-| ⚙️ Rectángulo redondeado | Stored Procedure | Lógica de negocio en DB |
-| 🔧 Hexágono | Function | Función de cálculo |
-| 🌐 Rectángulo (rojo) | Servicio Externo | APIs externas |
-| 📦 Rectángulo (azul) | Módulo Python | Scripts de carga |
+| Color (Borde) | Componente | Descripción |
+| :--- | :--- | :--- |
+| <span style="color:#d3095f">█</span> Magenta | **Externo** | Servicios fuera de nuestra red. |
+| <span style="color:#e3b341">█</span> Amarillo| **Python** | Scripts de extracción y carga (ETLs). |
+| <span style="color:#2b95d6">█</span> Cyan | **PostgreSQL** | Tablas y vistas materializadas (Azul claro). |
+| <span style="color:#27ae60">█</span> Verde | **Frontend** | Interfaces de usuario en Sevastopol. |
+| <span style="color:#8e44ad">█</span> Violeta | **Stored Proc** | Lógica compilada en base de datos. |
 
 ### Flujos Principales
+
+
+#### 1. Carga de Parámetros
 
 #### 1. Carga de Parámetros
 
@@ -187,13 +145,13 @@ flowchart LR
     SII["SII"] -->|Web Scraping| SIIL["sii_loader.py"]
     SIIL -->|Inserta| PI["parametros.impuesto_2cat"]
     
-    classDef externos fill:#000,stroke:#d3095f,stroke-width:3px
-    classDef loaders fill:#000,stroke:#ffd45a,stroke-width:3px
-    classDef tablas fill:#5a86ff,stroke:#5a86ff,stroke-width:3px
+    classDef ext fill:#2d2d2d,stroke:#d3095f,stroke-width:2px,color:#fff;
+    classDef py fill:#0d1117,stroke:#e3b341,stroke-width:2px,color:#fff;
+    classDef db fill:#0d1117,stroke:#2b95d6,stroke-width:2px,color:#fff;
     
-    class BC,PR,SII,OAI externos
-    class BCL,PRL,SIIL loaders
-    class PM,PP,PI tablas
+    class BC,PR,SII,OAI ext
+    class BCL,PRL,SIIL py
+    class PM,PP,PI db
 ```
 
 #### 2. Operaciones Comerciales
@@ -210,15 +168,15 @@ flowchart LR
     
     SP -->|Inserta| CVD["operaciones.compras_ventas_detalle"]
     
-    classDef externos fill:#000,stroke:#d3095f,stroke-width:3px
-    classDef loaders fill:#000,stroke:#ffd45a,stroke-width:3px
-    classDef producers fill:#000,stroke:#01579b,stroke-width:3px
-    classDef tablas fill:#5a86ff,stroke:#5a86ff,stroke-width:3px
+    classDef ext fill:#2d2d2d,stroke:#d3095f,stroke-width:2px,color:#fff;
+    classDef py fill:#0d1117,stroke:#e3b341,stroke-width:2px,color:#fff;
+    classDef sp fill:#1f1235,stroke:#8e44ad,stroke-width:2px,stroke-dasharray: 5 5,color:#fff;
+    classDef db fill:#0d1117,stroke:#2b95d6,stroke-width:2px,color:#fff;
     
-    class SII externos
-    class RCS loaders
-    class SP producers
-    class OPC,OPV,OPB,CVD tablas
+    class SII ext
+    class RCS py
+    class SP sp
+    class OPC,OPV,OPB,CVD db
 ```
 
 #### 3. Remuneraciones
@@ -233,13 +191,13 @@ flowchart LR
     ORC -->|Ejecuta| SP
     SP -->|Inserta| LIQ["remuneraciones.liquidaciones"]
     
-    classDef externos fill:#000,stroke:#d3095f,stroke-width:3px
-    classDef producers fill:#000,stroke:#01579b,stroke-width:3px
-    classDef tablas fill:#5a86ff,stroke:#5a86ff,stroke-width:3px
+    classDef front fill:#0d1117,stroke:#27ae60,stroke-width:2px,color:#fff;
+    classDef sp fill:#1f1235,stroke:#8e44ad,stroke-width:2px,stroke-dasharray: 5 5,color:#fff;
+    classDef db fill:#0d1117,stroke:#2b95d6,stroke-width:2px,color:#fff;
     
-    class SEV,ORC externos
-    class SP producers
-    class EMP,CONT,LIQ tablas
+    class SEV,ORC front
+    class SP sp
+    class EMP,CONT,LIQ db
 ```
 
 ## 🔄 Diagrama de Flujo de Liquidación
@@ -254,6 +212,43 @@ flowchart TD
     F --> G[Inserta en liquidaciones_detalle]
     G --> H[sp_generar_imposiciones]
     H --> I[Fin: Liquidación Completa]
+
+    style E stroke:#8e44ad,stroke-width:4px
+    style H stroke:#8e44ad,stroke-width:4px
+```
+
+## ☁️ Arquitectura de Despliegue
+
+```mermaid
+graph TD
+    subgraph Client["Cliente"]
+        Browser["Navegador Web"]
+    end
+
+    subgraph CDN["Cloudflare Pages"]
+        Static["Jean d'Arc (Docs)"]
+        App["Sevastopol (App)"]
+    end
+
+    subgraph Backend["Servidor Node.js"]
+        Orchest["Orchestrator API"]
+    end
+
+    subgraph Data["Base de Datos Cloud"]
+        Neon["Neon / PostgreSQL"]
+    end
+
+    Browser -->|HTTPS / 443| CDN
+    Browser -->|HTTPS / API| Orchest
+    Orchest -->|TCP / 5432| Neon
+    
+    classDef cdn fill:#f39c12,stroke:#d35400,color:#000;
+    classDef node fill:#27ae60,stroke:#2ecc71,color:#fff;
+    classDef db fill:#16a085,stroke:#1abc9c,color:#fff;
+    
+    class Static,App cdn;
+    class Orchest node;
+    class Neon db;
 ```
 
 ## 🏗️ Arquitectura de Capas
@@ -279,6 +274,34 @@ graph TB
     C -->|Llama| D
     C -->|CRUD| E
     D -->|Lee| E
+    
+    linkStyle 0 stroke:#27ae60,stroke-width:2px;
+    linkStyle 1 stroke:#8e44ad,stroke-width:2px;
+```
+
+## 🔐 Flujo de Autenticación
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant F as Sevastopol
+    participant A as Orchestrator (Auth)
+    participant D as DB (Nostromo)
+    
+    U->>F: Ingresa credenciales
+    F->>A: POST /auth/login
+    A->>D: SELECT * FROM auth.users WHERE email=$1
+    D-->>A: User Hash
+    A->>A: bcrypt.compare(pass, hash)
+    
+    alt Credenciales válidas
+        A->>A: Generar JWT (sign)
+        A-->>F: { token, user_data }
+        F->>U: Redirige al Dashboard
+    else Inválidas
+        A-->>F: 401 Unauthorized
+        F->>U: Muestra error
+    end
 ```
 
 ## 📱 Integración Multi-Tenant
@@ -288,10 +311,17 @@ graph LR
     A[Usuario] --> B{Autenticación}
     B -->|JWT| C[Middleware]
     C --> D{Tenant?}
-    D -->|Tenant A| E[Pool DB A]
-    D -->|Tenant B| F[Pool DB B]
+    
+    subgraph Pools
+        D -->|Tenant A| E[Pool DB A]
+        D -->|Tenant B| F[Pool DB B]
+    end
+    
     E --> G[Schema: accounting_template]
     F --> G
+    
+    linkStyle 0 stroke:#27ae60,stroke-width:2px;
+    linkStyle 1 stroke:#f39c12,stroke-width:2px;
 ```
 
 ## 🔗 Enlaces Relacionados

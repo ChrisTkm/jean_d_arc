@@ -6,24 +6,18 @@ sidebar:
   order: 1
 ---
 
-## Seguridad - Buenas Prácticas
+## Introducción a Buenas Prácticas
 
-Lineamientos iniciales.
+En esta sección detallamos las normas y estándares de seguridad que todo desarrollador y operador del sistema Nostromo debe seguir. Estas prácticas no son opcionales; son parte integral de la calidad del código.
 
-## Autenticación
+## Guías Disponibles
 
-- Usar tokens JWT con expiración corta.
-- Almacenar secrets fuera del repositorio (variables de entorno).
+### 🛡️ [Protección de Datos](/seguridad/practicas/datos/)
+Normas para clasificar información, manejo de secretos, cifrado y sanitización de logs. Fundamental para cumplir con la privacidad de los usuarios.
 
-## Dependencias
+### 🏗️ [Seguridad de Infraestructura](/seguridad/practicas/infraestructura/)
+Detalles sobre cómo protegemos el perímetro (Cloudflare), el servidor (Render) y la base de datos (Neon), incluyendo configuraciones de firewall y redes.
 
-- Versiones fijadas (sin ^) y auditorías periódicas.
+---
 
-## Datos Sensibles
-
-- Enmascarar logs.
-- Cifrar en tránsito (HTTPS) y en reposo según necesidad.
-
-## Próximos pasos
-
-Añadir checklist de revisión y modelado de amenazas.
+> "La seguridad no es un producto, es un proceso."

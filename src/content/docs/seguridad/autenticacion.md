@@ -7,110 +7,90 @@ sidebar:
 updated: 2025-12-25
 ---
 
-El sistema Nostromo utiliza **JSON Web Tokens (JWT)** almacenados en cookies para manejar la autenticación de usuarios y **Role-Based Access Control (RBAC)** para la autorización.
+El sistema Nostromo utiliza **JSON Web Tokens (JWT)** para la autenticación stateless y **Role-Based Access Control (RBAC)** para la autorización granular.
 
-## Visión General
+## Mecanismo de Autenticación
 
-La autenticación es manejada principalmente por el servicio **Orchestrator**. Al iniciar sesión exitosamente, se emite un token JWT firmado que contiene la identidad del usuario y su rol. Este token se almacena en una cookie llamada `sid`.
+A diferencia de sistemas tradicionales basados en sesión, Nostromo utiliza un enfoque **Token-Based**:
 
-:::note
-La cookie `sid` está configurada actualmente con `httpOnly: false` para permitir que el cliente (Sevastopol) acceda a ella si es necesario, aunque la validación principal ocurre en el backend.
+1. **Frontend** envía credenciales (`email`, `password`) al endpoint `/auth/login`.
+2. **Backend** valida y retorna un `token` JWT firmado.
+3. **Frontend** almacena este token (ej. en `localStorage` o memoria) y lo adjunta en el header `Authorization` de cada request subsiguiente.
+
+:::caution[Importante]
+El token debe enviarse con el prefijo `Bearer`:
+`Authorization: Bearer <TOKEN_JWT>`
 :::
 
-## Flujo de Autenticación
+## Flujo de Secuencia
 
-El siguiente diagrama de secuencia ilustra el proceso de inicio de sesión y validación de sesión:
+El siguiente diagrama detalla el ciclo de vida de una autenticación exitosa:
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#2a2a2a', 'primaryTextColor': '#e0e0e0', 'lineColor': '#f38020'}}}%%
 sequenceDiagram
-    actor User as Usuario
-    participant FE as Sevastopol (Frontend)
-    participant BE as Orchestrator (Backend)
-    participant DB as PostgreSQL
-
-    User->>FE: Ingresa credenciales
-    FE->>BE: POST /api/auth/login
-    BE->>DB: SELECT * FROM users WHERE username = ?
-    DB-->>BE: User Record (Hash)
-    BE->>BE: Comparar bcrypt(password, hash)
+    participant U as Usuario
+    participant F as Sevastopol (Frontend)
+    participant A as Orchestrator (Auth)
+    participant D as DB (Nostromo)
     
-    alt Credenciales Válidas
-        BE->>BE: Generar JWT (userId, role)
-        BE-->>FE: 200 OK + Set-Cookie: sid=JWT
-        FE->>FE: Redirigir a Dashboard
-    else Credenciales Inválidas
-        BE-->>FE: 401 Unauthorized
-        FE->>User: Mostrar error
+    U->>F: Ingresa credenciales
+    F->>A: POST /auth/login
+    A->>D: SELECT * FROM auth.users WHERE email=$1
+    D-->>A: User Hash
+    A->>A: bcrypt.compare(pass, hash)
+    
+    alt Credenciales válidas
+        A->>A: Generar JWT (sign)
+        A-->>F: { token, user_data }
+        F->>U: Redirige al Dashboard
+    else Inválidas
+        A-->>F: 401 Unauthorized
+        F->>U: Muestra error
     end
 ```
 
-## Endpoints de Autenticación
+## Estructura del Token (Payload)
 
-Ver implementación en [Orchestrator](../../Accounting/orchestrator/src/routes/command/auth.ts).
-
-### Login
-
-**POST** `/api/auth/login`
-
-Autentica a un usuario y establece la cookie de sesión.
-
-**Body:**
+El JWT emitido contiene información crítica para el contexto de la solicitud, pero **no contiene secretos**.
 
 ```json
 {
-  "username": "usuario",
-  "password": "password123",
-  "rememberMe": true // Opcional, extiende la sesión a 30 días
+  "userId": "uuid-v4-del-usuario",
+  "email": "usuario@empresa.com",
+  "role": "ADMIN",  // Rol global del usuario
+  "iat": 1703698000, // Issued At
+  "exp": 1703784400  // Expiration (24h default)
 }
 ```
 
-**Respuesta Exitosa:**
-Establece la cookie `sid` y retorna:
+## Middleware de Protección
 
-```json
-{
-  "success": true,
-  "user": {
-    "id": 1,
-    "username": "usuario",
-    "role": "ADMIN"
-  },
-  "message": "Login exitoso"
-}
-```
-
-### Logout
-
-**POST** `/api/auth/logout`
-
-Cierra la sesión actual eliminando la cookie `sid`.
-
-### Validar Sesión
-
-**POST** `/api/auth/validate`
-
-Verifica si la sesión actual es válida decodificando el token JWT. Utilizado por el frontend para persistencia de sesión al recargar.
-
-## Autorización (RBAC)
-
-El control de acceso se realiza mediante middleware en el backend que intercepta las peticiones, verifica el token y comprueba los permisos del rol.
-
-:::tip
-Los roles definidos son `SUPER_ADMIN`, `ADMIN`, y `USER`.
-:::
-
-### Middleware
-
-El middleware `authenticateToken` se encarga de:
-
-1. Leer la cookie `sid` o el header `Cookie`.
-2. Verificar la firma del JWT usando `JWT_SECRET`.
-3. Inyectar el objeto `user` en el request (`req.user`).
+El backend utiliza un middleware `authenticateToken` que intercepta todas las rutas protegidas:
 
 ```typescript
-// Ejemplo de uso en rutas
-router.get('/protected-route', authenticateToken, (req, res) => {
-    // req.user está disponible aquí
-    const role = req.user.role;
-});
+// Middleware simplificado
+export const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (!token) return res.sendStatus(401); // Unauthorized
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403); // Forbidden
+    req.user = user; // Inyecta usuario en el request
+    next();
+  });
+};
 ```
+
+## Roles y Permisos (RBAC)
+
+Aunque el JWT valida la **identidad**, los permisos específicos se validan en el código de negocio o mediante middlewares de autorización adicionales.
+
+| Rol | Alcance | Descripción |
+| :--- | :--- | :--- |
+| **SUPER_ADMIN** | Global | Acceso total a todos los tenants y configuración de sistema. |
+| **ADMIN** | Tenant | Acceso total dentro de su organización (crear usuarios, configurar parámetros). |
+| **USER** | Tenant | Acceso estándar para operar módulos (ingresar facturas, ver liquidaciones). |
+| **RO** (Read-Only) | Tenant | Solo lectura para auditores o visualización. |
