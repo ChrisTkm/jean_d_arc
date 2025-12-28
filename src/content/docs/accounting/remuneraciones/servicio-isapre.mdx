@@ -13,7 +13,7 @@ El **Servicio de Isapre** administra la información de las Instituciones de Sal
 <LinkCard
   title="📘 Ver Implementación Técnica"
   description="IsapreService: Catálogo, contratos y código fuente"
-  href="/orchestrator/services/IsapreService/"
+  href="/orchestrator/services/isapreservice/"
 />
 
 ## Funcionalidades
@@ -31,25 +31,26 @@ El **Servicio de Isapre** administra la información de las Instituciones de Sal
 
 ## Estructura de Datos
 
-| Campo           | Tipo     | Descripción                           |
-| :-------------- | :------- | :------------------------------------ |
-| `id`            | UUID     | Identificador único                   |
-| `codigo`        | VARCHAR  | Código de la Isapre                   |
-| `nombre`        | VARCHAR  | Nombre comercial                      |
-| `es_fonasa`     | BOOLEAN  | True si es Fonasa                     |
+| Campo       | Tipo    | Descripción         |
+| :---------- | :------ | :------------------ |
+| `id`        | UUID    | Identificador único |
+| `codigo`    | VARCHAR | Código de la Isapre |
+| `nombre`    | VARCHAR | Nombre comercial    |
+| `es_fonasa` | BOOLEAN | True si es Fonasa   |
 
 ### Planes por Empleado
 
-| Campo           | Tipo     | Descripción                           |
-| :-------------- | :------- | :------------------------------------ |
-| `empleado_id`   | UUID     | Referencia al empleado                |
-| `isapre_id`     | UUID     | Referencia a la Isapre                |
-| `valor_plan_uf` | DECIMAL  | Valor del plan en UF                  |
-| `cotizacion_pactada` | DECIMAL | Cotización adicional pactada     |
+| Campo                | Tipo    | Descripción                  |
+| :------------------- | :------ | :--------------------------- |
+| `empleado_id`        | UUID    | Referencia al empleado       |
+| `isapre_id`          | UUID    | Referencia a la Isapre       |
+| `valor_plan_uf`      | DECIMAL | Valor del plan en UF         |
+| `cotizacion_pactada` | DECIMAL | Cotización adicional pactada |
 
 ## Cálculo en Liquidación
 
 El sistema calcula automáticamente:
+
 1. **Cotización Legal** (7%): Descuento obligatorio.
 2. **Cotización Adicional**: Diferencia para cubrir el plan Isapre.
 3. **Excedentes**: Si el 7% supera el valor del plan, genera excedente.

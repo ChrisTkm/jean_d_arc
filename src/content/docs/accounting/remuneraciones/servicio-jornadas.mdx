@@ -13,41 +13,41 @@ El **Servicio de Jornadas Laborales** administra los distintos tipos de jornada,
 <LinkCard
   title="📘 Ver Implementación Técnica"
   description="WorkingDayService: Catálogo, validaciones y código fuente"
-  href="/orchestrator/services/WorkingDayService/"
+  href="/orchestrator/services/workingdayservice/"
 />
 
 ## Tipos de Jornada
 
 <Tabs>
   <TabItem label="Jornada Completa">
-    - **Horas Semanales**: 45 horas (máximo legal).
-    - **Distribución**: Lunes a Viernes (9 hrs/día) o Lunes a Sábado (7.5 hrs/día).
-    - **Horario Tipo**: 08:30 - 18:30 con 1 hora de colación.
+    - **Horas Semanales**: 45 horas (máximo legal). - **Distribución**: Lunes a
+    Viernes (9 hrs/día) o Lunes a Sábado (7.5 hrs/día). - **Horario Tipo**:
+    08:30 - 18:30 con 1 hora de colación.
   </TabItem>
   <TabItem label="Jornada Parcial">
-    - **Horas Semanales**: Menos de 30 horas.
-    - **Proporcionalidad**: Sueldo y beneficios proporcionales.
-    - **Horario Flexible**: Según acuerdo contractual.
+    - **Horas Semanales**: Menos de 30 horas. - **Proporcionalidad**: Sueldo y
+    beneficios proporcionales. - **Horario Flexible**: Según acuerdo
+    contractual.
   </TabItem>
   <TabItem label="Turnos">
-    - **Turnos Rotativos**: Mañana, Tarde, Noche.
-    - **Turnos Especiales**: Fines de semana, feriados.
-    - **Recargo Nocturno**: 50% adicional entre 21:00 y 07:00.
+    - **Turnos Rotativos**: Mañana, Tarde, Noche. - **Turnos Especiales**: Fines
+    de semana, feriados. - **Recargo Nocturno**: 50% adicional entre 21:00 y
+    07:00.
   </TabItem>
 </Tabs>
 
 ## Estructura de Datos
 
-| Campo             | Tipo     | Descripción                          |
-| :---------------- | :------- | :----------------------------------- |
-| `id`              | UUID     | Identificador único                  |
-| `codigo`          | VARCHAR  | Código de la jornada                 |
-| `nombre`          | VARCHAR  | Nombre descriptivo                   |
-| `horas_semanales` | DECIMAL  | Total de horas por semana            |
-| `dias_laborales`  | JSONB    | Array de días (L,M,X,J,V,S,D)        |
-| `hora_entrada`    | TIME     | Hora de entrada estándar             |
-| `hora_salida`     | TIME     | Hora de salida estándar              |
-| `colacion_minutos`| INTEGER  | Duración del almuerzo                |
+| Campo              | Tipo    | Descripción                   |
+| :----------------- | :------ | :---------------------------- |
+| `id`               | UUID    | Identificador único           |
+| `codigo`           | VARCHAR | Código de la jornada          |
+| `nombre`           | VARCHAR | Nombre descriptivo            |
+| `horas_semanales`  | DECIMAL | Total de horas por semana     |
+| `dias_laborales`   | JSONB   | Array de días (L,M,X,J,V,S,D) |
+| `hora_entrada`     | TIME    | Hora de entrada estándar      |
+| `hora_salida`      | TIME    | Hora de salida estándar       |
+| `colacion_minutos` | INTEGER | Duración del almuerzo         |
 
 ## Generación de Grilla
 

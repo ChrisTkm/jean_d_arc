@@ -13,7 +13,7 @@ El **Servicio de Cargos** administra el catálogo maestro de posiciones laborale
 <LinkCard
   title="📘 Ver Implementación Técnica"
   description="CargoService: CRUD, validaciones y código fuente"
-  href="/orchestrator/services/CargoService/"
+  href="/orchestrator/services/cargoservice/"
 />
 
 ## Funcionalidades
@@ -29,15 +29,15 @@ El **Servicio de Cargos** administra el catálogo maestro de posiciones laborale
 
 ## Estructura de Datos
 
-| Campo           | Tipo     | Descripción                          |
-| :-------------- | :------- | :----------------------------------- |
-| `id`            | UUID     | Identificador único del cargo        |
-| `codigo`        | VARCHAR  | Código interno (ej: "GER-001")       |
-| `nombre`        | VARCHAR  | Nombre del cargo                     |
-| `descripcion`   | TEXT     | Funciones y responsabilidades        |
-| `sueldo_minimo` | NUMERIC  | Banda salarial inferior              |
-| `sueldo_maximo` | NUMERIC  | Banda salarial superior              |
-| `cargo_padre`   | UUID     | Referencia al cargo superior         |
+| Campo           | Tipo    | Descripción                    |
+| :-------------- | :------ | :----------------------------- |
+| `id`            | UUID    | Identificador único del cargo  |
+| `codigo`        | VARCHAR | Código interno (ej: "GER-001") |
+| `nombre`        | VARCHAR | Nombre del cargo               |
+| `descripcion`   | TEXT    | Funciones y responsabilidades  |
+| `sueldo_minimo` | NUMERIC | Banda salarial inferior        |
+| `sueldo_maximo` | NUMERIC | Banda salarial superior        |
+| `cargo_padre`   | UUID    | Referencia al cargo superior   |
 
 ## Uso en Contratos
 

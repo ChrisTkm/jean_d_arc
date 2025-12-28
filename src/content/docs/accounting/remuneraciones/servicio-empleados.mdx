@@ -13,7 +13,7 @@ El **Servicio de Empleados** es el maestro central que almacena toda la informac
 <LinkCard
   title="📘 Ver Implementación Técnica"
   description="EmployeeService: Validaciones, sanitización y código fuente"
-  href="/orchestrator/services/EmployeeService/"
+  href="/orchestrator/services/employeeservice/"
 />
 
 ## Funcionalidades
@@ -32,22 +32,23 @@ El **Servicio de Empleados** es el maestro central que almacena toda la informac
 
 ## Datos Principales
 
-| Campo             | Tipo     | Descripción                      |
-| :---------------- | :------- | :------------------------------- |
-| `id`              | UUID     | Identificador único              |
-| `rut`             | VARCHAR  | RUT del trabajador               |
-| `nombres`         | VARCHAR  | Nombres                          |
-| `apellido_paterno`| VARCHAR  | Apellido paterno                 |
-| `apellido_materno`| VARCHAR  | Apellido materno                 |
-| `fecha_nacimiento`| DATE     | Fecha de nacimiento              |
-| `fecha_ingreso`   | DATE     | Fecha de ingreso a la empresa    |
-| `estado`          | ENUM     | ACTIVO, LICENCIA, DESVINCULADO   |
-| `afp_id`          | UUID     | Referencia a AFP                 |
-| `isapre_id`       | UUID     | Referencia a Isapre (nullable)   |
+| Campo              | Tipo    | Descripción                    |
+| :----------------- | :------ | :----------------------------- |
+| `id`               | UUID    | Identificador único            |
+| `rut`              | VARCHAR | RUT del trabajador             |
+| `nombres`          | VARCHAR | Nombres                        |
+| `apellido_paterno` | VARCHAR | Apellido paterno               |
+| `apellido_materno` | VARCHAR | Apellido materno               |
+| `fecha_nacimiento` | DATE    | Fecha de nacimiento            |
+| `fecha_ingreso`    | DATE    | Fecha de ingreso a la empresa  |
+| `estado`           | ENUM    | ACTIVO, LICENCIA, DESVINCULADO |
+| `afp_id`           | UUID    | Referencia a AFP               |
+| `isapre_id`        | UUID    | Referencia a Isapre (nullable) |
 
 ## Integración con Otros Módulos
 
 El empleado es la entidad central que conecta:
+
 - **Contratos**: Condiciones laborales y sueldo base.
 - **Asistencia**: Registro de tiempos trabajados.
 - **Liquidaciones**: Cálculo y pago de remuneraciones.
