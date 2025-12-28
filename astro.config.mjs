@@ -62,8 +62,7 @@ export default defineConfig({
         {
           label: 'API',
           items: [
-            { label: 'Endpoints', link: '/api/endpoints/' },
-            { label: '🔗 Demo en vivo', link: '/demo-api/' }
+            { label: 'Endpoints', link: '/api/endpoints/' }
           ]
         },
         {

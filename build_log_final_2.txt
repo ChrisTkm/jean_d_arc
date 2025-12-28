@@ -1,0 +1,145 @@
+
+> jean-d-arc-docs@0.1.0 build
+> astro build
+
+22:26:38 [astro-mermaid] Setting up Mermaid integration
+22:26:38 [astro-mermaid] Existing rehype plugins:
+22:26:38 [astro-mermaid] Skipping ELK support
+22:26:39 [vite] Re-optimizing dependencies because lockfile has changed
+22:26:55 [content] Syncing content
+22:26:55 [content] Synced content
+22:26:55 [types] Generated 16.60s
+22:26:55 [build] output: "static"
+22:26:55 [build] mode: "static"
+22:26:55 [build] directory: C:\dev\jean_d_arc\dist\
+22:26:55 [build] Collecting build info...
+22:26:55 [build] Ô£ô Completed in 17.26s.
+22:26:55 [build] Building static entrypoints...
+22:27:07 [vite] [32mÔ£ô built in 10.94s[39m
+22:27:07 [build] Ô£ô Completed in 11.30s.
+
+ building client (vite) 
+22:27:07 [vite] transforming...
+22:28:00 [vite] [32mÔ£ô[39m 3712 modules transformed.
+22:28:16 [vite] rendering chunks...
+22:28:19 [vite] computing gzip size...
+22:28:19 [vite] [2mdist/[22m[36m_astro/clone.BgG_cs4h.js                                                       [39m[1m[2m  0.09 kB[22m[1m[22m[2m Ôöé gzip:   0.11 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/channel.CH07TSU_.js                                                     [39m[1m[2m  0.12 kB[22m[1m[22m[2m Ôöé gzip:   0.13 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/init.Gi6I4Gst.js                                                        [39m[1m[2m  0.15 kB[22m[1m[22m[2m Ôöé gzip:   0.13 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/chunk-QZHKN3VN.BsFN-hBJ.js                                              [39m[1m[2m  0.20 kB[22m[1m[22m[2m Ôöé gzip:   0.16 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/chunk-4BX2VUAB.Dt1lKsSi.js                                              [39m[1m[2m  0.23 kB[22m[1m[22m[2m Ôöé gzip:   0.17 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/chunk-55IACEB6.Cy4xJegJ.js                                              [39m[1m[2m  0.24 kB[22m[1m[22m[2m Ôöé gzip:   0.21 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/chunk-FMBD7UC4.BqKlsXRf.js                                              [39m[1m[2m  0.37 kB[22m[1m[22m[2m Ôöé gzip:   0.27 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/stateDiagram-v2-4FDKWEC3.MkalQVzM.js                                    [39m[1m[2m  0.40 kB[22m[1m[22m[2m Ôöé gzip:   0.29 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/classDiagram-2ON5EDUG.DCOaMSbC.js                                       [39m[1m[2m  0.44 kB[22m[1m[22m[2m Ôöé gzip:   0.31 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/classDiagram-v2-WZHVMYZB.DCOaMSbC.js                                    [39m[1m[2m  0.44 kB[22m[1m[22m[2m Ôöé gzip:   0.31 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/chunk-QN33PNHL.C1Q_Ft1l.js                                              [39m[1m[2m  0.51 kB[22m[1m[22m[2m Ôöé gzip:   0.36 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/min.9pFa012U.js                                                         [39m[1m[2m  0.59 kB[22m[1m[22m[2m Ôöé gzip:   0.37 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/infoDiagram-WHAUD3N6.BTNhhFIM.js                                        [39m[1m[2m  0.66 kB[22m[1m[22m[2m Ôöé gzip:   0.44 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.C181hMzK.js  [39m[1m[2m  0.67 kB[22m[1m[22m[2m Ôöé gzip:   0.40 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/MobileMenuToggle.astro_astro_type_script_index_0_lang.DzxGbQEU.js       [39m[1m[2m  0.75 kB[22m[1m[22m[2m Ôöé gzip:   0.45 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/preload-helper.BlTxHScW.js                                              [39m[1m[2m  1.11 kB[22m[1m[22m[2m Ôöé gzip:   0.65 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/ordinal.BYWQX77i.js                                                     [39m[1m[2m  1.19 kB[22m[1m[22m[2m Ôöé gzip:   0.57 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/chunk-TZMSLE5B.DFAFhUys.js                                              [39m[1m[2m  1.44 kB[22m[1m[22m[2m Ôöé gzip:   0.63 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/TableOfContents.astro_astro_type_script_index_0_lang.CKWWgpjV.js        [39m[1m[2m  1.67 kB[22m[1m[22m[2m Ôöé gzip:   0.86 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/Search.astro_astro_type_script_index_0_lang.ZeYNpLV4.js                 [39m[1m[2m  1.80 kB[22m[1m[22m[2m Ôöé gzip:   0.93 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/arc.BmxiyBh-.js                                                         [39m[1m[2m  3.44 kB[22m[1m[22m[2m Ôöé gzip:   1.49 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/diagram-S2PKOQOG.CGoFBqle.js                                            [39m[1m[2m  4.28 kB[22m[1m[22m[2m Ôöé gzip:   1.87 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/defaultLocale.C4B-KCzX.js                                               [39m[1m[2m  4.55 kB[22m[1m[22m[2m Ôöé gzip:   2.13 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/pieDiagram-ADFJNKIX.DvTy2J7p.js                                         [39m[1m[2m  5.22 kB[22m[1m[22m[2m Ôöé gzip:   2.31 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/linear.C4vKNr1B.js                                                      [39m[1m[2m  5.66 kB[22m[1m[22m[2m Ôöé gzip:   2.31 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/diagram-QEK2KX5R.CJKsCDyT.js                                            [39m[1m[2m  5.88 kB[22m[1m[22m[2m Ôöé gzip:   2.48 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/page.CJVxQnB3.js                                                        [39m[1m[2m  7.66 kB[22m[1m[22m[2m Ôöé gzip:   2.71 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/_baseUniq.DCaoyKic.js                                                   [39m[1m[2m  8.48 kB[22m[1m[22m[2m Ôöé gzip:   3.53 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/graph.C999UEYZ.js                                                       [39m[1m[2m  9.37 kB[22m[1m[22m[2m Ôöé gzip:   3.21 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/stateDiagram-FKZM4ZOC.-gCORs14.js                                       [39m[1m[2m 10.39 kB[22m[1m[22m[2m Ôöé gzip:   3.64 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/dagre-6UL2VRFP.f2Lbf_ND.js                                              [39m[1m[2m 11.00 kB[22m[1m[22m[2m Ôöé gzip:   4.10 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/index.Ca8bW-0a.js                                                       [39m[1m[2m 11.12 kB[22m[1m[22m[2m Ôöé gzip:   3.91 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/diagram-PSM6KHXK.CrdlOq-e.js                                            [39m[1m[2m 15.84 kB[22m[1m[22m[2m Ôöé gzip:   5.66 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/kanban-definition-3W4ZIXB7.CqkVI-zI.js                                  [39m[1m[2m 20.21 kB[22m[1m[22m[2m Ôöé gzip:   7.18 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/mindmap-definition-VGOIOE7T.C5-cXGoB.js                                 [39m[1m[2m 20.92 kB[22m[1m[22m[2m Ôöé gzip:   7.30 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/sankeyDiagram-TZEHDZUN.C9n98D3_.js                                      [39m[1m[2m 22.13 kB[22m[1m[22m[2m Ôöé gzip:   8.13 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/journeyDiagram-XKPGCS4Q.CN_aVTSe.js                                     [39m[1m[2m 23.55 kB[22m[1m[22m[2m Ôöé gzip:   8.33 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/timeline-definition-IT6M3QCI.BrV4rtM9.js                                [39m[1m[2m 23.59 kB[22m[1m[22m[2m Ôöé gzip:   8.23 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/gitGraphDiagram-NY62KEGX.7f52PUs2.js                                    [39m[1m[2m 24.11 kB[22m[1m[22m[2m Ôöé gzip:   7.42 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/erDiagram-Q2GNP2WA.Dv6aWe-y.js                                          [39m[1m[2m 25.25 kB[22m[1m[22m[2m Ôöé gzip:   8.84 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/MarkdownContent.astro_astro_type_script_index_0_lang.Buv2_VrC.js        [39m[1m[2m 25.38 kB[22m[1m[22m[2m Ôöé gzip:   9.78 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/layout.DyIt3DUJ.js                                                      [39m[1m[2m 29.29 kB[22m[1m[22m[2m Ôöé gzip:  10.52 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/requirementDiagram-UZGBJVZJ.yrFTsmdu.js                                 [39m[1m[2m 30.09 kB[22m[1m[22m[2m Ôöé gzip:   9.43 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/quadrantDiagram-AYHSOK5B.Bwx6hcY7.js                                    [39m[1m[2m 33.85 kB[22m[1m[22m[2m Ôöé gzip:   9.94 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/chunk-DI55MBZ5.YQQqJ7b4.js                                              [39m[1m[2m 36.34 kB[22m[1m[22m[2m Ôöé gzip:  11.83 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/xychartDiagram-PRI3JC2R.BbZXppym.js                                     [39m[1m[2m 40.19 kB[22m[1m[22m[2m Ôöé gzip:  11.35 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/chunk-B4BG7PRW.BrbdXWCC.js                                              [39m[1m[2m 45.31 kB[22m[1m[22m[2m Ôöé gzip:  14.68 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/flowDiagram-NV44I4VS.D8hujJ_b.js                                        [39m[1m[2m 60.46 kB[22m[1m[22m[2m Ôöé gzip:  19.43 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/ganttDiagram-JELNMOA3.DcDmq8x0.js                                       [39m[1m[2m 68.31 kB[22m[1m[22m[2m Ôöé gzip:  23.15 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/c4Diagram-YG6GDRKO.cuyZ4RV9.js                                          [39m[1m[2m 70.14 kB[22m[1m[22m[2m Ôöé gzip:  19.68 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/blockDiagram-VD42YOAC.Cm5QCyFi.js                                       [39m[1m[2m 71.82 kB[22m[1m[22m[2m Ôöé gzip:  20.50 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/ui-core.5vfW5kUq.js                                                     [39m[1m[2m 72.90 kB[22m[1m[22m[2m Ôöé gzip:  22.85 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/cose-bilkent-S5V4N54A.NO_qRCdc.js                                       [39m[1m[2m 81.71 kB[22m[1m[22m[2m Ôöé gzip:  22.48 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/sequenceDiagram-WL72ISMW.Bqr3h2O8.js                                    [39m[1m[2m 97.81 kB[22m[1m[22m[2m Ôöé gzip:  26.86 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/architectureDiagram-VXUJARFQ.DGJ5bfjb.js                                [39m[1m[2m148.60 kB[22m[1m[22m[2m Ôöé gzip:  42.04 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/katex.XbL3y5x-.js                                                       [39m[1m[2m265.42 kB[22m[1m[22m[2m Ôöé gzip:  77.51 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/treemap-KMMF4GRG.DNzmIGcR.js                                            [39m[1m[2m374.59 kB[22m[1m[22m[2m Ôöé gzip:  92.51 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/cytoscape.esm.DtBltrT8.js                                               [39m[1m[2m442.41 kB[22m[1m[22m[2m Ôöé gzip: 141.91 kB[22m
+22:28:19 [vite] [2mdist/[22m[36m_astro/mermaid.core.CCi2DBjU.js                                                [39m[1m[2m491.59 kB[22m[1m[22m[2m Ôöé gzip: 138.25 kB[22m
+22:28:19 [vite] [32mÔ£ô built in 1m 12s[39m
+
+ generating static routes 
+22:28:19 ÔûÂ @astrojs/starlight/routes/static/404.astro
+Entry docs ÔåÆ 404 was not found.
+22:28:19   ÔööÔöÇ /404.html (+82ms) 
+22:28:19 ÔûÂ @astrojs/starlight/routes/static/index.astro
+22:28:19   Ôö£ÔöÇ /index.html (+91ms) 
+22:28:19   Ôö£ÔöÇ /introduccion/index.html (+32ms) 
+22:28:20   Ôö£ÔöÇ /accounting/remuneraciones/calculos/index.html (+33ms) 
+22:28:20   Ôö£ÔöÇ /accounting/remuneraciones/generacion-honorarios/index.html (+14ms) 
+22:28:20   Ôö£ÔöÇ /accounting/sistema-contable/index.html (+21ms) 
+22:28:20   Ôö£ÔöÇ /accounting/remuneraciones/diagramas/index.html (+13ms) 
+22:28:20   Ôö£ÔöÇ /arquitectura/diagramas/index.html (+20ms) 
+22:28:20   Ôö£ÔöÇ /accounting/remuneraciones/generacion-imposiciones/index.html (+16ms) 
+22:28:20   Ôö£ÔöÇ /subidas/index.html (+14ms) 
+22:28:20   Ôö£ÔöÇ /accounting/remuneraciones/attendance-service/index.html (+13ms) 
+22:28:20   Ôö£ÔöÇ /seguridad/autenticacion/index.html (+19ms) 
+22:28:20   Ôö£ÔöÇ /accounting/remuneraciones/index.html (+11ms) 
+22:28:20   Ôö£ÔöÇ /accounting/remuneraciones/motor-calculo/index.html (+11ms) 
+22:28:20   Ôö£ÔöÇ /arquitectura/overview/index.html (+11ms) 
+22:28:20   Ôö£ÔöÇ /accounting/remuneraciones/tablas/index.html (+13ms) 
+22:28:20   Ôö£ÔöÇ /api/endpoints/index.html (+11ms) 
+22:28:20   Ôö£ÔöÇ /seguridad/practicas/index.html (+11ms) 
+22:28:20   Ôö£ÔöÇ /accounting/remuneraciones/test-payroll/index.html (+12ms) 
+22:28:20   ÔööÔöÇ /seguridad/limpieza/index.html (+19ms) 
+22:28:20 Ô£ô Completed in 721ms.
+
+ generating optimized images 
+22:28:20   ÔûÂ /_astro/icon_jean_d_arc.C7YnFFEH_Z13UI3D.svg (reused cache entry) (+7ms) (1/1)
+22:28:20 Ô£ô Completed in 8ms.
+
+22:28:23 [build] Waiting for integration "@astrojs/starlight", hook "astro:build:done"...
+
+Running Pagefind v1.4.0 (Extended)
+Running from: "C:\\dev\\jean_d_arc\\node_modules\\@astrojs\\starlight"
+Source:       "..\\..\\..\\dist"
+Output:       "..\\..\\..\\dist\\pagefind"
+
+[Walking source directory]
+Found 20 files matching **/*.{html}
+
+[Parsing files]
+Found a data-pagefind-body element on the site.
+Ôå│ Ignoring pages without this tag.
+
+[Reading languages]
+Discovered 1 language: en
+
+[Building search indexes]
+Total: 
+  Indexed 1 language
+  Indexed 19 pages
+  Indexed 2929 words
+  Indexed 0 filters
+  Indexed 0 sorts
+
+Finished in 6.778 seconds
+22:28:40 [@astrojs/sitemap] `sitemap-index.xml` created at `dist`
+22:28:40 [build] 20 page(s) built in 122.17s
+22:28:40 [build] Complete!
