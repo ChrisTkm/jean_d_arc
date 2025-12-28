@@ -6,7 +6,8 @@ sidebar:
 updated: 2025-12-28
 ---
 
-import { Tabs, TabItem, Code } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Code } from "astro:components";
 
 export const commonImports = `import { createSignal, onMount, Show, createMemo, createEffect } from "solid-js";
 import { 
@@ -49,13 +50,17 @@ Una isla típica en Sevastopol combina gestión de estado (`createSignal`, `crea
 
 ### Imports Comunes
 
-<Code code={commonImports} lang="typescript" title="Imports Típicos" />
+### Imports Típicos
+
+<Code code={commonImports} lang="typescript" />
 
 ### Patrón de Diseño
 
 Utilizamos `IslandBase` como envoltorio común para proporcionar consistencia visual y manejo de errores.
 
-<Code code={designPattern} lang="tsx" title="Ejemplo de Estructura" />
+#### Ejemplo de Estructura
+
+<Code code={designPattern} lang="tsx" />
 
 ## Islas Principales
 

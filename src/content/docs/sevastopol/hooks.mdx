@@ -6,7 +6,7 @@ sidebar:
 updated: 2025-12-28
 ---
 
-import { Code } from "@astrojs/starlight/components";
+import { Code } from "astro:components";
 
 export const useTenantsCode = `// src/lib/hooks/useTenants.ts
 
@@ -44,11 +44,9 @@ Siguiendo el patrón de composición de SolidJS, encapsulamos lógica de negocio
 
 Este hook gestiona la carga y selección del Tenant activo. Es fundamental para la arquitectura multi-tenant de Nostromo.
 
-<Code
-  code={useTenantsCode}
-  lang="typescript"
-  title="src/lib/hooks/useTenants.ts"
-/>
+**src/lib/hooks/useTenants.ts**
+
+<Code code={useTenantsCode} lang="typescript" />
 
 ## useProxy
 

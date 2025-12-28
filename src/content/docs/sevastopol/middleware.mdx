@@ -6,7 +6,7 @@ sidebar:
 updated: 2025-12-28
 ---
 
-import { Code } from "@astrojs/starlight/components";
+import { Code } from "astro:components";
 
 export const middlewareCode = `// src/middleware.ts
 
@@ -43,7 +43,9 @@ El middleware utiliza `defineMiddleware` de Astro para encadenar lógica antes d
 
 Por defecto, todas las rutas bajo `/admin` y `/payroll` requieren autenticación. Las rutas públicas (login, landing, etc.) están excluidas explícitamente.
 
-<Code code={middlewareCode} lang="typescript" title="src/middleware.ts" />
+**src/middleware.ts**
+
+<Code code={middlewareCode} lang="typescript" />
 
 ## Relación con Orchestrator
 
