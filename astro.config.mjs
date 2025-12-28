@@ -13,6 +13,10 @@ export default defineConfig({
     starlight({
       plugins: [starlightThemeNova()],
       title: "Documentación Jean d'Arc",
+      logo: {
+        src: './public/icon_jean_d_arc.svg',
+      },
+      customCss: ['./src/styles/custom.css'],
       favicon: '/icon_jean_d_arc.svg',
       head: [],
       social: [

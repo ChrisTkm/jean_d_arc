@@ -1,0 +1,43 @@
+---
+title: Bienvenido
+description: Documentación y utilidades de la nave Nostromo.
+template: splash
+hero:
+  tagline: Base de conocimiento, automatizaciones y protocolos de la nave Nostromo.
+  image:
+    file: ../../../public/icon_jean_d_arc.svg
+  actions:
+    - text: Entrar a la Documentación
+      link: /introduccion/
+      icon: right-arrow
+      variant: primary
+    - text: Ver Arquitectura
+      link: /arquitectura/overview/
+      icon: external
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+<CardGrid>
+  <Card title="Sistema Contable" icon="pencil">
+    Gestión integral de [Remuneraciones](/accounting/remuneraciones/), cálculos
+    de impuestos y leyes sociales chilenas.
+  </Card>
+  <Card title="Seguridad & Protocolos" icon="setting">
+    Guías de [Seguridad](/seguridad/practicas/) y autenticación para mantener la
+    integridad de la nave.
+  </Card>
+  <Card title="Arquitectura" icon="puzzle">
+    Diagramas y [documentación técnica](/arquitectura/overview/) de los sistemas
+    Nostromo y Sevastopol.
+  </Card>
+  <Card title="API & Herramientas" icon="rocket">
+    Documentación de [Endpoints](/api/endpoints/) y scripts de mantenimiento.
+  </Card>
+</CardGrid>
+
+<div style="text-align: center; margin-top: 3rem; opacity: 0.7;">
+  <p>
+    <em>"Non est ad astra mollis e terris via."</em>
+  </p>
+</div>
