@@ -6,7 +6,38 @@ sidebar:
 updated: 2025-12-28
 ---
 
-import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Tabs, TabItem, Code } from "@astrojs/starlight/components";
+
+export const commonImports = `import { createSignal, onMount, Show, createMemo, createEffect } from "solid-js";
+import { 
+  ToastProvider, 
+  useToast, 
+  Input,
+  DataTable,
+  Select,
+  Checkbox,
+  Button,
+  Modal,
+  TableAction,
+  ActionIcons
+} from "@/components/atoms";
+import { IslandBase } from "@/components/templates/IslandBase";
+import { StatCard } from "@/components/molecules";
+import { HEADERS_APV, FOOTER_SUM_KEYS_APV } from "@/config/headers";
+import { authenticatedFetch } from "@/lib/authFetch";
+import { useTenants } from "@/lib/hooks/useTenants";`;
+
+export const designPattern = `export default function EjemploIsla() {
+  const { tenants } = useTenants();
+  
+  return (
+    <IslandBase title="Gestión de Recursos">
+      <div class="p-4">
+        {/* Lógica de UI */}
+      </div>
+    </IslandBase>
+  );
+}`;
 
 ## Concepto
 
@@ -18,48 +49,13 @@ Una isla típica en Sevastopol combina gestión de estado (`createSignal`, `crea
 
 ### Imports Comunes
 
-```typescript
-import {
-  createSignal,
-  onMount,
-  Show,
-  createMemo,
-  createEffect,
-} from "solid-js";
-import {
-  ToastProvider,
-  useToast,
-  Input,
-  DataTable,
-  Select,
-  Checkbox,
-  Button,
-  Modal,
-  TableAction,
-  ActionIcons,
-} from "@/components/atoms";
-import { IslandBase } from "@/components/templates/IslandBase";
-import { StatCard } from "@/components/molecules";
-import { HEADERS_APV, FOOTER_SUM_KEYS_APV } from "@/config/headers";
-import { authenticatedFetch } from "@/lib/authFetch";
-import { useTenants } from "@/lib/hooks/useTenants";
-```
+<Code code={commonImports} lang="typescript" title="Imports Típicos" />
 
 ### Patrón de Diseño
 
 Utilizamos `IslandBase` como envoltorio común para proporcionar consistencia visual y manejo de errores.
 
-```tsx
-export default function EjemploIsla() {
-  const { tenants } = useTenants();
-
-  return (
-    <IslandBase title="Gestión de Recursos">
-      <div class="p-4">{/* Lógica de UI */}</div>
-    </IslandBase>
-  );
-}
-```
+<Code code={designPattern} lang="tsx" title="Ejemplo de Estructura" />
 
 ## Islas Principales
 

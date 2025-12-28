@@ -6,6 +6,31 @@ sidebar:
 updated: 2025-12-28
 ---
 
+import { Code } from "@astrojs/starlight/components";
+
+export const middlewareCode = `// src/middleware.ts
+
+import { defineMiddleware } from "astro:middleware";
+
+export const onRequest = defineMiddleware(async (context, next) => {
+  const { cookies, redirect, url } = context;
+  
+  // Lista de rutas públicas
+  if (url.pathname === "/login" || url.pathname === "/") {
+    return next();
+  }
+
+// Verificación de cookie de sesión 'sid'
+const hasSession = cookies.has("sid");
+
+if (!hasSession) {
+return redirect("/login");
+}
+
+// Continuar request
+return next();
+});`;
+
 ## Overview
 
 El archivo `middleware.ts` en la raíz de `src` intercepta todas las solicitudes entrantes al servidor de Astro. Su función principal es validar la presencia de credenciales y redirigir usuarios no autenticados.
@@ -18,30 +43,7 @@ El middleware utiliza `defineMiddleware` de Astro para encadenar lógica antes d
 
 Por defecto, todas las rutas bajo `/admin` y `/payroll` requieren autenticación. Las rutas públicas (login, landing, etc.) están excluidas explícitamente.
 
-```typescript
-// src/middleware.ts
-
-import { defineMiddleware } from "astro:middleware";
-
-export const onRequest = defineMiddleware(async (context, next) => {
-  const { cookies, redirect, url } = context;
-
-  // Lista de rutas públicas
-  if (url.pathname === "/login" || url.pathname === "/") {
-    return next();
-  }
-
-  // Verificación de cookie de sesión 'sid'
-  const hasSession = cookies.has("sid");
-
-  if (!hasSession) {
-    return redirect("/login");
-  }
-
-  // Continuar request
-  return next();
-});
-```
+<Code code={middlewareCode} lang="typescript" title="src/middleware.ts" />
 
 ## Relación con Orchestrator
 
