@@ -35,49 +35,23 @@ export default defineConfig({
         },
         {
           label: 'Sistema Contable',
-          items: [
-            { label: 'Visión General', link: '/accounting/sistema-contable/' },
-            {
-              label: 'Remuneraciones',
-              items: [
-                { label: 'Overview', link: '/accounting/remuneraciones/' },
-                { label: 'Tablas', link: '/accounting/remuneraciones/tablas/' },
-                { label: 'Cálculos', link: '/accounting/remuneraciones/calculos/' },
-                { label: 'Motor de Cálculo', link: '/accounting/remuneraciones/motor-calculo/' },
-                { label: 'Gen. Imposiciones', link: '/accounting/remuneraciones/generacion-imposiciones/' },
-                { label: 'Generación Honorarios', link: '/accounting/remuneraciones/generacion-honorarios/' },
-                { label: 'Testing', link: '/accounting/remuneraciones/test-payroll/' },
-                { label: 'Diagramas', link: '/accounting/remuneraciones/diagramas/' }
-              ]
-            }
-          ]
+          autogenerate: { directory: 'accounting' }
         },
         {
           label: 'Arquitectura',
-          items: [
-            { label: 'Vista General', link: '/arquitectura/overview/' },
-            { label: 'Diagramas', link: '/arquitectura/diagramas/' }
-          ]
+          autogenerate: { directory: 'arquitectura' }
         },
         {
           label: 'API',
-          items: [
-            { label: 'Endpoints', link: '/api/endpoints/' }
-          ]
+          autogenerate: { directory: 'api' }
         },
         {
           label: 'Seguridad',
-          items: [
-            { label: 'Buenas Prácticas', link: '/seguridad/practicas/' },
-            { label: 'Autenticación', link: '/seguridad/autenticacion/' },
-            { label: 'Limpieza', link: '/seguridad/limpieza/' }
-          ]
+          autogenerate: { directory: 'seguridad' }
         },
         {
           label: 'Subidas',
-          items: [
-            { label: 'Scripts', link: '/subidas/' }
-          ]
+          autogenerate: { directory: 'subidas' }
         },
       ],
   // i18n: {

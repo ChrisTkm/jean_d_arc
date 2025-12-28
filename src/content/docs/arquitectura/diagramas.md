@@ -128,9 +128,6 @@ flowchart LR
 
 ### Flujos Principales
 
-
-#### 1. Carga de Parámetros
-
 #### 1. Carga de Parámetros
 
 ```mermaid
