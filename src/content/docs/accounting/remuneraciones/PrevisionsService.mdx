@@ -1,0 +1,89 @@
+---
+title: Generación de Imposiciones
+description: Proceso de consolidación de cotizaciones previsionales, aportes patronales y retenciones para pago centralizado (Previred/F29).
+sidebar:
+  label: Gen. Imposiciones
+  order: 4
+updated: 2025-12-28
+---
+
+import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+El proceso de **Generación de Imposiciones** es una etapa posterior al cálculo de remuneraciones. Su objetivo es consolidar los montos individuales calculados en las liquidaciones y agruparlos por institución.
+
+> **Migración 2025-12**: Lógica migrada a **Servicio de Dominio en Orchestrator** (`PrevisionsService`).
+
+## Lógica de Consolidación
+
+La consolidación se realiza en 6 bloques principales. Solo se consideran liquidaciones en estado `CALCULADA`, `APROBADA` o `PAGADA`.
+
+<Tabs>
+  <TabItem label="Trabajador (Descuentos)">
+    <Steps>
+    1. **AFP Obligatorio**: 
+       Agrupa por AFP el total descontado (10% + Comisión). Concepto `DESC-001`.
+    
+    2. **Salud**:
+       - Agrupa por ISAPRE (Concepto `DESC-002`).
+       - Si no tiene Isapre, consolida todo bajo `FONASA`.
+    
+    3. **Seguro de Cesantía**:
+       Agrupa el 0.6% de cargo trabajador bajo la entidad AFP (visual) o AFC.
+    </Steps>
+  </TabItem>
+  
+  <TabItem label="Empleador (Aportes)">
+    <Steps>
+    1. **SIS y Mutual**:
+       - SIS (`APT-003`) se paga a las AFP.
+       - Mutual (`APT-004`) a la Mutual de Seguridad correspondiente.
+    
+    2. **Cesantía Empleador**:
+       El 2.4% o 3.0% (`APT-002`) se consolida para pago a AFC.
+    </Steps>
+  </TabItem>
+
+  <TabItem label="Fisco (SII)">
+    <Steps>
+    1. **Impuesto Único**:
+       Total del tributo (`DESC-004`) para F29.
+    
+    2. **Retención Honorarios**:
+       Suma de retenciones de boletas procesadas para F29.
+    </Steps>
+  </TabItem>
+</Tabs>
+
+## Arquitectura del Proceso
+
+El proceso es **Idempotente** y transaccional.
+
+```mermaid
+sequenceDiagram
+    participant API as Controller
+    participant Service as PrevisionsService
+    participant Repo as PrevisionsRepository
+    participant DB as PostgreSQL
+
+    API->>Service: generate(year, month)
+
+    rect rgba(0, 0, 0, 0.1)
+    note right of Service: 1. Agregación (Read-Only)
+    Service->>Repo: getAFPWorkerAggregates()
+    Repo->>DB: SELECT SUM(...) FROM liquidaciones_detalle
+    DB-->>Repo: Totales AFP
+    Service->>Repo: getHealthWorkerAggregates()
+    Repo-->>Service: Totales ISAPRE/FONASA
+    end
+
+    rect rgba(0, 0, 0, 0.1)
+    note right of Service: 2. Persistencia (Transactional)
+    Service->>Repo: transactionalReplace(Entity[])
+    Repo->>DB: BEGIN
+    Repo->>DB: DELETE FROM imposiciones WHERE mes=X
+    Repo->>DB: INSERT INTO imposiciones (Batch)
+    Repo->>DB: COMMIT
+    end
+
+    Service-->>API: Resultado (Rows created)
+```

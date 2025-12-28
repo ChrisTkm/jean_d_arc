@@ -4,6 +4,7 @@ description: Visión general de la estrategia de seguridad en el ecosistema cont
 sidebar:
   label: Introducción
   order: 1
+updated: 2025-12-28
 ---
 
 La seguridad en el ecosistema Nostromo/Jean d'Arc se basa en el principio de **Defensa en Profundidad**, implementando controles en cada capa de la arquitectura, desde la infraestructura hasta la interfaz de usuario.

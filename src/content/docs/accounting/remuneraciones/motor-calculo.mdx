@@ -4,17 +4,20 @@ description: Documentación técnica del nuevo motor de cálculo híbrido (TypeS
 sidebar:
   label: Motor de Cálculo
   order: 5
-updated: 2025-12-20
+updated: 2025-12-28
 ---
+
+import { Aside } from "@astrojs/starlight/components";
 
 ## Visión General
 
 Como parte de la estrategia **Pragmatic Hybrid Architecture 2025**, la lógica de cálculo de remuneraciones se ha migrado desde Stored Procedures (PL/pgSQL) a una capa de dominio en **TypeScript** dentro del Orchestrator.
 
-Esta arquitectura separa claramente responsabilidades:
-
-- **PostgreSQL**: Persistencia y lecturas eficientes (Smart Views).
-- **Orchestrator (Node.js)**: Lógica de negocio compleja, validaciones y cálculo.
+<Aside type="tip" title="Filosofía">
+  Esta arquitectura separa claramente responsabilidades: - **PostgreSQL**:
+  Persistencia y lecturas eficientes (Smart Views). - **Orchestrator
+  (Node.js)**: Lógica de negocio compleja, validaciones y cálculo.
+</Aside>
 
 ## Arquitectura de Componentes
 
@@ -73,7 +76,7 @@ sequenceDiagram
     participant Engine as PayrollEngine
 
     API->>Service: previewPayroll(contractId, oct-2025)
-    
+
     rect rgba(0, 0, 0, 0.1)
     note right of Service: 1. Obtención de Datos
     Service->>Repo: getPayrollContext(contractId, oct-2025)
@@ -89,7 +92,7 @@ sequenceDiagram
     note right of Service: 2. Adaptación y Cálculo
     Service->>Service: Map Context -> PayrollInput
     Service->>Engine: calculate(PayrollInput)
-    
+
     activate Engine
     Engine->>Engine: Calc Sueldo Prorrateado
     Engine->>Engine: Calc Gratificación (Tope 4.75 IMM)
@@ -117,20 +120,14 @@ Cada aspecto de la liquidación tiene su propia clase aislada y testeada:
 - **SocialLawsCalculator**: Calcula AFP, SIS, Mutual, AFC (Trabajador y Empleador).
 - **TaxCalculator**: Aplica tabla de Impuesto de 2da Categoría con rebajas.
 
-### 2. Motor (PayrollEngine)
-
-Ubicación: `src/domain/payroll/PayrollEngine.ts`
-
-Es una función pura estática. No realiza I/O.
-
-- **Entrada**: `PayrollInput` (Interfaz estricta con todos los valores monetarios y factores).
-- **Salida**: `PayrollResult` (Estructura de la liquidación con haberes, descuentos y líquido).
+<Aside type="caution" title="Pureza Funcional">
+  **PayrollEngine** es una función pura estática. No realiza I/O. - **Entrada**:
+  `PayrollInput` (Interfaz estricta). - **Salida**: `PayrollResult` (Resultado
+  matemático).
+</Aside>
 
 ### 3. Repositorio (PayrollRepository)
 
 Ubicación: `src/domain/payroll/PayrollRepository.ts`
 
-Centraliza el SQL. Reemplaza la necesidad de tener lógica de negocio dispersa en múltiples queries.
-
-- Utiliza `Promise.all` para paralelizar la obtención de Contrato, Asistencia e Indicadores.
-- Retorna valores "crudos" o semi-procesados (ej: Topes en UF) que el Servicio luego adapta.
+Centraliza el SQL. Reemplaza la necesidad de tener lógica de negocio dispersa en múltiples queries. Utiliza `Promise.all` para paralelizar la obtención de Contrato, Asistencia e Indicadores.

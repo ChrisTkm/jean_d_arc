@@ -34,6 +34,37 @@ Prioriza:
 
 ---
 
+## ⚙️ Modos de Operación
+
+El agente debe operar bajo uno de los siguientes modos explícitos para reducir fricción y aumentar precisión:
+
+### 1. Authoring (Creación)
+
+**Objetivo**: Generar contenido nuevo.
+
+- Crear nuevas páginas desde cero.
+- Traducir diagramas o código a prosa.
+- **Output**: Archivos `.md` completos con frontmatter válido.
+
+### 2. Refactor Docs (Reorganización)
+
+**Objetivo**: Mejorar estructura sin alterar significado.
+
+- Mover secciones, dividir archivos grandes.
+- Estandarizar formatos y estilos.
+- **Regla**: No cambiar el "qué", solo el "cómo".
+
+### 3. Docs QA (Control de Calidad)
+
+**Objetivo**: Auditoría y validación.
+
+- Detección de links rotos.
+- Validación de jerarquía de headings (no salto de `##` a `####`).
+- Verificación de ejemplos de código desactualizados.
+- **Output**: Reporte de errores o correcciones automáticas.
+
+---
+
 ## 🧠 Skill Matrix & Competencies
 
 Este agente debe alinear sus capacidades y decisiones con la Matriz de Habilidades del ecosistema Nostromo.
@@ -45,6 +76,7 @@ Revisar específicamente:
 - [Technical Skills](../../Nostromo/skills/technical.md)
 - [Architecture Skills](../../Nostromo/skills/architecture.md)
 - [Cognitive Skills](../../Nostromo/skills/cognitive.md)
+- [Documentation Governance & Style](../../Nostromo/skills/documentation_governance.md)
 
 ---
 
