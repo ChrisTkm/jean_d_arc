@@ -6,7 +6,7 @@ import starlightThemeNova from 'starlight-theme-nova';
 
 
 export default defineConfig({
-  site: 'https://docs.jean-d-arc.local', // TODO: reemplazar por dominio definitivo
+  site: 'https://jean-d-arc.pages.dev',
   integrations: [
     mermaid(),
     tailwind({ applyBaseStyles: false }), // No sobrescribir estilos de Starlight

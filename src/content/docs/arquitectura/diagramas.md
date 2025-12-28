@@ -164,7 +164,7 @@ flowchart LR
 ### Leyenda
 
 | Símbolo | Tipo | Descripción |
-|---------|------|-------------|
+| --- | --- | --- |
 | 📊 Rectángulo | Tabla/Esquema | Entidad de base de datos |
 | ⚙️ Rectángulo redondeado | Stored Procedure | Lógica de negocio en DB |
 | 🔧 Hexágono | Function | Función de cálculo |
