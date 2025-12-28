@@ -1,0 +1,48 @@
+---
+title: Middleware
+description: Middleware de Astro para autenticación y protección de rutas
+sidebar:
+  order: 3
+updated: 2025-12-28
+---
+
+## Overview
+
+El archivo `middleware.ts` en la raíz de `src` intercepta todas las solicitudes entrantes al servidor de Astro. Su función principal es validar la presencia de credenciales y redirigir usuarios no autenticados.
+
+## Implementación
+
+El middleware utiliza `defineMiddleware` de Astro para encadenar lógica antes de renderizar una página.
+
+### Rutas Protegidas
+
+Por defecto, todas las rutas bajo `/admin` y `/payroll` requieren autenticación. Las rutas públicas (login, landing, etc.) están excluidas explícitamente.
+
+```typescript
+// src/middleware.ts
+
+import { defineMiddleware } from "astro:middleware";
+
+export const onRequest = defineMiddleware(async (context, next) => {
+  const { cookies, redirect, url } = context;
+
+  // Lista de rutas públicas
+  if (url.pathname === "/login" || url.pathname === "/") {
+    return next();
+  }
+
+  // Verificación de cookie de sesión 'sid'
+  const hasSession = cookies.has("sid");
+
+  if (!hasSession) {
+    return redirect("/login");
+  }
+
+  // Continuar request
+  return next();
+});
+```
+
+## Relación con Orchestrator
+
+El middleware de Sevastopol **no valida el token JWT**, solo verifica su existencia. La validación real de seguridad ocurre cuando Sevastopol intenta hacer fetch de datos al **Orchestrator**, quien rechazará el token si es inválido, forzando un logout en el frontend.

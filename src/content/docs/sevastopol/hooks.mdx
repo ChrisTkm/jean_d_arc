@@ -1,0 +1,51 @@
+---
+title: Hooks Customizados
+description: Reactividad encapsulada con SolidJS hooks
+sidebar:
+  order: 4
+updated: 2025-12-28
+---
+
+## Overview
+
+Siguiendo el patrón de composición de SolidJS, encapsulamos lógica de negocio reutilizable en "Hooks" (funciones que retornan señales y métodos).
+
+## useTenants
+
+Este hook gestiona la carga y selección del Tenant activo. Es fundamental para la arquitectura multi-tenant de Nostromo.
+
+```typescript
+// src/lib/hooks/useTenants.ts
+
+import { createSignal, createResource } from "solid-js";
+import { authenticatedFetch } from "../authFetch";
+
+export function useTenants() {
+  // Estado local para el tenant seleccionado
+  const [selectedTenantId, setSelectedTenantId] = createSignal<string | null>(
+    null
+  );
+
+  // Fetch de tenants disponibles para el usuario
+  const [tenants] = createResource(async () => {
+    const response = await authenticatedFetch("/api/tenants");
+    return response.json();
+  });
+
+  const selectTenant = (id: string) => {
+    setSelectedTenantId(id);
+    // Persistir selección en localStorage o cookie si es necesario
+    localStorage.setItem("current_tenant", id);
+  };
+
+  return {
+    tenants,
+    selectedTenantId,
+    selectTenant,
+  };
+}
+```
+
+## useProxy
+
+Facilita la comunicación con el Backend Orchestrator, manejando automáticamente la inyección de headers de autorización y el manejo de errores HTTP 401/403.

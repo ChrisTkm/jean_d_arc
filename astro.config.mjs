@@ -47,9 +47,7 @@ export default defineConfig({
         },
         {
           label: 'Sevastopol (Frontend)',
-          items: [
-            { label: 'Overview', link: '/sevastopol/' }
-          ]
+          autogenerate: { directory: 'sevastopol' }
         },
         {
           label: 'Orchestrator (Backend)',

@@ -1,0 +1,81 @@
+---
+title: Islas Interactivas
+description: Componentes interactivos de SolidJS en Sevastopol
+sidebar:
+  order: 2
+updated: 2025-12-28
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+## Concepto
+
+Las "Islas" son componentes de **SolidJS** que inyectan interactividad en el HTML estático generado por Astro. Se utilizan para lógica de cliente compleja, como formularios dinámicos, tablas de datos y navegación SPA.
+
+## Estructura de una Isla
+
+Una isla típica en Sevastopol combina gestión de estado (`createSignal`, `createStore`), componentes de UI atómicos y llamadas a API.
+
+### Imports Comunes
+
+```typescript
+import {
+  createSignal,
+  onMount,
+  Show,
+  createMemo,
+  createEffect,
+} from "solid-js";
+import {
+  ToastProvider,
+  useToast,
+  Input,
+  DataTable,
+  Select,
+  Checkbox,
+  Button,
+  Modal,
+  TableAction,
+  ActionIcons,
+} from "@/components/atoms";
+import { IslandBase } from "@/components/templates/IslandBase";
+import { StatCard } from "@/components/molecules";
+import { HEADERS_APV, FOOTER_SUM_KEYS_APV } from "@/config/headers";
+import { authenticatedFetch } from "@/lib/authFetch";
+import { useTenants } from "@/lib/hooks/useTenants";
+```
+
+### Patrón de Diseño
+
+Utilizamos `IslandBase` como envoltorio común para proporcionar consistencia visual y manejo de errores.
+
+```tsx
+export default function EjemploIsla() {
+  const { tenants } = useTenants();
+
+  return (
+    <IslandBase title="Gestión de Recursos">
+      <div class="p-4">{/* Lógica de UI */}</div>
+    </IslandBase>
+  );
+}
+```
+
+## Islas Principales
+
+### ViewRouter
+
+El `ViewRouter` es el corazón de la navegación tipo SPA. Intercepta clics en enlaces internos y carga el contenido dinámicamente sin refrescar el navegador completo.
+
+### Admin Modules
+
+Islas destinadas a la gestión del sistema (Super Admin).
+
+- **TenantManagement**: ABM de empresas.
+- **UserRoles**: Matriz de permisos.
+
+### Payroll Modules
+
+Islas de cálculo y visualización de remuneraciones.
+
+- **LiquidacionesPreview**: Muestra el cálculo en tiempo real mientras se editan parámetros.
