@@ -32,25 +32,45 @@ El sistema se conecta con la base de datos de operaciones del SII (`operaciones_
 
 4. **Confirmación**:
    Los registros quedan disponibles para revisión y centralización contable.
-   </Steps>
+
+</Steps>
 
 ### Lógica de Sistema
 
 <Tabs>
   <TabItem label="Secuencia">
-    ```mermaid sequenceDiagram participant U as Usuario participant O as
-    Orchestrator participant SII as DB Operaciones SII participant DB as DB
-    Remuneraciones U->>O: Generar Honorarios (Periodo y Tenant) O->>SII: Obtener
-    Boletas Vigentes (VIGENTE, RECIBIDA) loop Procesamiento de Boletas O->>DB:
-    Buscar Prestador Externo (RUT) alt Prestador Encontrado DB-->>O: Tipo de
-    Servicio (ej. Contabilidad) else No existe O->>O: Asignar Default (Otros
-    Honorarios) end O->>DB: Insertar Honorario (Cabecera + Detalle) end O-->>U:
-    Confirmación (Nº Registros Generados) ```
+
+    ```mermaid
+    sequenceDiagram
+    participant U as Usuario
+    participant O as Orchestrator
+    participant SII as DB Operaciones SII
+    participant DB as DB Remuneraciones
+    U->>O: Generar Honorarios (Periodo y Tenant)
+    O->>SII: Obtener Boletas Vigentes (VIGENTE, RECIBIDA)
+    loop Procesamiento de Boletas
+        O->>DB: Buscar Prestador Externo (RUT)
+        alt Prestador Encontrado
+            DB-->>O: Tipo de Servicio (ej. Contabilidad)
+        else No existe
+            O->>O: Asignar Default (Otros Honorarios)
+        end
+        O->>DB: Insertar Honorario (Cabecera + Detalle)
+    end
+    O-->>U: Confirmación (Nº Registros Generados)
+    ```
+
   </TabItem>
   <TabItem label="Data Flow">
-    ```mermaid graph TD A[SII Operaciones] -->|Boletas VIGENTE| B(Proceso
-    Generación) C[Maestro Prestadores] -->|Clasificación| B B -->|Cabecera|
-    D[Tabla Honorarios] B -->|Detalle| E[Tabla Honorarios Detalle] ```
+
+    ```mermaid
+    graph TD
+    A[SII Operaciones] -->|Boletas VIGENTE| B(Proceso Generación)
+    C[Maestro Prestadores] -->|Clasificación| B
+    B -->|Cabecera| D[Tabla Honorarios]
+    B -->|Detalle| E[Tabla Honorarios Detalle]
+    ```
+
   </TabItem>
 </Tabs>
 
