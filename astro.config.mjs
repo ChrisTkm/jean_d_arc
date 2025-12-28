@@ -46,6 +46,18 @@ export default defineConfig({
           autogenerate: { directory: 'api' }
         },
         {
+          label: 'Sevastopol (Frontend)',
+          items: [
+            { label: 'Overview', link: '/sevastopol/' }
+          ]
+        },
+        {
+          label: 'Orchestrator (Backend)',
+          items: [
+            { label: 'Overview', link: '/orchestrator/' }
+          ]
+        },
+        {
           label: 'Seguridad',
           autogenerate: { directory: 'seguridad' }
         },

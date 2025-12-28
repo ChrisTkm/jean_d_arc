@@ -1,0 +1,68 @@
+---
+title: Sevastopol (Frontend)
+description: Documentación del Frontend de Sevastopol
+sidebar:
+  label: Overview
+  order: 1
+updated: 2025-12-28
+---
+
+import { FileTree, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+## Overview
+
+**Sevastopol** es la interfaz de usuario del sistema contable, construida con **Astro**, **SolidJS** y **Tailwind CSS**. Implementa una arquitectura moderna de islas para interactividad y generación estática para rendimiento.
+
+## Estructura del Proyecto
+
+<FileTree>
+  - src - components/ - UI/Shared components - config/ - Configuration files -
+  icons/ - SVG Icons - layouts/ - Layout.astro - lib/ - Utilities and helpers -
+  middleware.ts - pages/ - File-based routing - styles/ - Global styles - types/
+  - TypeScript definitions - package.json - astro.config.mjs -
+  tailwind.config.mjs
+</FileTree>
+
+## Scripts Disponibles
+
+Comandos definidos en `package.json` para el ciclo de desarrollo.
+
+| Comando    | Descripción                             | Ejecución          |
+| :--------- | :-------------------------------------- | :----------------- |
+| `dev`      | Inicia el servidor de desarrollo local  | `npm run dev`      |
+| `build`    | Genera el build de producción           | `npm run build`    |
+| `preview`  | Visualiza el build localmente           | `npm run preview`  |
+| `lint`     | Ejecuta ESLint                          | `npm run lint`     |
+| `format`   | Formatea código con Prettier            | `npm run format`   |
+| `test:e2e` | Ejecuta tests end-to-end con Playwright | `npm run test:e2e` |
+
+## Tecnologías Clave
+
+- **Astro**: Framework principal.
+- **SolidJS**: Interactividad en islas.
+- **Tailwind CSS**: Estilizado.
+- **Playwright**: Testing E2E.
+
+## Islas Interactivas
+
+La interactividad en Sevastopol se maneja a través de "Islas" de SolidJS, que se hidratan en el cliente según sea necesario.
+
+### Core
+
+- **ViewRouter** (`view-router.ts`): Gestiona el enrutamiento del lado del cliente dentro de la aplicación, permitiendo transiciones fluidas entre vistas sin recargas completas de página.
+
+### Módulos de Negocio
+
+<Tabs>
+  <TabItem label="Admin">
+    Gestiona la configuración global y multi-tenant. - **TenantManagement**:
+    Creación y edición de tenants. - **UserRoles**: Asignación de permisos y
+    usuarios.
+  </TabItem>
+  <TabItem label="Payroll">
+    Contiene la lógica compleja de remuneraciones. - **PayrollCalculator**:
+    Interfaz para ejecutar cálculos de sueldos. - **LiquidacionesPreview**:
+    Visualización en tiempo real de liquidaciones. -
+    **HistoricoRemuneraciones**: Tablas de navegación de datos históricos.
+  </TabItem>
+</Tabs>

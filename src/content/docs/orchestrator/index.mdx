@@ -1,0 +1,71 @@
+---
+title: Orchestrator (Backend)
+description: Documentación del Backend Orchestrator
+sidebar:
+  label: Overview
+  order: 1
+updated: 2025-12-28
+---
+
+import { FileTree, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+## Overview
+
+**Orchestrator** es el backend central del sistema, encargado de la lógica de negocio, coordinación entre servicios y comunicación con la base de datos. Está construido en **Node.js** con **Express** y **TypeScript**.
+
+## Estructura del Proyecto
+
+<FileTree>
+  - src - app.ts - Express app configuration - server.ts - Entry point - domain/
+  - Domain Driven Design modules - lib/ - Shared libraries - middleware/ -
+  Express middlewares (Auth, Logging) - routes/ - API Route definitions - test/
+  - Integration tests - package.json - tsconfig.json
+</FileTree>
+
+## Scripts Disponibles
+
+Comandos para desarrollo, build y testing.
+
+| Comando             | Descripción                           | Ejecución                   |
+| :------------------ | :------------------------------------ | :-------------------------- |
+| `dev`               | Servidor de desarrollo con hot-reload | `npm run dev`               |
+| `build`             | Compila TypeScript a JavaScript       | `npm run build`             |
+| `start`             | Inicia el servidor compilado          | `npm run start`             |
+| `test:orchestrator` | Runner principal de tests             | `npm run test:orchestrator` |
+| `test:payroll`      | Tests del dominio de remuneraciones   | `npm run test:payroll`      |
+| `test:domain`       | Tests de todos los dominios           | `npm run test:domain`       |
+
+## Arquitectura
+
+El Orchestrator sigue principios de **Clean Architecture** y **Domain-Driven Design (DDD)**, separando claramente las rutas (capa de presentación) de la lógica de dominio.
+
+- **Rutas**: Definen los endpoints HTTP.
+- **Dominio**: Contiene la lógica pura de negocio (Calculadoras, Servicios).
+- **Persistencia**: Interactúa con PostgreSQL.
+
+## Dominio y Servicios
+
+El núcleo del Orchestrator se divide en contextos delimitados (Bounded Contexts) bajo `src/domain`.
+
+### Command (Gestión del Sistema)
+
+Servicios transversales para la administración de la plataforma.
+
+- **TenantService**: Gestión del ciclo de vida de los inquilinos (Tenants) y aislamiento de datos.
+- **SessionService**: Manejo de autenticación, JWT y sesiones de usuario.
+- **MonitoringService**: Observabilidad y estado de salud del sistema.
+
+### Payroll (Remuneraciones)
+
+Motor de cálculo y procesamiento de sueldos.
+
+- **PayrollService**: Orquestador principal de operaciones de nómina.
+- **PayrollEngine**: Motor de cálculo puro que integra múltiples calculadoras (Sueldo Base, Gratificación, Leyes Sociales).
+- **Calculators**: Unidades lógicas especializadas (e.g., `TaxCalculator`, `SocialLawsCalculator`).
+
+### SiiProcessing
+
+Manejo de integraciones con el Servicio de Impuestos Internos.
+
+- Procesamiento de compras y ventas (F29).
+- Generación de libros electrónicos.
