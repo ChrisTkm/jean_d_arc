@@ -4,7 +4,7 @@ description: Definición de tablas del schema remuneraciones
 sidebar:
   label: Tablas
   order: 2
-updated: 2025-12-17
+updated: 2025-12-28
 ---
 
 Descripción detallada de las tablas principales del schema `remuneraciones`.
@@ -26,10 +26,6 @@ Representa la **cabecera** de una liquidación de sueldo. Almacena los totales c
 | `total_descuentos` | Numeric | Suma total de descuentos. |
 | `total_liquido` | Numeric | Monto final a pagar (`haberes - descuentos`). |
 | `estado` | Text | `BORRADOR`, `CALCULADA`, `APROBADA`, `PAGADA`. |
-
-:::caution[Legacy Columns]
-Esta tabla contiene columnas individuales como `sueldo_base`, `gratificacion`, etc. Se mantienen por compatibilidad, pero **el valor real se debe reconstruir desde `liquidaciones_detalle`**.
-:::
 
 ## 2. Detalle de Liquidación
 

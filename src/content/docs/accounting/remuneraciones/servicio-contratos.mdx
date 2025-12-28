@@ -1,0 +1,51 @@
+---
+title: Servicio de Contratos
+description: Gestión del ciclo de vida contractual y generación de documentos.
+sidebar:
+  order: 3
+updated: 2025-12-28
+---
+
+import { Steps, Aside } from "@astrojs/starlight/components";
+
+El **Servicio de Contratos** administra la relación legal entre la empresa y el colaborador. Es la fuente de verdad para el cálculo de remuneraciones (Sueldo Base, Jornada, Antigüedad).
+
+:::note[Implementación Técnica]
+La lógica de validación y CRUD reside en los controladores de la API, mientras que la generación de PDFs utiliza un servicio externo renderizador de plantillas.
+:::
+
+## Ciclo de Vida del Contrato
+
+El sistema maneja estados lógicos para alertar sobre la vigencia:
+
+- **VIGENTE**: Fecha término futura o indefinida.
+- **POR VENCER**: Fecha término dentro de los próximos 30 días (Alerta Amarilla).
+- **VENCIDO**: Fecha término pasada (Alerta Roja).
+
+## Funcionalidades Clave
+
+### 1. Generación de Documentos (PDF)
+
+El sistema genera automáticamente el PDF del contrato o anexo utilizando plantillas predefinidas.
+
+<Steps>
+  1. **Recolección de Datos**: Se combinan los datos del Empleado (RUT,
+  Dirección) con las cláusulas del Contrato (Sueldo, Cargo). 2. **Renderizado**:
+  Se envía un payload JSON a un microservicio de renderizado (`GENERATOR_URL`).
+  3. **Almacenamiento**: El PDF resultante se guarda en el storage (AWS
+  S3/MinIO) y se vincula la URL al registro del contrato.
+</Steps>
+
+### 2. Control de Jornada
+
+Cada contrato está vinculado a un `jornada_id` que define los días y horas laborales.
+
+> **Regla de Negocio**: No se puede crear un contrato sin asignar una jornada válida, ya que esta es indispensable para el cálculo de asistencia y horas extra.
+
+### 3. Categorización
+
+El campo `categoria_trabajador` define reglas especiales de tributación o cotización:
+
+- **DEPENDIENTE**: Regla general.
+- **CASA_PARTICULAR**: Reglas especiales de indemnización y AFP.
+- **MENOR_MAYOR**: Aprendices o trabajadores jóvenes.

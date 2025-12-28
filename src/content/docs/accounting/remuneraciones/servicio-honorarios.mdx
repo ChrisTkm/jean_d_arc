@@ -1,0 +1,33 @@
+---
+title: Servicio de Honorarios
+description: Gestión y procesamiento automatizado de Boletas de Honorarios.
+sidebar:
+  order: 6
+updated: 2025-12-28
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+El **Servicio de Honorarios** automatiza la recepción y contabilidad de las Boletas de Honorarios Electrónicas (BHE) emitidas o recibidas.
+
+:::note[Implementación Técnica]
+Para ver la lógica de clasificación automática (Routing) y conexión con SII, ver [Orchestrator: Honorarios Service](../../orchestrator/services/HonorariosService).
+:::
+
+## Funcionalidades
+
+### Importación desde SII
+
+El sistema integra directamente con el Registro de Compras y Ventas (RCV) del SII para "bajar" las boletas recibidas.
+
+<Steps>
+  1. **Sincronización**: Se conecta al SII y descarga las boletas del período.
+  2. **Clasificación**: Utiliza el RUT del prestador para determinar la
+  naturaleza del gasto (Contabilidad, Legal, Desarrollo, etc.). 3.
+  **Generación**: Crea automáticamente el comprobante pro-forma en el sistema de
+  remuneraciones.
+</Steps>
+
+### Retenciones
+
+El sistema maneja automáticamente la lógica de retención (ej. 13.75% para 2025), determinando si es de cargo del emisor o de la empresa según el tipo de boleta.

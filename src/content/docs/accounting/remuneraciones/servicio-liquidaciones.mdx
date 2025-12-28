@@ -1,0 +1,40 @@
+---
+title: Servicio de Liquidaciones
+description: Motor central de cálculo y generación de documentos de pago.
+sidebar:
+  order: 5
+updated: 2025-12-28
+---
+
+import { Steps, Aside } from "@astrojs/starlight/components";
+
+El **Servicio de Liquidaciones** es el corazón del sistema de remuneraciones. Orquesta la transformación de datos contractuales y de asistencia en un documento legal de pago.
+
+:::note[Implementación Técnica]
+Para detalles del **Payroll Engine**, fórmulas matemáticas y código fuente, ver [Orchestrator: Payroll Service](../../orchestrator/services/PayrollService).
+:::
+
+## Flujo Operativo
+
+<Steps>
+1. **Apertura de Mes**: 
+   RRHH define el período a procesar (ej. Octubre 2025). Se cargan los valores UF/UTM del mes.
+
+2. **Carga de Novedades**:
+   Se confirman las asistencias y se ingresan bonos o descuentos variables (Aguinaldos, Anticipos).
+
+3. **Ejecución del Cálculo**:
+   El motor procesa empleado por empleado:
+   - **Haberes Imponibles**: Sueldo base proporcional, Gratificación, Horas Extra.
+   - **Leyes Sociales**: AFP, Salud, Seguro de Cesantía.
+   - **Impuesto Único**: Cálculo según tabla mensual del SII.
+   - **No Imponibles**: Colación, Movilización.
+
+4. **Revisión y Cierre**:
+   Se emiten pre-nóminas. Una vez validadas, se "Cierra" el mes, impidiendo modificaciones futuras.
+   </Steps>
+
+<Aside type="tip" title="Reproceso">
+  El sistema permite recalcular liquidaciones individuales tantas veces como sea
+  necesario mientras el mes esté en estado **ABIERTO**.
+</Aside>

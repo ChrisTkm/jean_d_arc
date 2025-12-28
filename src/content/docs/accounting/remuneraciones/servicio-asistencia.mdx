@@ -1,0 +1,42 @@
+---
+title: Servicio de Asistencia
+description: Gestión operativa de tiempos, asistencia y control de jornadas.
+sidebar:
+  order: 4
+updated: 2025-12-28
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+El **Boletín de Asistencia** y su gestión es el insumo primario para el cálculo de remuneraciones. Este servicio administra la captura, validación y consolidación de los tiempos trabajados.
+
+:::note[Implementación Técnica]
+Para detalles de código, lógica de transacciones y optimización SQL, ver [Orchestrator: Attendance Service](../../orchestrator/services/AttendanceService).
+:::
+
+## Funcionalidades Funcionales
+
+1. **Generación de Grilla Mensual**:
+   Crea la estructura de "días esperados" según el contrato (Lunes a Viernes, Turnos, etc.).
+2. **Control de Excepciones**:
+   Permite registrar manual o automáticamente:
+   - Atrasos (minutos).
+   - Horas Extra (al 50% y 100%).
+   - Ausencias (Licencias, Permisos, Faltas).
+
+## Reglas de Negocio
+
+El sistema prioriza la **realidad sobre el contrato**:
+
+- Si un empleado tiene contrato de Lunes a Viernes pero marca asistencia un Sábado, el sistema lo registra y alerta para posible pago de horas extra.
+- Los días _Feriados_ se generan automáticamente bloqueando la asistencia esperada, salvo para turnos especiales.
+
+## Integración con Remuneraciones
+
+El total de días trabajados se inyecta directamente el en Motor de Cálculo.
+
+| Concepto            | Origen                  | Impacto en Liq.                 |
+| :------------------ | :---------------------- | :------------------------------ |
+| **Días Trabajados** | Suma de días `PRESENTE` | Base de Sueldo y Gratificación. |
+| **Ausencias**       | Suma de días `AUSENTE`  | Descuento proporcional.         |
+| **Licencias**       | Días `LICENCIA`         | Pago por Subsidio (no empresa). |

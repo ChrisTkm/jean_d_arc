@@ -1,0 +1,27 @@
+---
+title: Servicio de Imposiciones
+description: Consolidación y pago de leyes sociales (Previred).
+sidebar:
+  order: 7
+updated: 2025-12-28
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+El **Servicio de Imposiciones** tiene como objetivo consolidar todos los descuentos y aportes calculados en las liquidaciones para generar los archivos de pago centralizado (Previred).
+
+## Alcance
+
+Este servicio agrupa montos por **Institución Previsional**:
+
+- **AFP**: Cotización Obligatoria (10%), Comisión AFP, SIS (Aporte Patronal).
+- **Salud**: Cotización Isapre (UF/CLP), Fonasa (7%).
+- **Cajas de Compensación / Mutuales**: Aportes de seguridad laboral y créditos sociales.
+- **AFC**: Seguro de Cesantía (Trabajador y Empleador).
+
+## Centralización Contable
+
+A diferencia de la liquidación (que es por empleado), este proceso genera **Pasivos por Institución**.
+
+> **Ejemplo**:
+> Se genera una sola deuda contra "AFP Modelo" por la suma de las cotizaciones de todos los empleados afiliados a ella.
