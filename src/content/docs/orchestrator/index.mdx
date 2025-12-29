@@ -9,9 +9,300 @@ updated: 2025-12-28
 
 import { FileTree, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
 
-## Overview
+## Propósito y alcance
 
-**Orchestrator** es el backend central del sistema, encargado de la lógica de negocio, coordinación entre servicios y comunicación con la base de datos. Está construido en **Node.js** con **Express** y **TypeScript**.
+**Orchestrator** es la puerta de enlace API backend del sistema de contabilidad, construida en **Node.js** con **Express** y **TypeScript** e implementando una arquitectura basada en dominios. Sirve como fuente única de verdad para todas las operaciones de lógica empresarial, validación de datos y bases de datos de múltiples inquilinos. Orchestrator expone los puntos finales RESTful consumidos por la interfaz de Sebastopol y aplica autenticación, autorización y coherencia de datos en todas las operaciones.
+
+Este documento cubre la arquitectura del Orchestrator, la organización del dominio, el flujo de middleware y los patrones de desarrollo. Para obtener información sobre la aplicación frontend, consulte Frontend (Sebastopol). Para obtener detalles sobre dominios específicos como el cálculo de nómina, consulte Sistema de nóminas y recursos humanos.
+
+## Tecnologías
+
+| Paquete |	Versión | Propósito  |
+| --- | --- | --- |
+| express	| 5.1.0	| Marco del servidor HTTP |
+| pg	| 8.16.3	| Cliente PostgreSQL (nodo-postgres) |
+| jsonwebtoken	| 9.0.2	| Manejo de tokens JWT |
+| bcryptjs	| 3.0.2	| Hashing de contraseñas |
+| helmet	| 8.1.0	| Middleware de seguridad |
+| cors	| 2.8.5	| Intercambio de recursos entre orígenes |
+| morgan	| 1.10.1	| Registro de solicitudes HTTP |
+| express-validator	| 7.0.1	| Validación de entrada |
+| cookie-parser	| 1.4.7	| Análisis de cookies |
+| dotenv	| 17.2.1	| Variables ambientales |
+| date-fns	| 4.1.0	| Manipulación de fecha |
+| puppeteer	| 23.7.0	| Generación de PDF |
+| jest	| 29.6.1	| Marco de pruebas (dev) |
+| supertest	| 6.3.3	| Pruebas HTTP (dev) |
+| typescript	| 5.9.2	| Sistema de tipos (dev) |
+
+Tiempo de ejecución: Node.js 20+
+
+## Arquitectura de la Aplicación
+
+### Factoría de Aplicación Express
+
+El Orchestrator utiliza un patrón de factoría para crear la instancia de aplicación Express, habilitando testabilidad y arranque limpio del servidor:
+
+```mermaid
+flowchart TB
+  A[createApp()] --> P[Pipeline de Middleware]
+  A --> H[Servidor HTTP]
+
+  P --> R[Montaje de Rutas]
+  P --> HM[helmet()]
+  P --> CS[cors()]
+  P --> MG["morgan('combined')"]
+  P --> EJ[express.json()]
+  P --> CP[cookieParser()]
+
+  %% Rutas
+  R --> HE["/health"]
+  R --> TA["/api/tenant, /api/admin,<br/>/api/auth"]
+  R --> PA["/api/parameters, /api/afc"]
+  R --> AC["/api/accounting"]
+  R --> RE["/api/remuneraciones/*,<br/>/api/employees"]
+
+  %% Relación middleware -> grupos (como en el diagrama)
+  HM --> TA
+  CS --> PA
+  MG --> AC
+  EJ --> RE
+  CP --> RE
+```
+
+La función `createApp` retorna una aplicación Express configurada sin iniciar el servidor, permitiendo importarla para testing:
+
+### Organización de Rutas Orientada al Dominio
+
+Las rutas están organizadas por dominio de negocio, con cada archivo de ruta importado y montado en `app.ts`:
+
+Registro Completo de Rutas:
+
+| Prefijo de Ruta	| Ruta de Archivo	| Dominio	| Schema de Base de Datos |
+| --- | --- | --- | --- |
+| /api/tenant	| routes/command/tenant.ts |	Command |	command.tenants |
+| /api/tenant-db |	routes/command/tenant-db.ts |	Command | command.tenant_databases |
+| /api/admin |	routes/command/users.ts	| Command | command.users |
+| /api/sessions |	routes/command/sessions.ts |	Command |	command.sessions |
+| /api/monitoring	| routes/command/monitoring.ts | Command | Métricas del sistema |
+| /api/auth	| routes/command/auth.ts |	Command	| Autenticación |
+| /api/menu	| routes/command/menu.ts	| Command	| Menús dinámicos |
+| /api/parameters	| routes/common/parameters.ts	| Common  |	parametros.indicadores |
+| /api/afc	| routes/common/afc.ts	| Common |	parametros.afc |
+| /api/impuesto_2cat	| routes/common/impuesto_2cat.ts	| Common |	parametros.impuesto_2cat |
+| /api/accounting	| routes/accounting.ts	| Operations |	operaciones_sii.* |
+| /api/afp	| routes/remuneraciones/afp.ts	| Remuneraciones |	remuneraciones.afp |
+| /api/attendance	| routes/remuneraciones/attendance.ts	| Remuneraciones |	remuneraciones.asistencia_dia |
+| /api/cargos	| routes/remuneraciones/cargos.ts	| Remuneraciones |	remuneraciones.cargos |
+| /api/contracts |	routes/remuneraciones/contracts.ts |	Remuneraciones	| remuneraciones.contratos |
+| /api/departments	| routes/remuneraciones/departments.ts	| Remuneraciones	| remuneraciones.departamentos |
+| /api/employees	| routes/remuneraciones/employees.ts	| Remuneraciones	| remuneraciones.empleados |
+| /api/apv_contracts	| routes/remuneraciones/apv_contracts.ts	| Remuneraciones	| remuneraciones.contrato_apv |
+| /api/isapre_contracts	| routes/remuneraciones/isapre_contracts.ts	| Remuneraciones	| remuneraciones.contrato_isapre |
+| /api/isapre	| routes/remuneraciones/isapre.ts	| Remuneraciones	| remuneraciones.isapre |
+| /api/remuneraciones/payroll	| routes/remuneraciones/payroll.ts	| Remuneraciones	| remuneraciones.liquidaciones |
+| /api/permissions	| routes/remuneraciones/permissions.ts	| Remuneraciones	| remuneraciones.permisos |
+| /api/previsiones	| routes/remuneraciones/previsiones.ts	| Remuneraciones	| Seguridad social agregada |
+| /api/honorarios	| routes/remuneraciones/honorarios.ts	| Remuneraciones	| remuneraciones.honorarios |
+| /api/vacations	| routes/remuneraciones/vacations.ts	| Remuneraciones	| remuneraciones.vacaciones |
+| /api/working_day	| routes/remuneraciones/working_day.ts	| Remuneraciones	| remuneraciones.jornadas |
+| /api/generate-pdf	| routes/remuneraciones/generate-pdf.ts	| Remuneraciones	| Generación de PDF |
+| /api/finiquitos	| routes/remuneraciones/finiquitos.ts	| Remuneraciones	| remuneraciones.finiquitos |
+| /api/admin/plan-contable	| routes/admin/plan_contable.ts	| Admin	administracion.plan_contable |
+
+
+### Patrón de Organización de Dominios:
+
+```mermaid
+flowchart LR
+  subgraph REM["Dominio Remuneraciones"]
+    PAY["payroll.ts<br/>/api/remuneraciones/payroll"]
+    EMP["employees.ts<br/>/api/employees"]
+    CON["contracts.ts<br/>/api/contracts"]
+    ATT["attendance.ts<br/>/api/attendance"]
+    VAC["vacations.ts<br/>/api/vacations"]
+    PER["permissions.ts<br/>/api/permissions"]
+    PREV["previsiones.ts<br/>/api/previsiones"]
+    HON["honorarios.ts<br/>/api/honorarios"]
+    FIN["finiquitos.ts<br/>/api/finiquitos"]
+    PDF["generate-pdf.ts<br/>/api/generate-pdf"]
+  end
+  subgraph OPS["Dominio Operations"]
+    ACC["accounting.ts<br/>/api/accounting"]
+    PLAN["plan_contable.ts<br/>/api/admin/plan-contable"]
+  end
+  subgraph COM["Dominio Common"]
+    PAR["parameters.ts<br/>/api/parameters"]
+    AFC["afc.ts<br/>/api/afc"]
+    IMP["impuesto_2cat.ts<br/>/api/impuesto_2cat"]
+  end
+  subgraph CMD["Dominio Command"]
+    TEN["tenants.ts<br/>/api/tenant"]
+    TENDB["tenant-db.ts<br/>/api/tenant-db"]
+    USR["users.ts<br/>/api/admin"]
+    SES["sessions.ts<br/>/api/sessions"]
+    AUTH["auth.ts<br/>/api/auth"]
+    MON["monitoring.ts<br/>/api/monitoring"]
+    MENU["menu.ts<br/>/api/menu"]
+  end
+```
+---
+
+## Multi-Tenencia y Gestión de Bases de Datos
+
+### Arquitectura de Pools de Base de Datos
+
+El Orchestrator gestiona tres tipos de pools de conexión PostgreSQL:
+
+```mermaid
+flowchart TB
+  subgraph GP["Gestor de Pools - db.ts"]
+    CP["centralPool"]
+    CMP["commonPool"]
+    GET["getTenantPool(dbName)"]
+    MAP["Map<br/>(tenantPools)"]
+    GET --> MAP
+  end
+  subgraph DB["Bases de Datos"]
+    CMD_DB["nostromo_command<br/>tenants · users · sessions"]
+    COM_DB["nostromo_common<br/>parametros · monedas · impuesto_2cat"]
+    T1_DB["nostromo_6000431<br/>remuneraciones · operaciones_sii"]
+    T2_DB["nostromo_6000432<br/>remuneraciones · operaciones_sii"]
+  end
+  CP --> CMD_DB
+  CMP --> COM_DB
+  MAP --> T1_DB
+  MAP --> T2_DB
+```
+
+Características de los Pools:
+
+| Tipo de Pool	| Singleton	| Propósito	| Configuración |
+| --- | --- | --- | --- |
+| `centralPool`	| Sí	| Datos del sistema (usuarios, tenants)	| Creado al inicio |
+| `commonPool`	| Sí	| Datos de referencia compartidos (parámetros)	| Creado al inicio |
+| `TenantPools`	| Cacheados	| Datos de negocio aislados por tenant	| Creados bajo demanda, cacheados en memoria |
+
+La función `getTenantPool` implementa una estrategia de caché para reutilizar conexiones:
+
+### Flujo de Resolución de Tenant
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant R as Router
+  participant A as authenticateToken
+  participant D as getDatabaseNameForUser
+  participant P as getTenantPool
+  participant DB as PostgreSQL
+  R ->> A: Validar sesión
+  A -->> R: Contexto de usuario (userId | role)
+  R ->> D: Resolver DB de tenant
+  D ->> D: Verificar permisos RBAC
+  D -->> R: Nombre de tenantDb
+  R ->> P: Obtener pool para tenant
+  P ->> P: Verificar caché
+  alt Pool existe
+    P -->> R: Retornar pool cacheado
+  else Crear nuevo pool
+    P ->> DB: new Pool(config)
+    P -->> R: Retornar nuevo pool
+  end
+  R ->> DB: Ejecutar query
+  DB -->> R: Resultados
+```
+
+Funciones Clave:
+
+`authenticateToken` - Valida cookie de sesión y adjunta contexto de usuario a la petición
+`getDatabaseNameForUser` - Determina a qué base de datos de tenant puede acceder el usuario
+`getTenantPool` - Retorna o crea un pool de conexión cacheado para el tenant
+
+---
+
+## Pipeline de Middleware
+
+El stack de middleware procesa las peticiones en el siguiente orden:
+
+Pipeline de Middleware (desde `createApp()`):
+
+```mermaid
+flowchart TB
+  A["Petición HTTP"]
+  B["helmet()<br/>Línea 59"]
+  C["cors()<br/>Líneas 60–63"]
+  D["morgan('combined')<br/>Línea 64"]
+  E["express.json({ limit: '2mb' })<br/>Línea 65"]
+  F["cookieParser()<br/>Línea 66"]
+  G["Montaje de Rutas<br/>Líneas 68–106"]
+  H["authenticateToken<br/>(por ruta)"]
+  I["Manejador de Ruta"]
+  J["Respuesta HTTP"]
+
+  A --> B
+  B --> C
+  C --> D
+  D --> E
+  E --> F
+  F --> G
+  G --> H
+  H --> I
+  I --> J
+```
+
+Configuración Global de Middleware:
+
+| Línea	| Middleware	| Propósito	| Configuración |
+| --- | --- | --- | --- | 
+| 59 | helmet() | Headers de seguridad (XSS, CSP, HSTS) | Configuración por defecto |
+| 60-63 | cors({ origin: [...], credentials: true }) | CORS para frontend | localhost:4321, localhost:4322, localhost:4320 |
+| 64 | morgan('combined') | Logging de peticiones HTTP estilo Apache | Salida a consola |
+| 65 | express.json({ limit: '2mb' }) | Parsear cuerpos de petición JSON | Max payload: 2MB |
+| 66 | cookieParser() | Parsear cookies desde header Cookie | Habilita req.cookies |
+
+Autenticación por Ruta:
+
+Las rutas protegidas usan el middleware `authenticateToken` de `src/middleware/auth.ts`:
+
+
+```typescript
+// Patrón usado en todas las rutas protegidas (ej., payroll.ts línea 10)
+router.use(authenticateToken);
+
+// O aplicado a rutas individuales
+router.get('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  const user = req.user!; // user: { userId, username, role }
+  // ... lógica de ruta
+});
+```
+
+### Estrategia de Testing
+El Orchestrator usa Jest con diferentes patrones de test:
+
+Unit Tests (`*.unit.test.ts`):
+
+- Testean funciones puras en la capa Engine
+- No requieren base de datos
+- Ejecución rápida (<100ms por test)
+- Ejemplo: `PayrollEngine.test.ts`
+
+Integration Tests (`*.integration.test.ts`):
+
+- Testean capa de Repository con base de datos real
+- Usan base de datos de test o transacciones
+- Verifican queries SQL y mapeo de datos
+
+E2E Tests (`*.e2e.test.ts`):
+
+- Testean ciclo completo de petición/respuesta HTTP
+- Usan Supertest para hacer peticiones
+- Ejemplo: users.e2e.test.ts
+
+Requerimientos de Cobertura:
+
+- Endpoints críticos: 100% (auth, generación de nómina)
+- Capa de Repository: 70%+ (queries SQL)
+- Capa de Engine: 90%+ (lógica de negocio)
 
 ## Estructura del Proyecto
 
@@ -106,6 +397,8 @@ import { FileTree, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
 - tsconfig.json
 
 </FileTree>
+
+
 
 ## Scripts Disponibles
 
