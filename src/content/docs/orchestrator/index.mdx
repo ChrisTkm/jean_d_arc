@@ -501,7 +501,7 @@ export default router;
 | Resolución de Tenant      | getDatabaseNameForUser(req.user, req)         | Línea 17             |
 | Obtención de Pool         | getTenantPool(db)                             | Línea 18             |
 | Parseo de Params de Query | Number(q.año ?? q.anio ?? q.year)             | Líneas 26-33         |
-| Manejo de Errores         | try/catch con res.status(500).json({ error }) | Líneas 15-42         |
+| Manejo de Errores         | try/catch con `res.status(500).json({ error })` | Líneas 15-42         |
 | Validación                | Verificar existencia antes de operaciones     | Líneas 20-23         |
 
 ### Formatos de Respuesta

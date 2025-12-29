@@ -9,9 +9,32 @@ updated: 2025-12-28
 
 import { FileTree, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
 
-## Overview
+## Propósito y Alcance
 
-**Sevastopol** es la interfaz de usuario del sistema contable, construida con **Astro**, **SolidJS** y **Tailwind CSS**. Implementa una arquitectura moderna de islas para interactividad y generación estática para rendimiento.
+Este documento proporciona una visión general de la aplicación frontend **Sevastopol**, que sirve como interfaz de usuario para el sistema de contabilidad Nostromo. Sevastopol está construido usando **Astro** para renderizado del lado del servidor y enrutamiento, con **SolidJS** para componentes reactivos del lado del cliente. Esta página cubre la arquitectura general, el stack tecnológico y los patrones de alto nivel utilizados en todo el frontend.
+
+---
+
+## Tecnologías Utilizadas
+
+Sevastopol utiliza un stack de desarrollo web moderno optimizado para rendimiento y experiencia del desarrollador:
+
+| Tecnología	| Versión	| Propósito |
+| --- | --- | --- |
+| Astro	| 5.12.3	| Framework SSR, enrutamiento, shell de página |
+| SolidJS	| 1.8.5+	| Islands reactivas, lógica de componentes |
+| TailwindCSS	| 3.x	| Estilos utility-first |
+| TypeScript	| 5.8.3	| Seguridad de tipos |
+| Vite	| 6.3.5+	| Herramienta de build, servidor dev, proxy API |
+
+Las bibliotecas adicionales incluyen:
+
+- `jsPDF` + ` jspdf-autotable` para generación de PDF
+- `xlsx` para exportación a Excel
+- `rut.js` para validación de RUT chileno
+- `@playwright/test` para pruebas E2E
+
+---
 
 ## Estructura del Proyecto
 
