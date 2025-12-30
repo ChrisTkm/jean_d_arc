@@ -36,7 +36,13 @@ Las bibliotecas adicionales incluyen:
 
 ---
 
-## Estructura del Proyecto
+## Visión General de la Arquitectura
+
+Sevastopol implementa una arquitectura híbrida de SSR + Islands, combinando los beneficios de rendimiento del renderizado del lado del servidor con interactividad selectiva del lado del cliente.
+
+### Astro como Fundamento
+
+Astro sirve el HTML inicial con cero JavaScript por defecto. El shell de la aplicación, el layout y el contenido estático se renderizan en el servidor:
 
 <FileTree>
 
