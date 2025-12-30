@@ -7,7 +7,14 @@ sidebar:
 updated: 2025-12-28
 ---
 
-import { FileTree, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+import {
+  FileTree,
+  Steps,
+  Tabs,
+  TabItem,
+  LinkCard,
+  CardGrid,
+} from "@astrojs/starlight/components";
 
 ## Propósito y Alcance
 
@@ -19,13 +26,13 @@ Este documento proporciona una visión general de la aplicación frontend **Seva
 
 Sevastopol utiliza un stack de desarrollo web moderno optimizado para rendimiento y experiencia del desarrollador:
 
-| Tecnología	| Versión	| Propósito |
-| --- | --- | --- |
-| Astro	| 5.12.3	| Framework SSR, enrutamiento, shell de página |
-| SolidJS	| 1.8.5+	| Islands reactivas, lógica de componentes |
-| TailwindCSS	| 3.x	| Estilos utility-first |
-| TypeScript	| 5.8.3	| Seguridad de tipos |
-| Vite	| 6.3.5+	| Herramienta de build, servidor dev, proxy API |
+| Tecnología  | Versión | Propósito                                     |
+| ----------- | ------- | --------------------------------------------- |
+| Astro       | 5.12.3  | Framework SSR, enrutamiento, shell de página  |
+| SolidJS     | 1.8.5+  | Islands reactivas, lógica de componentes      |
+| TailwindCSS | 3.x     | Estilos utility-first                         |
+| TypeScript  | 5.8.3   | Seguridad de tipos                            |
+| Vite        | 6.3.5+  | Herramienta de build, servidor dev, proxy API |
 
 Las bibliotecas adicionales incluyen:
 
@@ -112,4 +119,24 @@ La interactividad en Sevastopol se maneja a través de "Islas" de SolidJS, que s
     Visualización en tiempo real de liquidaciones. -
     **HistoricoRemuneraciones**: Tablas de navegación de datos históricos.
   </TabItem>
+  <TabItem label="Operations">
+    Visualización y gestión de documentos tributarios. -
+    **OperationsViewIsland**: Tabla unificada de Ventas, Compras y Boletas. -
+    **OperationsService**: Generación de asientos contables.
+  </TabItem>
 </Tabs>
+
+## Recursos para Desarrolladores
+
+<CardGrid>
+  <LinkCard
+    title="Biblioteca de Componentes UI"
+    href="/sevastopol/ui-components/"
+    description="Catálogo de componentes atómicos (Inputs, Tablas, Modales) listos para usar."
+  />
+  <LinkCard
+    title="Hooks Personalizados"
+    href="/sevastopol/hooks/"
+    description="Colección de hooks de SolidJS para lógica reutilizable."
+  />
+</CardGrid>

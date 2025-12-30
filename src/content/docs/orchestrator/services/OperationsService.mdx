@@ -1,0 +1,70 @@
+---
+title: OperationsService
+description: Servicio de dominio para gestión de Documentos SII (Ventas, Compras, Boletas)
+sidebar:
+  label: OperationsService
+  order: 140
+updated: 2025-12-29
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+El `OperationsService` es el encargado de orquestar la generación, recuperación y mapeo de los documentos tributarios (Ventas, Compras, Boletas) desde las tablas contables del esquema `operaciones_sii`.
+
+## Características Clave
+
+- **Generación de Detalles**: Transforma registros "raw" de tablas `ventas`/`compras`/`boletas` en detalle contable (`compras_ventas_detalle`).
+- **Mapeo Unificado**: Expone un método `findDocuments` que estandariza las columnas dispares de Ventas y Compras en una estructura común para el Frontend.
+- **Filtrado Avanzado**: Soporta filtrado por Tipo de Documento, Rango de Fechas (YYYY-MM), Paginación y Tenant.
+- **Reproceso**: Permite regenerar la contabilidad de un periodo completo, eliminando detalles previos.
+
+## Dependencias
+
+- **OperationsRepository**: Acceso directo a base de datos para operaciones masivas.
+- **ConceptOperations**: Catálogo de conceptos contables (Neto, IVA, Retenciones).
+
+## Métodos Principales
+
+### `generate(dbName, params)`
+
+Genera los asientos contables (detalle) a partir de los documentos DTE sincronizados.
+
+```typescript
+// Ejemplo de llamada
+const result = await OperationsService.generate(dbName, {
+  user_id: "uuid-user",
+  tipo_documento: "VENTA",
+  periodo_desde: "2024-01",
+  periodo_hasta: "2024-12",
+  forzar_reproceso: true,
+});
+```
+
+### `getDetails(dbName, filter)`
+
+Recupera la lista de documentos para visualización, aplicando mapeo de columnas.
+
+```typescript
+// Ejemplo de llamada
+const docs = await OperationsService.getDetails(dbName, {
+  tipo_documento: "COMPRA",
+  periodo: "2025-01",
+  limit: 100,
+});
+```
+
+## Mapeo de Datos
+
+El servicio unifica la respuesta para que el Frontend (`OperationsViewIsland`) pueda usar una única tabla.
+
+| Campo Unificado       | Origen Venta (`ventas`) | Origen Compra (`compras`) |
+| --------------------- | ----------------------- | ------------------------- |
+| `fecha_documento`     | `fecha_docto`           | `fecha_docto`             |
+| `rut_emisor`          | `rut_cliente`           | `rut_proveedor`           |
+| `razon_social_emisor` | `razon_social`          | `razon_social`            |
+| `monto_iva`           | `monto_iva`             | `monto_iva_recuperable`   |
+
+## Ubicación del Código
+
+- **Servicio**: [OperationsService.ts](../../../../Accounting/orchestrator/src/domain/operations/OperationsService.ts)
+- **Repositorio**: [OperationsRepository.ts](../../../../Accounting/orchestrator/src/domain/operations/OperationsRepository.ts)

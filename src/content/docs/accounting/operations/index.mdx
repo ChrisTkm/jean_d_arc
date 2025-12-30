@@ -1,0 +1,61 @@
+---
+title: Operaciones SII
+description: Gestión y visualización de Ventas, Compras y Boletas del SII
+sidebar:
+  label: Operaciones SII
+  order: 3
+updated: 2025-12-29
+---
+
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+
+El módulo de **Operaciones SII** centraliza la visualización de los documentos tributarios electrónicos (DTE) sincronizados desde el Servicio de Impuestos Internos. Permite a los contadores revisar, filtrar y regenerar la contabilidad automática asociada a estos documentos.
+
+## Funcionalidades
+
+### 1. Visualización Unificada
+
+Una interfaz única para navegar por los tres grandes grupos de documentos:
+
+- **Ventas**: Facturas emitidas, Notas de Crédito/Débito.
+- **Compras**: Facturas recibidas, gastos.
+- **Boletas**: Resumen de boletas de ventas diarias.
+
+### 2. Contabilidad Automática
+
+El sistema procesa cada DTE y genera automáticamente el detalle contable (asientos) basándose en reglas predefinidas (Conceptos):
+
+- **Facturas de Compra**: Asigna IVA Crédito Fiscal o Retenido.
+- **Notas de Crédito**: Reversa montos netos e IVA.
+- **Boletas**: Separa Neto e IVA automáticamente.
+
+### 3. Herramientas de Gestión
+
+- **Filtros Temporales**: Navegación por Año y Mes.
+- **Generación Manual**: Botón **"Generar / Procesar"** para forzar el reprocesamiento de un periodo (útil si cambian las reglas contables).
+
+## Arquitectura
+
+El módulo conecta directamente con el `OperationsService` en el Orchestrator, el cual normaliza los datos de las distintas tablas del SII.
+
+<CardGrid>
+  <LinkCard
+    title="Servicio Técnico"
+    href="/orchestrator/services/operationsservice/"
+    description="Documentación técnica del OperationsService"
+  />
+</CardGrid>
+
+## Casos de Uso
+
+### Revisión Mensual F29
+
+El contador utiliza esta vista para cotejar los totales de IVA Débito y Crédito calculados por el sistema contra la propuesta del SII antes de declarar el F29.
+
+### Auditoría de Folios
+
+Permite buscar rápidamente un folio específico para verificar si fue contabilizado correctamente o si existen diferencias de montos.
+
+:::tip[¿Faltan datos?]
+Si un mes aparece vacío, utiliza el botón **Generar / Procesar** seleccionando el mes correspondiente para activar el motor de contabilización.
+:::
