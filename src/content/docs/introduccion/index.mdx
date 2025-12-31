@@ -1,45 +1,51 @@
 ---
-title: Bienvenida
-head: []
+title: Introducción
+description: Punto de entrada a la documentación del ecosistema Nostromo.
 sidebar:
-  label: Bienvenida
+  label: Introducción
   order: 1
+updated: 2025-12-30
 ---
 
 import { LinkCard, CardGrid } from "@astrojs/starlight/components";
 
-Bienvenido a **Jean d'Arc**, el repositorio central de conocimiento para la plataforma Nostromo. Aquí encontrarás toda la documentación técnica, guías de arquitectura y referencias de API necesarias para el desarrollo y mantenimiento del sistema.
+**Jean d'Arc** es el repositorio central de conocimiento técnico para el ecosistema **Nostromo**. Aquí encontrarás documentación de arquitectura, guías de desarrollo, referencias de API y todo lo necesario para comprender y contribuir al sistema.
 
-## Explorar Módulos
+## Explorar Componentes
 
-Accede rápidamente a la documentación técnica de nuestros componentes principales:
+Navega directamente a los módulos principales del ecosistema:
 
 <CardGrid>
   <LinkCard
+    title="Sistema Contable"
+    description="Módulo de remuneraciones, cálculos tributarios y leyes sociales chilenas."
+    href="/accounting/sistema-contable/"
+  />
+  <LinkCard
     title="Sevastopol (Frontend)"
-    description="Interfaz de usuario, islas interactivas y experiencia de empleado."
+    description="Interfaz de usuario con islas interactivas, hooks y componentes React/Preact."
     href="/sevastopol/"
   />
   <LinkCard
     title="Orchestrator (Backend)"
-    description="Lógica de negocio, motores de cálculo y gestión de datos."
+    description="Lógica de negocio, motores de cálculo y servicios de dominio."
     href="/orchestrator/"
   />
   <LinkCard
-    title="Sistema Contable"
-    description="Documentación funcional de remuneraciones y contabilidad."
-    href="/accounting/"
+    title="Arquitectura"
+    description="Diagramas, flujos de datos y decisiones de diseño del ecosistema."
+    href="/arquitectura/overview/"
   />
 </CardGrid>
 
-## Objetivos del Proyecto
+## Propósito
 
-Esta base de conocimiento tiene como misión:
+Esta base de conocimiento centraliza la verdad técnica del proyecto:
 
-- **Centralizar** la verdad técnica del ecosistema Nostromo.
-- **Estandarizar** patrones de diseño y prácticas de desarrollo.
-- **Facilitar** el on-boarding de nuevos desarrolladores.
+- **Fuente única de verdad** para arquitectura y patrones de diseño.
+- **Guías de on-boarding** para nuevos desarrolladores.
+- **Referencias de API** y ejemplos funcionales.
 
-## Próximos pasos
+## Navegación
 
-Explora el menú lateral para navegar por los distintos submódulos o utiliza la barra de búsqueda para encontrar temas específicos.
+Usa el **menú lateral** para explorar secciones específicas o la **barra de búsqueda** (`Ctrl+K`) para encontrar temas rápidamente.
