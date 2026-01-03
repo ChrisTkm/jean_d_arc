@@ -1,0 +1,258 @@
+---
+title: Healthcheck Windows (Cleaner)
+description: Scripts de PowerShell para diagnóstico de sistema, disco, servicios, hardware y red.
+sidebar:
+  label: Windows Healthcheck
+  order: 4
+updated: 2026-01-03
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+
+Notebook de PowerShell para healthchecks básicos y avanzados en Windows. Cada sección explica el objetivo, comando y cómo interpretar resultados.
+
+---
+
+## Diagnósticos Básicos
+
+<Tabs>
+  <TabItem label="1. Errores Sistema">
+    **Objetivo:** Detectar fallos recientes (hardware, drivers, servicios críticos) en el registro de eventos.
+
+    ```powershell title="Errores últimos 7 días"
+    $Days = 7
+    Get-WinEvent -FilterHashtable @{
+        LogName   = 'System'
+        Level     = 2      # 2 = Error (crítico)
+        StartTime = (Get-Date).AddDays(-$Days)
+    } -MaxEvents 50 |
+      Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
+    ```
+
+    **Qué observar:**
+    - Errores repetidos (mismo Id + ProviderName) → patrón a investigar
+    - Controladores / disk / ntfs / storport → posible riesgo hardware
+    - Service Control Manager → servicios que no inician
+  </TabItem>
+
+  <TabItem label="2. Espacio en Disco">
+    **Objetivo:** Evitar degradación de rendimiento por falta de espacio.
+
+    ```powershell title="Espacio libre en discos"
+    Get-CimInstance -Class Win32_LogicalDisk -Filter 'DriveType = 3' |
+      Select-Object DeviceID,
+        @{N='SizeGB';E={[math]::Round($_.Size/1GB,1)}},
+        @{N='FreeGB';E={[math]::Round($_.FreeSpace/1GB,1)}},
+        @{N='PctFree';E={[math]::Round(($_.FreeSpace*100)/$_.Size,1)}} |
+      Format-Table -AutoSize
+    ```
+
+    **Umbrales:**
+    - ⚠️ Volúmenes < 20% libre → planificar limpieza
+    - 🔴 Disco C: con < 10 GB libre → prioridad alta
+  </TabItem>
+
+  <TabItem label="3. Microsoft Defender">
+    **Objetivo:** Verificar amenazas comunes con escaneo rápido.
+
+    ```powershell title="QuickScan con Defender"
+    Start-MpScan -ScanType QuickScan
+    ```
+
+    ```powershell title="Ver detecciones"
+    Get-MpThreat
+    ```
+
+    <Aside type="note">
+      Si usas PowerShell 7 y da error, ejecuta en PowerShell 5.1.
+      Para escaneo completo: `Start-MpScan -ScanType FullScan`
+    </Aside>
+  </TabItem>
+
+  <TabItem label="4. Servicios Detenidos">
+    **Objetivo:** Detectar servicios automáticos que no están corriendo.
+
+    ```powershell title="Servicios automáticos detenidos"
+    Get-Service -ErrorAction SilentlyContinue |
+      Where-Object { $_.Status -ne 'Running' -and $_.StartType -eq 'Automatic' } |
+      Sort-Object DisplayName |
+      Format-Table Status, Name, DisplayName -AutoSize
+    ```
+
+    ```powershell title="Reiniciar un servicio"
+    Start-Service -Name <Nombre>
+    ```
+  </TabItem>
+
+  <TabItem label="5. Top Procesos (RAM)">
+    **Objetivo:** Identificar consumo anómalo de RAM y fugas de memoria.
+
+    ```powershell title="Top 10 procesos por memoria"
+    Get-Process |
+      Sort-Object WorkingSet64 -Descending |
+      Select-Object -First 10 Name, Id, @{N='MemMB';E={[math]::Round($_.WorkingSet64/1MB,2)}} |
+      Format-Table -AutoSize
+    ```
+
+    **Qué observar:**
+    - Procesos desconocidos con alto uso
+    - Crecimiento continuo entre ejecuciones
+    - Apps que no deberían estar en servidor (Spotify, Discord)
+  </TabItem>
+</Tabs>
+
+---
+
+## Diagnósticos Avanzados
+
+<Tabs>
+  <TabItem label="6. Temperatura">
+    **Objetivo:** Detectar sobrecalentamiento que pueda causar throttling.
+
+    ```powershell title="Temperatura via WMI"
+    Get-CimInstance -Namespace root/wmi -ClassName MSAcpi_ThermalZoneTemperature 2>$null |
+      Select-Object InstanceName, @{N='TempC';E={[math]::Round(($_.CurrentTemperature/10)-273.15,1)}}
+    ```
+
+    ```powershell title="Temperatura discos NVMe"
+    Get-PhysicalDisk | 
+      Select FriendlyName, MediaType, HealthStatus, @{N='TempC';E={$_.Temperature}} | 
+      Format-Table -AutoSize
+    ```
+
+    **Umbrales:**
+    - ⚠️ CPU > 85°C sostenida → revisar pasta térmica
+    - ⚠️ NVMe > 70°C sostenida → riesgo vida útil
+  </TabItem>
+
+  <TabItem label="7. SMART Discos">
+    **Objetivo:** Anticipar fallos de disco revisando indicadores de salud.
+
+    ```powershell title="Estado de discos físicos"
+    Get-PhysicalDisk | 
+      Select FriendlyName, MediaType, HealthStatus, OperationalStatus, Size | 
+      Format-Table -AutoSize
+    ```
+
+    ```powershell title="Contadores SMART"
+    Get-PhysicalDisk | ForEach-Object {
+      $r = Get-StorageReliabilityCounter -PhysicalDisk $_ -ErrorAction SilentlyContinue
+      [PSCustomObject]@{
+        Disk        = $_.FriendlyName
+        Wear        = $r.Wear
+        ReadErrors  = $r.ReadErrorsTotal
+        WriteErrors = $r.WriteErrorsTotal
+        Temperature = $r.Temperature
+      }
+    } | Format-Table -AutoSize
+    ```
+
+    **Alertas:**
+    - 🔴 HealthStatus ≠ `Healthy`
+    - 🔴 Incremento de Read/WriteErrors entre chequeos
+  </TabItem>
+
+  <TabItem label="8. Latencia Red">
+    **Objetivo:** Detectar degradación de red que afecte servicios.
+
+    ```powershell title="Ping a destinos críticos"
+    $targets = @(
+      (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | 
+        Sort-Object RouteMetric | Select-Object -First 1).NextHop,
+      '8.8.8.8',
+      '1.1.1.1',
+      'github.com'
+    )
+
+    $targets | ForEach-Object {
+      $r = Test-Connection -ComputerName $_ -Count 4 -ErrorAction SilentlyContinue
+      if ($r) {
+        [PSCustomObject]@{
+          Host = $_
+          AvgMs = [math]::Round(($r | Measure-Object -Property ResponseTime -Average).Average, 2)
+          Loss = 0
+        }
+      } else {
+        [PSCustomObject]@{ Host = $_; AvgMs = $null; Loss = 100 }
+      }
+    } | Format-Table -AutoSize
+    ```
+
+    **Umbrales:**
+    - ⚠️ Gateway > 5-10 ms → congestión local
+    - ⚠️ Externa > 120 ms (antes < 40) → problema de ruta
+    - 🔴 Pérdida > 2% sostenida
+  </TabItem>
+
+  <TabItem label="9. Parches Windows">
+    **Objetivo:** Confirmar que el sistema está al día con parches de seguridad.
+
+    ```powershell title="Últimos 10 hotfix"
+    Get-HotFix | 
+      Sort-Object InstalledOn -Descending | 
+      Select -First 10 Source, Description, HotFixID, InstalledOn | 
+      Format-Table -AutoSize
+    ```
+
+    ```powershell title="Días desde último parche"
+    $last = (Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 1).InstalledOn
+    [PSCustomObject]@{
+      UltimoParche = $last
+      Dias = (New-TimeSpan -Start $last -End (Get-Date)).Days
+    } | Format-List
+    ```
+
+    **Alerta:** Más de 30 días sin parches → revisar ciclo de updates
+  </TabItem>
+</Tabs>
+
+---
+
+## Script de Reporte Automatizado
+
+Genera un reporte Markdown consolidado:
+
+```powershell title="healthcheck_wrapper.ps1"
+$report = "# Healthcheck $(Get-Date -Format 'yyyy-MM-dd HH:mm')`n"
+
+$report += "`n## Errores System (7d)`n"
+$report += (Get-WinEvent -FilterHashtable @{
+    LogName='System'; Level=2; StartTime=(Get-Date).AddDays(-7)
+} -MaxEvents 10 -ErrorAction SilentlyContinue | 
+  Select-Object TimeCreated, Id, ProviderName, Message | 
+  Out-String)
+
+$report += "`n## Disco`n"
+$report += (Get-CimInstance Win32_LogicalDisk -Filter 'DriveType = 3' |
+  Select DeviceID, @{N='Free%';E={[math]::Round(($_.FreeSpace*100)/$_.Size,1)}} | 
+  Out-String)
+
+$report += "`n## Servicios Detenidos`n"
+$report += (Get-Service | 
+  Where-Object { $_.Status -ne 'Running' -and $_.StartType -eq 'Automatic' } |
+  Select Status, Name | Out-String)
+
+$report | Set-Content .\healthcheck_report.md
+Write-Host "✅ Reporte guardado en healthcheck_report.md"
+```
+
+<Aside type="tip" title="Automatización">
+  Programa este script en **Task Scheduler** para ejecutar semanalmente y alertar si:
+  - Errores > umbral definido
+  - %Libre < 15%
+  - Servicios críticos detenidos
+</Aside>
+
+---
+
+## Recursos Útiles
+
+- [Documentación eventos Windows](https://learn.microsoft.com/windows/win32/eventlog/)
+- [Defender cmdlets](https://learn.microsoft.com/powershell/module/defender/)
+- [PowerShell Scheduled Tasks](https://learn.microsoft.com/powershell/module/scheduledtasks/)
+
+---
+
+<Aside type="note" title="Licencia">
+  © 2025 Christian Albornoz – Albornoz.Studio - Nostromo - Licencia MIT
+</Aside>

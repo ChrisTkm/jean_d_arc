@@ -1,0 +1,379 @@
+---
+title: Tablas y Entidades
+description: Definición detallada de tablas del schema remuneraciones
+sidebar:
+  label: Tablas
+  order: 2
+updated: 2026-01-03
+---
+
+import { Tabs, TabItem, Aside, Steps, Card, CardGrid } from '@astrojs/starlight/components';
+
+Descripción detallada de las tablas principales del schema `remuneraciones`.
+
+---
+
+## Visión General
+
+<CardGrid>
+  <Card title="💰 Liquidaciones" icon="document">
+    Header + Detalle de sueldos mensuales
+  </Card>
+  <Card title="👤 Empleados" icon="seti:favicon">
+    Maestro de trabajadores y datos previsionales
+  </Card>
+  <Card title="🏛️ Imposiciones" icon="setting">
+    Consolidado de aportes AFP, Salud, AFC
+  </Card>
+  <Card title="📋 Finiquitos" icon="approve-check">
+    Terminación de contratos e indemnizaciones
+  </Card>
+</CardGrid>
+
+---
+
+## 1. Liquidaciones
+
+<Tabs>
+  <TabItem label="Header">
+    **Tabla:** `remuneraciones.liquidaciones`  
+    **Archivo:** `tbl/012_tbl_liquidaciones.sql`
+
+    Representa la **cabecera** de una liquidación de sueldo. Almacena los totales consolidados y el estado del proceso.
+
+    | Columna | Tipo | Descripción |
+    | :--- | :--- | :--- |
+    | `id` | UUID | Identificador único |
+    | `empleado_id` | UUID | Referencia al empleado |
+    | `contrato_id` | UUID | Referencia al contrato vigente |
+    | `año`, `mes` | Smallint | Período de remuneración |
+    | `total_haberes` | Numeric | Suma total de haberes |
+    | `total_descuentos` | Numeric | Suma total de descuentos |
+    | `total_liquido` | Numeric | Monto final (`haberes - descuentos`) |
+    | `estado` | Text | Estado del proceso |
+
+    **Estados posibles:**
+    - 🟡 `BORRADOR` — En preparación
+    - 🔵 `CALCULADA` — Procesada, pendiente revisión
+    - 🟢 `APROBADA` — Lista para pago
+    - ✅ `PAGADA` — Transferencia realizada
+  </TabItem>
+
+  <TabItem label="Detalle">
+    **Tabla:** `remuneraciones.liquidaciones_detalle`  
+    **Archivo:** `tbl/013_tbl_liquidaciones_detalle.sql`
+
+    Almacena el desglose ítem por ítem. Es la **fuente de verdad** para contabilidad e impresión.
+
+    | Columna | Tipo | Descripción |
+    | :--- | :--- | :--- |
+    | `liquidacion_id` | UUID | FK a la cabecera |
+    | `concepto_id` | Integer | FK al catálogo de conceptos |
+    | `monto` | Numeric | Valor calculado del ítem |
+    | `origen` | Text | `AUTOMATICO` o `MANUAL` |
+
+    <Aside type="note" title="Trigger Automático">
+      El trigger `trg_recalcular_totales_detalle` actualiza automáticamente los totales 
+      en la tabla padre `liquidaciones` cuando se modifica el detalle.
+    </Aside>
+  </TabItem>
+
+  <TabItem label="Conceptos">
+    **Tabla:** `remuneraciones.conceptos_remuneracion`  
+    **Archivo:** `tbl/001_conceptos_remuneracion_refactored.sql`
+
+    Catálogo maestro que define las reglas de negocio y contables para cada ítem.
+
+    **Tipos de Concepto (`tipo_concepto`):**
+
+    | Tipo | Efecto en Líquido | Ejemplo |
+    | :--- | :--- | :--- |
+    | 🟢 **HABER** | ⬆️ Aumenta | Sueldo, Bonos |
+    | 🔴 **DESCUENTO** | ⬇️ Disminuye | AFP, Salud |
+    | 🟡 **APORTE_PATRONAL** | — Sin efecto | SIS, Mutual |
+    | 🔵 **PROVISION** | — Reserva | Vacaciones, Gratificación |
+
+    **Integración Contable:**
+
+    ```
+    Sueldo Base:
+    ├── Debe:  3201001 (Gasto Sueldos)
+    └── Haber: 2104001 (Sueldos por Pagar)
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 2. Empleados y Contratos
+
+<Tabs>
+  <TabItem label="Empleados">
+    **Tabla:** `remuneraciones.empleados`  
+    **Archivo:** `tbl/002_tbl_empleados.sql`
+
+    Maestro de trabajadores. Centraliza datos personales, previsionales y de pago.
+
+    | Columna | Uso Principal |
+    | :--- | :--- |
+    | `rut` | Identificador fiscal único |
+    | `nombres`, `apellidos` | Datos personales |
+    | `afp_id`, `isapre_id` | Determinantes para cálculo de leyes sociales |
+    | `banco`, `numero_cuenta` | Datos para archivo de transferencias |
+    | `email` | Notificaciones y envío de liquidación |
+
+    <Aside type="tip" title="Índices">
+      La tabla está indexada por `rut`, `email` y `estado_empleado` 
+      para optimizar búsquedas administrativas.
+    </Aside>
+  </TabItem>
+
+  <TabItem label="Contratos">
+    **Tabla:** `remuneraciones.contratos`  
+    **Archivo:** `tbl/003_tbl_contratos.sql`
+
+    Relación laboral entre empleado y empresa. Un empleado puede tener múltiples contratos (histórico).
+
+    | Columna | Descripción |
+    | :--- | :--- |
+    | `empleado_id` | FK al empleado |
+    | `cargo_id` | Cargo o posición |
+    | `departamento_id` | Área organizacional |
+    | `sueldo_base` | Remuneración mensual pactada |
+    | `fecha_inicio` | Inicio de la relación laboral |
+    | `fecha_termino` | NULL si vigente |
+    | `estado` | `VIGENTE`, `TERMINADO`, `SUSPENDIDO` |
+  </TabItem>
+
+  <TabItem label="Jornadas">
+    **Tabla:** `remuneraciones.jornadas`  
+    **Archivo:** `tbl/005_tbl_jornadas.sql`
+
+    Configuración de horarios semanales. Define días laborales y turnos.
+
+    | Columna | Descripción |
+    | :--- | :--- |
+    | `codigo` | Identificador corto (ej: `J45`, `J30`) |
+    | `nombre` | Descripción (ej: "Jornada 45 horas") |
+    | `horas_semanales` | Total de horas pactadas |
+    | `dias_laborales` | Array de días (ej: `{1,2,3,4,5}`) |
+  </TabItem>
+</Tabs>
+
+---
+
+## 3. Previsión Social
+
+<Tabs>
+  <TabItem label="Imposiciones">
+    **Tabla:** `remuneraciones.imposiciones`  
+    **Archivo:** `tbl/019_tbl_imposiciones.sql`
+
+    Consolidado mensual de leyes sociales agrupado por institución. Base para **Previred** y **F29**.
+
+    | Columna | Tipo | Descripción |
+    | :--- | :--- | :--- |
+    | `año`, `mes` | Smallint | Período tributario |
+    | `institucion_tipo` | Text | `AFP`, `ISAPRE`, `MUTUAL`, `IPS`, `SII` |
+    | `institucion_codigo` | Text | Código específico (ej: `03` = Provida) |
+    | `monto_trabajador` | Numeric | Suma de descuentos a empleados |
+    | `monto_empleador` | Numeric | Suma de aportes patronales |
+    | `estado` | Enum | `CALCULADA`, `DECLARADA`, `PAGADA` |
+
+    <Aside type="caution" title="Estados">
+      - `CALCULADA` → Generada automáticamente
+      - `DECLARADA` → Enviada a Previred
+      - `PAGADA` → Con número de pago registrado
+    </Aside>
+  </TabItem>
+
+  <TabItem label="APV">
+    **Tabla:** `remuneraciones.contrato_apv`  
+    **Archivo:** `tbl/015_tbl_contrato_apv.sql`
+
+    Registro de Ahorro Previsional Voluntario asociado a un contrato.
+
+    | Columna | Descripción |
+    | :--- | :--- |
+    | `regimen` | `A` (Bonificación estatal) o `B` (Rebaja tributaria) |
+    | `monto_tipo` | `UF`, `CLP` o `PORCENTAJE` |
+    | `monto` | Valor del aporte |
+    | `vigencia` | Rango de fechas (`daterange`) |
+    | `institucion_id` | FK a AFP u otra administradora |
+  </TabItem>
+
+  <TabItem label="AFP / Isapre">
+    **Tablas:**
+    - `parametros.afp` — Catálogo de AFPs
+    - `parametros.isapre` — Catálogo de Isapres
+    - `remuneraciones.contrato_afp` — Relación contrato-AFP
+    - `remuneraciones.contrato_isapre` — Relación contrato-Isapre
+
+    | AFP | Código | Tasa Actual |
+    | :--- | :--- | ---: |
+    | Capital | 01 | 11.44% |
+    | Cuprum | 02 | 11.44% |
+    | Provida | 03 | 11.45% |
+    | Habitat | 05 | 11.27% |
+    | PlanVital | 06 | 11.16% |
+    | Modelo | 07 | 10.58% |
+    | Uno | 08 | 10.69% |
+  </TabItem>
+</Tabs>
+
+---
+
+## 4. Terminación de Contrato
+
+<Tabs>
+  <TabItem label="Finiquitos">
+    **Tabla:** `remuneraciones.finiquitos`  
+    **Archivo:** `tbl/026_tbl_finiquitos.sql`
+
+    Cabecera del proceso de término de relación laboral.
+
+    | Columna | Descripción |
+    | :--- | :--- |
+    | `contrato_id` | FK al contrato terminado |
+    | `fecha_termino` | Último día trabajado |
+    | `causal_codigo` | Código legal (ej: `161` - Necesidades empresa) |
+    | `total_indemnizaciones` | Suma años servicio + aviso previo |
+    | `monto_vacaciones` | Vacaciones proporcionales pendientes |
+    | `estado` | `BORRADOR`, `FIRMADO`, `PAGADO`, `ANULADO` |
+  </TabItem>
+
+  <TabItem label="Detalle Finiquito">
+    **Tabla:** `remuneraciones.finiquitos_detalle`  
+    **Archivo:** `tbl/027_tbl_finiquitos_detalle.sql`
+
+    Desglose de conceptos pagados en el finiquito.
+
+    | Columna | Descripción |
+    | :--- | :--- |
+    | `finiquito_id` | FK a la cabecera |
+    | `concepto_id` | FK al catálogo de conceptos |
+    | `monto` | Valor calculado |
+  </TabItem>
+
+  <TabItem label="Causales">
+    **Tabla:** `parametros.causales_termino`  
+    **Archivo:** `025_laboral_causales_termino.sql`
+
+    | Código | Artículo | Paga Indemnización | Paga Aviso |
+    | :--- | :--- | :---: | :---: |
+    | `159-1` | Mutuo acuerdo | ❌ | ❌ |
+    | `159-2` | Renuncia | ❌ | ❌ |
+    | `160-1` | Conductas graves | ❌ | ❌ |
+    | `161-1` | Necesidades empresa | ✅ | ✅ |
+    | `161-2` | Desahucio | ✅ | ✅ |
+  </TabItem>
+</Tabs>
+
+---
+
+## 5. Gestión de Tiempo
+
+<Tabs>
+  <TabItem label="Asistencia">
+    **Tabla:** `remuneraciones.asistencia`  
+    **Archivo:** `tbl/022_tbl_asistencia.sql`
+
+    Registro diario de presencia. Base para cálculo de días trabajados y horas extra.
+
+    | Columna | Descripción |
+    | :--- | :--- |
+    | `empleado_id` | FK al empleado |
+    | `fecha` | Día calendario (PK compuesta) |
+    | `jornada_id` | Jornada aplicada ese día |
+    | `estado_asistencia` | `PRESENTE`, `AUSENTE`, `VACACIONES`, `LICENCIA` |
+    | `hora_entrada` | Registro de ingreso |
+    | `hora_salida` | Registro de salida |
+    | `horas_extras` | Horas extra calculadas |
+  </TabItem>
+
+  <TabItem label="Vacaciones">
+    **Tabla:** `remuneraciones.vacaciones`  
+    **Archivo:** `tbl/021_tbl_vacaciones.sql`
+
+    Solicitudes de feriado legal. Descuentan del saldo del empleado.
+
+    | Columna | Descripción |
+    | :--- | :--- |
+    | `empleado_id` | FK al empleado |
+    | `fecha_inicio` | Primer día de vacaciones |
+    | `fecha_fin` | Último día |
+    | `dias_habiles` | Días descontados del saldo |
+    | `estado` | `SOLICITADA`, `APROBADA`, `RECHAZADA`, `TOMADA` |
+  </TabItem>
+
+  <TabItem label="Permisos / Licencias">
+    **Permisos** (`remuneraciones.permisos`):
+    Ausencias administrativas con o sin goce de sueldo.
+
+    **Licencias Médicas** (`remuneraciones.licencias_medicas`):
+    Reposo médico que justifica ausencia y afecta cálculo de subsidio.
+
+    | Campo Común | Descripción |
+    | :--- | :--- |
+    | `empleado_id` | FK al empleado |
+    | `fecha_inicio/fin` | Período de ausencia |
+    | `tipo` | Clasificación específica |
+    | `con_goce_sueldo` | Boolean (solo permisos) |
+  </TabItem>
+</Tabs>
+
+---
+
+## 6. Honorarios
+
+<Tabs>
+  <TabItem label="Header">
+    **Tabla:** `remuneraciones.honorarios`  
+    **Archivo:** `tbl/028_tbl_honorarios.sql`
+
+    Registro de boletas de honorarios (emitidas o recibidas).
+
+    | Columna | Descripción |
+    | :--- | :--- |
+    | `prestador_id` | FK al prestador externo |
+    | `numero_boleta` | Folio oficial ante el SII |
+    | `fecha_emision` | Fecha de la boleta |
+    | `monto_bruto` | Monto total antes de retención |
+    | `retencion` | 13.75% (2024) o tasa vigente |
+    | `monto_liquido` | Monto final a pagar |
+    | `enviado_sii` | Flag si fue cargada desde SII |
+  </TabItem>
+
+  <TabItem label="Prestadores">
+    **Tabla:** `remuneraciones.prestadores_externos`  
+    **Archivo:** `tbl/031_tbl_prestadores_externos.sql`
+
+    Maestro de terceros que prestan servicios.
+
+    | Columna | Descripción |
+    | :--- | :--- |
+    | `rut` | RUT del prestador |
+    | `nombres`, `apellidos` | Datos personales |
+    | `tipo_servicio` | `CONTABILIDAD`, `LEGAL`, `TECNOLOGIA`, etc. |
+    | `cuenta_gasto_defecto` | Cuenta contable sugerida |
+    | `activo` | Boolean para filtrar |
+
+    <Aside type="tip" title="Routing Contable">
+      Si el prestador es tipo "LEGAL", el sistema sugiere automáticamente 
+      la cuenta `3203001` (Asesoría Legal).
+    </Aside>
+  </TabItem>
+
+  <TabItem label="Códigos SII">
+    **Tabla:** `remuneraciones.codigos_actividad_sii`  
+    **Archivo:** `tbl/040_tbl_codigos_actividad_sii.sql`
+
+    Catálogo oficial de actividades económicas para clasificación tributaria.
+
+    | Código | Descripción |
+    | :--- | :--- |
+    | 692000 | Actividades de contabilidad |
+    | 691001 | Actividades jurídicas |
+    | 620100 | Programación informática |
+  </TabItem>
+</Tabs>

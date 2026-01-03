@@ -1,0 +1,80 @@
+---
+title: Buenas Prácticas de Seguridad
+description: Guías y estándares de seguridad para desarrolladores del ecosistema Nostromo.
+sidebar:
+  label: Buenas Prácticas
+  order: 3
+updated: 2026-01-03
+---
+
+import { Card, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+
+En esta sección detallamos las normas y estándares de seguridad que todo desarrollador y operador del sistema Nostromo debe seguir. Estas prácticas no son opcionales; son parte integral de la calidad del código.
+
+---
+
+## Guías Disponibles
+
+<CardGrid>
+  <LinkCard
+    title="🛡️ Protección de Datos"
+    description="Normas para clasificar información, manejo de secretos, cifrado y sanitización de logs."
+    href="/seguridad/practicas/datos/"
+  />
+  <LinkCard
+    title="🏗️ Seguridad de Infraestructura"
+    description="Detalles sobre protección del perímetro, servidor y base de datos."
+    href="/seguridad/practicas/infraestructura/"
+  />
+</CardGrid>
+
+---
+
+## Reglas de Oro
+
+<CardGrid>
+  <Card title="1. Nunca Hardcodear Secretos" icon="warning">
+    Todas las credenciales van en variables de entorno.
+    `.env` siempre en `.gitignore`.
+  </Card>
+  <Card title="2. Validar Todo Input" icon="approve-check">
+    Usar `express-validator` o Zod en todos los endpoints.
+    Nunca confiar en datos del frontend.
+  </Card>
+  <Card title="3. Queries Parametrizadas" icon="seti:db">
+    Siempre usar `$1, $2` en consultas SQL.
+    Nunca concatenar strings en queries.
+  </Card>
+  <Card title="4. Logging Seguro" icon="document">
+    Sanitizar logs antes de escribir.
+    Nunca loguear passwords, tokens o PII.
+  </Card>
+</CardGrid>
+
+---
+
+## Checklist de Seguridad
+
+Antes de hacer merge a `main`, verifica:
+
+| Item | Verificación |
+| :--- | :--- |
+| ⬜ Credenciales | No hay secretos hardcodeados |
+| ⬜ Validación | Todos los inputs están validados |
+| ⬜ Autorización | Rutas protegidas con `authenticateToken` |
+| ⬜ RBAC | Permisos verificados para operaciones sensibles |
+| ⬜ Logs | Sin PII en mensajes de log |
+| ⬜ Dependencies | `npm audit` sin vulnerabilidades críticas |
+
+---
+
+<Aside type="tip" title="Principio de Mínimo Privilegio">
+  Cada componente del sistema debe tener solo los permisos estrictamente necesarios para su función.
+  - Users → Solo su tenant
+  - APIs → Solo endpoints requeridos
+  - DB Pools → Solo schemas necesarios
+</Aside>
+
+---
+
+> "La seguridad no es un producto, es un proceso." — Bruce Schneier

@@ -1,0 +1,175 @@
+---
+title: Protección de Datos
+description: Protocolos para el manejo seguro de información sensible y PII.
+sidebar:
+  label: Protección de Datos
+  order: 2
+updated: 2026-01-03
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+
+La protección de datos es crítica, especialmente al manejar información financiera y personal (PII) en los módulos de Remuneraciones y Contabilidad.
+
+---
+
+## Clasificación de Datos
+
+| Nivel | Descripción | Ejemplos | Controles |
+| :--- | :--- | :--- | :--- |
+| 🟢 **Público** | Información no sensible | Docs técnicos, Landing page | Ninguno específico |
+| 🟡 **Interno** | Uso exclusivo de la org | IDs de usuario, config UI | Autenticación requerida |
+| 🟠 **Confidencial** | Información sensible del negocio | Detalles de contratos, montos | RBAC, Auditoría de acceso |
+| 🔴 **Crítico** | PII y secretos | RUT, Sueldos, Claves, Tokens | Cifrado, Acceso restringido, Logs enmascarados |
+
+---
+
+## Manejo de Secretos
+
+<Steps>
+1. **Nunca** commitear credenciales en Git (`.env` está en `.gitignore`)
+2. En desarrollo local, usar `.env.local` no compartido
+3. En producción (Render/Cloudflare), inyectar secretos como Variables de Entorno
+4. Rotar llaves críticas (DB Password, JWT Secret) cada **90 días**
+</Steps>
+
+<Aside type="caution" title="Rotación de Emergencia">
+  Ante sospecha de compromiso, rotar credenciales **inmediatamente** sin esperar el ciclo regular.
+</Aside>
+
+---
+
+## Enmascaramiento en Logs
+
+Para prevenir fugas de datos en sistemas de monitoreo, sanitiza objetos antes de loguear:
+
+```typescript title="utils/sanitize.ts"
+const SENSITIVE_KEYS = ['password', 'token', 'secret', 'rut', 'sueldo', 'clave'];
+
+function sanitizeLog(data: Record<string, any>): Record<string, any> {
+  const sanitized: Record<string, any> = {};
+  
+  for (const [key, value] of Object.entries(data)) {
+    if (SENSITIVE_KEYS.some(k => key.toLowerCase().includes(k))) {
+      sanitized[key] = '[REDACTED]';
+    } else if (typeof value === 'object' && value !== null) {
+      sanitized[key] = sanitizeLog(value); // Recursivo
+    } else {
+      sanitized[key] = value;
+    }
+  }
+  
+  return sanitized;
+}
+
+// Uso
+console.log(sanitizeLog({ user: 'chris', password: 'secret123', rut: '12345678-9' }));
+// Output: { user: 'chris', password: '[REDACTED]', rut: '[REDACTED]' }
+```
+
+---
+
+## Estrategias de Cifrado
+
+Implementamos cifrado en múltiples capas:
+
+<Tabs>
+  <TabItem label="En Tránsito">
+    Todo tráfico HTTP es **exclusivamente HTTPS (TLS 1.2+)**.
+
+    | Control | Configuración |
+    | :--- | :--- |
+    | **HSTS** | `max-age=31536000` (1 año) |
+    | **Certificados** | Gestionados por Cloudflare + Render |
+    | **TLS Version** | Mínimo 1.2, preferido 1.3 |
+
+    ```http title="Headers de Seguridad"
+    Strict-Transport-Security: max-age=31536000; includeSubDomains
+    X-Content-Type-Options: nosniff
+    X-Frame-Options: DENY
+    ```
+  </TabItem>
+
+  <TabItem label="En Reposo">
+    PostgreSQL (Neon) utiliza cifrado de disco transparente. Para datos altamente sensibles, aplicamos cifrado adicional:
+
+    ```typescript title="lib/crypto.ts"
+    import { webcrypto } from 'node:crypto';
+
+    const ALGORITHM = 'AES-GCM';
+    const KEY = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'); // 32 bytes
+
+    export async function encrypt(text: string): Promise<string> {
+      const iv = webcrypto.getRandomValues(new Uint8Array(12));
+      const encoded = new TextEncoder().encode(text);
+      
+      const key = await webcrypto.subtle.importKey(
+        'raw', KEY, ALGORITHM, false, ['encrypt']
+      );
+      
+      const encrypted = await webcrypto.subtle.encrypt(
+        { name: ALGORITHM, iv }, key, encoded
+      );
+      
+      // Format: IV:EncryptedData
+      return `${Buffer.from(iv).toString('hex')}:${Buffer.from(encrypted).toString('hex')}`;
+    }
+
+    export async function decrypt(ciphertext: string): Promise<string> {
+      const [ivHex, dataHex] = ciphertext.split(':');
+      const iv = Buffer.from(ivHex, 'hex');
+      const data = Buffer.from(dataHex, 'hex');
+      
+      const key = await webcrypto.subtle.importKey(
+        'raw', KEY, ALGORITHM, false, ['decrypt']
+      );
+      
+      const decrypted = await webcrypto.subtle.decrypt(
+        { name: ALGORITHM, iv }, key, data
+      );
+      
+      return new TextDecoder().decode(decrypted);
+    }
+    ```
+
+    <Aside type="danger" title="Gestión de Llaves">
+      El `ENCRYPTION_KEY` es el secreto más crítico. Si se pierde, los datos son **irrecuperables**. 
+      Debe rotarse con extrema precaución usando scripts de re-cifrado.
+    </Aside>
+  </TabItem>
+
+  <TabItem label="Hashing (Passwords)">
+    Las contraseñas **nunca** se almacenan cifradas (reversible), sino hasheadas (irreversible):
+
+    ```typescript title="lib/hash.ts"
+    import bcrypt from 'bcrypt';
+
+    const SALT_ROUNDS = 10;
+
+    export async function hashPassword(plain: string): Promise<string> {
+      return await bcrypt.hash(plain, SALT_ROUNDS);
+    }
+
+    export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
+      return await bcrypt.compare(plain, hash);
+    }
+    ```
+
+    | Configuración | Valor |
+    | :--- | :--- |
+    | **Algoritmo** | bcrypt |
+    | **Cost Factor** | 10 (mínimo) |
+    | **Salt** | Auto-generado por usuario |
+  </TabItem>
+</Tabs>
+
+---
+
+## Resumen de Controles por Nivel
+
+| Nivel de Dato | Cifrado Tránsito | Cifrado Reposo | Acceso | Logging |
+| :--- | :---: | :---: | :--- | :--- |
+| 🟢 Público | ✅ HTTPS | ❌ | Libre | Normal |
+| 🟡 Interno | ✅ HTTPS | ❌ | Autenticado | Normal |
+| 🟠 Confidencial | ✅ HTTPS | ❌ | RBAC | Auditado |
+| 🔴 Crítico | ✅ HTTPS | ✅ AES-256 | Restringido | Enmascarado |
