@@ -1,0 +1,229 @@
+---
+title: Islands de Administración
+description: Componentes interactivos para gestión administrativa del sistema
+sidebar:
+  label: Islas Admin
+  order: 6
+updated: 2026-01-03
+---
+
+import { Code, FileTree, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+## Descripción General
+
+El módulo de **Administración** en Sevastopol contiene islands SolidJS para la gestión central del sistema: empresa, capital, plan contable, representantes legales y monitoreo.
+
+## Catálogo de Islands
+
+<CardGrid>
+  <LinkCard 
+    title="CapitalViewIsland" 
+    description="Gestión de movimientos de capital social"
+  />
+  <LinkCard 
+    title="ChartOfAccountsViewIsland" 
+    description="Plan de cuentas contable jerárquico"
+  />
+  <LinkCard 
+    title="CompanyViewIsland" 
+    description="Datos corporativos de la empresa"
+  />
+  <LinkCard 
+    title="LegalRepresentativesViewIsland" 
+    description="Representantes legales y apoderados"
+  />
+  <LinkCard 
+    title="MonitoringViewIsland" 
+    description="Dashboard de salud del sistema"
+  />
+  <LinkCard 
+    title="SystemConfigViewIsland" 
+    description="Configuraciones dinámicas"
+  />
+  <LinkCard 
+    title="TenantsViewIsland" 
+    description="Gestión de tenants (multi-empresa)"
+  />
+  <LinkCard 
+    title="SessionsViewIsland" 
+    description="Sesiones activas de usuarios"
+  />
+</CardGrid>
+
+## Estructura de Archivos
+
+<FileTree>
+- sevastopol/src/components/islands/admin/
+  - CapitalViewIsland.tsx
+  - ChartOfAccountsViewIsland.tsx
+  - CommonDataExplorerIsland.tsx
+  - CompanyViewIsland.tsx
+  - LegalRepresentativesViewIsland.tsx
+  - MonitoringViewIsland.tsx
+  - SessionsViewIsland.tsx
+  - SystemConfigViewIsland.tsx
+  - TenantsViewIsland.tsx
+</FileTree>
+
+## CapitalViewIsland
+
+Gestiona los movimientos del capital social de la empresa.
+
+### Características
+
+- **CRUD completo** de movimientos de capital
+- **Filtros** por estado y tipo de capital
+- **Stats** con totales y gráficos
+- **Modal** para crear/editar movimientos
+
+### Tipos de Capital Soportados
+
+| Tipo | Descripción |
+|------|-------------|
+| `APORTE_INICIAL` | Capital fundacional |
+| `AUMENTO_CAPITAL` | Incrementos |
+| `REDUCCION_CAPITAL` | Disminuciones |
+| `CAPITALIZACION_UTILIDADES` | Utilidades reinvertidas |
+| `REVALORIZACION` | Ajustes monetarios |
+
+### Código de Ejemplo
+
+```tsx
+import CapitalViewIsland from "@/components/islands/admin/CapitalViewIsland";
+
+// En página Astro
+<CapitalViewIsland client:visible />
+```
+
+## ChartOfAccountsViewIsland
+
+Administra el plan de cuentas contable con vista jerárquica.
+
+### Características
+
+- **Vista en árbol** del plan de cuentas
+- **Filtros** por código, nombre, tipo y nivel
+- **Badges** para tipo (ACTIVO/PASIVO/etc.) e imputabilidad
+- **Validación** de códigos numéricos
+- **Soporte IFRS** con código alternativo
+
+### Stats Mostrados
+
+```tsx
+const stats = createMemo(() => ({
+    total: accounts().length,
+    activos: accounts().filter(a => a.tipo === "ACTIVO").length,
+    pasivos: accounts().filter(a => a.tipo === "PASIVO").length,
+    imputables: accounts().filter(a => a.imputable).length
+}));
+```
+
+## MonitoringViewIsland
+
+Dashboard de métricas de salud del sistema.
+
+### Métricas Disponibles
+
+| Métrica | Descripción |
+|---------|-------------|
+| `disk_usage_pct` | Uso de disco (%) |
+| `cpu_load_pct` | Carga de CPU (%) |
+| `memory_usage_pct` | Uso de memoria (%) |
+| `active_connections` | Conexiones activas |
+| `failed_jobs_last_24h` | Trabajos fallidos (24h) |
+| `api_errors_last_24h` | Errores API (24h) |
+
+### Colores de Estado
+
+```tsx
+const healthColor = (pct: number) => {
+    if (pct < 50) return "text-emerald-500";  // OK
+    if (pct < 80) return "text-amber-500";    // Warning
+    return "text-rose-500";                    // Critical
+}
+```
+
+## TenantsViewIsland
+
+Gestión de tenants para arquitectura multi-empresa.
+
+### Características
+
+- **Lista** de tenants con estados
+- **Creación** de nuevos tenants
+- **Bases de datos** asociadas por tenant
+- **Activación/Desactivación** de tenants
+
+:::tip[Solo SUPER_ADMIN]
+Esta island solo es accesible para usuarios con rol `SUPER_ADMIN`.
+:::
+
+## Patrón Común
+
+Todas las islands de Admin siguen el patrón estándar:
+
+```tsx
+export default function XxxViewIsland() {
+    return (
+        <ToastProvider>
+            <XxxView />
+        </ToastProvider>
+    );
+}
+
+function XxxView() {
+    const toast = useToast();
+    const [isLoading, setLoading] = createSignal(true);
+    const [data, setData] = createSignal([]);
+    
+    // Tenants para multi-empresa
+    const [tenants, setTenants] = createSignal<Tenant[]>([]);
+    const [selectedTenantId, setSelectedTenantId] = createSignal("");
+
+    async function fetchData() {
+        const url = selectedTenantId() 
+            ? `${API_BASE}?tenant_id=${selectedTenantId()}`
+            : API_BASE;
+        const r = await authenticatedFetch(url);
+        // ...
+    }
+
+    onMount(() => {
+        fetchTenants();
+        fetchData();
+    });
+
+    return (
+        <IslandBase
+            module="ADMIN"
+            title="Título"
+            tenants={tenants()}
+            selectedTenantId={selectedTenantId()}
+            onTenantChange={setSelectedTenantId}
+            stats={<StatCard ... />}
+            filters={<Select ... />}
+        >
+            <DataTable items={data()} headers={HEADERS} />
+        </IslandBase>
+    );
+}
+```
+
+## APIs Consumidas
+
+| Island | Endpoint | Servicio |
+|--------|----------|----------|
+| CapitalViewIsland | `/api/admin/capital` | CapitalService |
+| ChartOfAccountsViewIsland | `/api/admin/chart-of-accounts` | ChartOfAccountsService |
+| CompanyViewIsland | `/api/admin/company` | CompanyService |
+| LegalRepresentativesViewIsland | `/api/admin/representatives` | LegalRepService |
+| MonitoringViewIsland | `/api/monitoring` | MonitoringService |
+| SystemConfigViewIsland | `/api/admin/system-config` | SystemConfigService |
+| TenantsViewIsland | `/api/tenant` | TenantService |
+| SessionsViewIsland | `/api/sessions` | SessionService |
+
+## Ver También
+
+- [Servicios Orchestrator](/orchestrator/services/) - APIs backend
+- [Componentes UI](/sevastopol/ui-components/) - Atoms y Molecules
+- [Middleware](/sevastopol/middleware/) - Autenticación
