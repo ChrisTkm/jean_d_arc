@@ -1,0 +1,100 @@
+---
+title: Command API
+description: Endpoints para gestión de tenants, usuarios y autenticación (Esquema command).
+sidebar:
+  label: Command
+  order: 2
+updated: 2026-01-03
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Est documento detalla los endpoints del dominio **Command**, responsables de la administración del sistema, gestión de usuarios, tenants y autenticación.
+
+## Gestión de Tenants
+
+### GET /api/tenant
+
+Obtiene lista de tenants o detalle individual.
+
+**Query Parameters:**
+
+- `id` (opcional): UUID del tenant
+
+**Headers:**
+
+```
+Cookie: sid=<jwt_token>
+```
+
+**Respuesta exitosa (200):**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "rut": "12345678-9",
+      "business_name": "Empresa SPA"
+    }
+  ]
+}
+```
+
+### POST /api/tenant
+
+Crea un nuevo tenant.
+
+**Body:**
+
+```json
+{
+  "rut": "12345678-9",
+  "business_name": "Empresa SPA",
+  "alias": "empresa-spa"
+}
+```
+
+---
+
+## Autenticación
+
+### POST /api/auth/login
+
+Inicia sesión y establece la cookie `sid`.
+
+**Body:**
+
+```json
+{
+  "username": "admin",
+  "password": "password"
+}
+```
+
+**Respuesta exitosa (200):**
+
+```json
+{
+  "success": true,
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "role": "SUPER_ADMIN"
+  }
+}
+```
+
+### POST /api/auth/validate
+
+Valida la sesión actual basada en la cookie `sid`.
+
+**Respuesta exitosa (200):**
+
+```json
+{
+  "valid": true,
+  "user": { ... }
+}
+```

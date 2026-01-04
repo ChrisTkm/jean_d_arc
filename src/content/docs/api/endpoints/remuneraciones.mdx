@@ -1,0 +1,73 @@
+---
+title: Remuneraciones API
+description: Endpoints para gestión de empleados, contratos y cálculo de liquidaciones (Esquema remuneraciones).
+sidebar:
+  label: Remuneraciones
+  order: 3
+updated: 2026-01-03
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Endpoints del dominio **Remuneraciones**, incluyendo gestión de empleados, contratos y el motor de cálculo de nómina.
+
+## Empleados
+
+### GET /api/employees
+
+Listado de empleados con filtros.
+
+**Query Parameters:**
+
+- `rut` (opcional): Filtrar por RUT
+- `activo` (opcional): `true` o `false`
+
+**Respuesta (200):**
+
+```json
+[
+  {
+    "id": "uuid",
+    "rut": "12.345.678-9",
+    "nombres": "Juan",
+    "apellido_paterno": "Pérez"
+  }
+]
+```
+
+---
+
+## Liquidaciones
+
+### POST /api/remuneraciones/payroll/generar
+
+Genera una liquidación de sueldo (preview o commit).
+
+**Body:**
+
+```json
+{
+  "contrato_id": "uuid",
+  "periodo_mes": "2025-12-01",
+  "dry_run": true,
+  "force": false
+}
+```
+
+**Respuesta (200):**
+
+```json
+{
+  "total_liquido": 1500000,
+  "total_haberes": 2000000,
+  "total_descuentos": 500000,
+  "saved": false,
+  "message": "DRY RUN"
+}
+```
+
+### GET /api/remuneraciones/payroll/:id/pdf
+
+Genera y descarga el PDF de la liquidación.
+
+**Respuesta (200):** Stream binario PDF.

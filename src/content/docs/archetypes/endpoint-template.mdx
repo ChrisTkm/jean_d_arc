@@ -1,0 +1,44 @@
+---
+title: Endpoint Template
+description: Plantilla estándar para documentar endpoints API REST.
+sidebar:
+  hidden: true
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+# [Dominio] API
+
+Descripción general del grupo de endpoints.
+
+## [Recurso]
+
+### METHOD /api/[ruta]
+
+Descripción de lo que hace el endpoint.
+
+**Query Parameters:**
+
+- `param` (opcional/requerido): Descripción.
+
+**Body (JSON):**
+
+```json
+{
+  "field": "value"
+}
+```
+
+**Respuesta Exitosa (200):**
+
+```json
+{
+"success": true,
+"data": { ... }
+}
+```
+
+**Errores Comunes:**
+
+- `400`: Validación fallida.
+- `403`: Permisos insuficientes.

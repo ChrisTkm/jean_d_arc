@@ -1,0 +1,47 @@
+---
+title: Common & Parameters API
+description: Endpoints para datos comunes, indicadores económicos y parámetros globales (Esquema parametros).
+sidebar:
+  label: Common
+  order: 4
+updated: 2026-01-03
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Endpoints del dominio **Common**, utilizados para recuperar indicadores económicos compartidos (UF, UTM) y parámetros del sistema.
+
+## Indicadores Económicos
+
+### GET /api/parameters
+
+Obtiene indicadores (UF, UTM) para una fecha específica.
+
+**Query Parameters:**
+
+- `date` (YYYY-MM-DD): Fecha de referencia.
+
+**Respuesta (200):**
+
+```json
+{
+  "uf": 36000,
+  "utm": 64000,
+  "factor_impuesto": 0.04
+}
+```
+
+## AFC
+
+### GET /api/afc/percentages
+
+Obtiene porcentajes de AFC vigentes.
+
+**Respuesta (200):**
+
+```json
+{
+  "empleador": 2.4,
+  "empleado": 0.6
+}
+```

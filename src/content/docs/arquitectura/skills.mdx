@@ -1,0 +1,113 @@
+---
+title: Matriz de Habilidades y Skills
+description: Documentación centralizada de las capacidades técnicas y roles de los agentes de IA (Sevastopol, Orchestrator, Nostromo).
+sidebar:
+  label: Skills & Roles
+  order: 2
+updated: 2026-01-03
+---
+
+import { Card, CardGrid, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Esta página documenta la **Matriz de Habilidades (Skill Matrix)** del ecosistema, definiendo las competencias técnicas requeridas para cada agente y sus responsabilidades.
+
+## 🤖 Mapa de Agentes
+
+<CardGrid>
+  <Card title="Sevastopol (Frontend)" icon="laptop">
+    **Rol:** Inspector Visual & Revisor Arquitectónico.
+    **Foco:** UI/UX, Atomic Design, Islands Architecture.
+    **Tech:** Astro, SolidJS, Tailwind.
+  </Card>
+  <Card title="Orchestrator (Backend)" icon="server">
+    **Rol:** Arquitecto Backend & Auditor de Seguridad.
+    **Foco:** Integridad de datos, RBAC, Performance.
+    **Tech:** Node.js, Express, PostgreSQL.
+  </Card>
+  <Card title="Nostromo (Core)" icon="seti">
+    **Rol:** Guardián de Datos & ETL.
+    **Foco:** Multi-tenancy, Procesamiento Batch.
+    **Tech:** Python, Pandas, SQL.
+  </Card>
+  <Card title="Jean d'Arc (Docs)" icon="open-book">
+    **Rol:** Bibliotecario Técnico.
+    **Foco:** Single Source of Truth.
+    **Tech:** Astro Starlight, Markdown.
+  </Card>
+</CardGrid>
+
+---
+
+## 🛠️ Habilidades Especializadas
+
+### Orchestrator (Backend)
+
+Habilidades prioritarias para el desarrollo del backend.
+
+| Prioridad | Categoría | Tecnologías Clave | Impacto |
+| :--- | :--- | :--- | :--- |
+| **Alta** | **Backend Core** | Node.js, Express, TypeScript | Lógica de negocio segura |
+| **Alta** | **Security** | JWT, RBAC, Helmet, Validation | Protección de datos |
+| **Media** | **Domain Knowledge** | Nómina Chilena, Impuestos | Correctitud legal |
+| **Media** | **Testing** | Jest, Supertest | Estabilidad |
+
+<LinkCard
+  title="Ver Guía de Instrucciones Orchestrator"
+  description="Reglas de copilot, comandos de test y criterios de rechazo."
+  href="https://github.com/ChrisTkm/Accounting/blob/main/orchestrator/.github/copilot-instructions.md"
+/>
+
+### Sevastopol (Frontend)
+
+Habilidades prioritarias para la experiencia de usuario.
+
+| Prioridad | Categoría | Tecnologías Clave | Impacto |
+| :--- | :--- | :--- | :--- |
+| **Alta** | **Frontend Core** | Astro, SolidJS, Tailwind | Performance y Reactividad |
+| **Alta** | **Architecture** | Islands, BFF Pattern | Escalabilidad |
+| **Media** | **UI/UX** | Atomic Design, Theming | Consistencia Visual |
+| **Media** | **Security** | Auth Fetch, HTTP-only Cookies | Seguridad en Cliente |
+
+<LinkCard
+  title="Ver Guía de Instrucciones Sevastopol"
+  description="Atomic Design, Islands Architecture y testing E2E."
+  href="https://github.com/ChrisTkm/Accounting/blob/main/sevastopol/.github/copilot-instructions.md"
+/>
+
+---
+
+## 📚 Estándares de Implementación (SOPs)
+
+Procedimientos operativos estándar que todos los agentes deben seguir.
+
+<CardGrid>
+  <LinkCard
+    title="Orchestrator Service Pattern"
+    description="Patrón para encapsular lógica de negocio en servicios testables."
+    href="https://github.com/ChrisTkm/Nostromo/blob/master/skills/orchestrator_service_pattern.md"
+  />
+  <LinkCard
+    title="Orchestrator API Skill"
+    description="Protocolo para crear endpoints REST seguros y estandarizados."
+    href="https://github.com/ChrisTkm/Nostromo/blob/master/skills/orchestrator_api_skill.md"
+  />
+  <LinkCard
+    title="Sevastopol Island Skill"
+    description="Guía para construir componentes interactivos (Islands) con SolidJS."
+    href="https://github.com/ChrisTkm/Nostromo/blob/master/skills/sevastopol_island_skill.md"
+  />
+</CardGrid>
+
+---
+
+## 🧠 Core Skills & Meta-Habilidades
+
+Habilidades transversales requeridas por todas las inteligencias del sistema.
+
+- **Cognitive Skills**: Pensamiento sistémico, resolución de problemas raíz.
+- **Documentation Governance**: Reglas para mantener esta documentación actualizada.
+- **Architecture**: Principios DRY, Separation of Concerns y Single Source of Truth.
+
+:::tip[Fuente de Verdad]
+Los archivos maestros de skills residen en el repositorio `Nostromo/skills/`. Esta documentación es un reflejo organizado de esa fuente.
+:::
