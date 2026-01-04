@@ -56,6 +56,10 @@ export default defineConfig({
             { 
               label: 'Services', 
               autogenerate: { directory: 'orchestrator/services' } 
+            },
+            {
+              label: 'Monitoring',
+              autogenerate: { directory: 'orchestrator/monitoring' }
             }
           ]
         },

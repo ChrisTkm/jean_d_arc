@@ -4,48 +4,71 @@ description: Punto de entrada a la documentación del ecosistema Nostromo.
 sidebar:
   label: Introducción
   order: 1
-updated: 2025-12-30
+updated: 2026-01-04
 ---
 
-import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+import { LinkCard, CardGrid, Icon } from "@astrojs/starlight/components";
 
-**Jean d'Arc** es el repositorio central de conocimiento técnico para el ecosistema **Nostromo**. Aquí encontrarás documentación de arquitectura, guías de desarrollo, referencias de API y todo lo necesario para comprender y contribuir al sistema.
+¡Bienvenido a **Jean d’Arc**.
 
-## Explorar Componentes
+Esta es la **documentación técnica** del ecosistema **Nostromo**.
 
-Navega directamente a los módulos principales del ecosistema:
+Aquí se describen:
+- Arquitectura del sistema
+- Decisiones de diseño
+- Modelos de datos
+- Flujos operativos
+- Convenciones y estándares
 
-<CardGrid>
+El objetivo es servir como **referencia técnica** para desarrollo, operación y mantenimiento de las plataformas financieras y administrativas del sistema.
+
+---
+
+## 🧭 Mapa del Ecosistema
+
+Explora los pilares fundamentales de nuestra plataforma:
+
+<CardGrid stagger>
   <LinkCard
     title="Sistema Contable"
-    description="Módulo de remuneraciones, cálculos tributarios y leyes sociales chilenas."
+    description="El corazón financiero. Motor de remuneraciones, cumplimiento tributario (SII) y leyes sociales chilenas."
     href="/accounting/sistema-contable/"
   />
   <LinkCard
     title="Sevastopol (Frontend)"
-    description="Interfaz de usuario con islas interactivas, hooks y componentes React/Preact."
+    description="La experiencia de usuario. Arquitectura de Islas con SolidJS y Astro, optimizada para velocidad y reactividad."
     href="/sevastopol/"
   />
   <LinkCard
     title="Orchestrator (Backend)"
-    description="Lógica de negocio, motores de cálculo y servicios de dominio."
+    description="El cerebro de operaciones. API Node.js/Express, gestión multi-tenant y lógica de negocio core."
     href="/orchestrator/"
   />
   <LinkCard
     title="Arquitectura"
-    description="Diagramas, flujos de datos y decisiones de diseño del ecosistema."
+    description="El plano maestro. Diagramas de flujo, modelos de datos y decisiones de diseño de alto nivel."
     href="/arquitectura/overview/"
   />
 </CardGrid>
 
-## Propósito
+---
 
-Esta base de conocimiento centraliza la verdad técnica del proyecto:
+## 🎯 Nuestro Propósito
 
-- **Fuente única de verdad** para arquitectura y patrones de diseño.
-- **Guías de on-boarding** para nuevos desarrolladores.
-- **Referencias de API** y ejemplos funcionales.
+En un ecosistema complejo como Nostromo, la claridad es poder. Esta documentación tiene misiones críticas:
 
-## Navegación
+1.  **Single Source of Truth (SSOT)**: Eliminar ambigüedades. Si está escrito aquí, es la regla. Si el código dice otra cosa, es un bug (o la doc necesita update).
+2.  **Onboarding Acelerado**: Permitir que nuevos ingenieros entiendan el "por qué" y el "cómo" sin necesidad de largas sesiones de shadowing.
+3.  **Estandarización**: Definir patrones claros para APIs, estructuras de bases de datos y componentes UI.
 
-Usa el **menú lateral** para explorar secciones específicas o la **barra de búsqueda** (`Ctrl+K`) para encontrar temas rápidamente.
+## 🚀 Primeros Pasos
+
+Para navegar eficientemente:
+
+- Usa la **Barra Lateral** 👈 para recorrer los módulos secuencialmente.
+- Presiona `Ctrl + K` (o `Cmd + K`) para activar la **Búsqueda Rápida** ⚡ y saltar a cualquier tema.
+- Revisa la sección de **Arquitectura** si necesitas entender la "big picture" antes de entrar en detalles.
+
+:::tip[¿Encontraste un error?]
+Jean d'Arc es un organismo vivo. Si ves algo desactualizado o incorrecto, ¡repórtalo o crea un PR! La calidad de la documentación es responsabilidad de todos.
+:::

@@ -7,98 +7,505 @@ sidebar:
 updated: 2025-12-30
 ---
 
+import { Code } from "@astrojs/starlight/components";
+
 ## 🏛️ Visión del Negocio
 
-El **Sistema Contable Nostromo** no es solo un software, es la columna vertebral financiera de la organización. Su misión es garantizar la **integridad, precisión y cumplimiento normativo** de todas las operaciones contables y de personal.
+Este documento proporciona una introducción de alto nivel al sistema Accounting, una plataforma de gestión de remuneraciones, RRHH y contabilidad chilena construida como una aplicación SaaS multi-tenant. El sistema implementa el cumplimiento de la legislación laboral chilena, incluyendo cálculo de remuneraciones, seguridad social (AFP, ISAPRE, AFC), retención de impuestos y operaciones contables.
 
-Se estructura en dos pilares fundamentales que separan la "Inteligencia del Negocio" de la "Operación Diaria":
+El sistema consiste en dos aplicaciones separadas que trabajan en conjunto:
 
-1. **Motor de Cálculo (Backend)**: Donde residen las leyes, reglas tributarias y la verdad financiera.
-2. **Interfaz de Operación (Frontend)**: Herrramienta de control para los auditores y analistas.
-
----
-
-## 🧠 Orchestrator: El Motor Financiero
-
-El **Orchestrator** actúa como el "Contador Principal" del sistema. No es simplemente una API, es un **Motor de Reglas de Negocio** escrito en TypeScript para garantizar precisión matemática estricta.
-
-### Responsabilidades de Negocio
-
-Aquí es donde se "piensa" y calcula:
-
-- **Remuneraciones (Payroll Core)**:
-  - Cálculo de Sueldos Líquidos y Brutos.
-  - Determinación de Impuestos de Segunda Categoría.
-  - Leyes Sociales (AFP, Isapre, Fonasa) actualizadas con indicadores de Previred.
-  - Cálculo de Finiquitos y Vacaciones proporcionales.
-- **Cumplimiento Tributario (Tax Compliance)**:
-  - Integración con normativas del **SII**.
-  - Generación de Libros de Remuneraciones Electrónicos (LRE).
-- **Gestión de Personal (HR)**:
-  - Control de Asistencia y Horas Extras.
-  - Administración de Contratos y Anexos.
-  - Licencias Médicas y Permisos.
-
-### Dominios Activos
-
-El motor organiza el negocio en dominios específicos:
-
-| Dominio | Función de Negocio |
-| :--- | :--- |
-| `payroll` | Motor de cálculo de nómina mensual. |
-| `finiquitos` | Cálculo de indemnizaciones y haberes al término de contrato. |
-| `previsions` | Gestión de indicadores previsionales (UF, UTM, Topes). |
-| `operations` | Operaciones tributarias y contables generales. |
-| `attendance` | Control de asistencia para cálculo de horas trabajadas. |
-| `honorarios` | Gestión de boletas de honorarios y retenciones. |
+- **Sevastopol**: Un frontend Astro + SolidJS que sirve como Backend-for-Frontend (BFF)
+- **Orchestrator**: Un backend Node.js/Express que actúa como fuente de verdad para toda la lógica de negocio
 
 ---
 
-## 🖥️ Sevastopol: Centro de Operaciones
+## Visión General de la Arquitectura del Sistema
 
-**Sevastopol** es el escritorio de trabajo del analista. Diseñado con **SolidJS**, ofrece una experiencia fluida y reactiva, permitiendo a los usuarios interactuar con el motor financiero sin fricción.
+### Modelo de Aplicación Dual
 
-### Funciones Principales
-
-- **Visor de Liquidaciones**: Inspección detallada de cada ítem del sueldo.
-- **Command Center**: Panel de control para ejecutar procesos masivos (ej: "Generar Nómina Octubre").
-- **Gestión Documental**: Visualización y descarga de contratos y finiquitos.
-- **Auditoría Visual**: Gráficos y tablas para validar la consistencia de los datos antes del cierre de mes.
-
-> **Nota de Arquitectura**: Sevastopol es "tonto" intencionalmente. No decide impuestos ni calcula sueldos; solo muestra lo que el Orchestrator ha determinado como verdad.
-
----
-
-## 🔄 Flujo de Valor: "Hybrid Core"
-
-El sistema utiliza un enfoque **Hybrid Core** para asegurar que los datos contables nunca se corrompan por errores de interfaz.
+El sistema emplea una clara separación de responsabilidades entre dos aplicaciones distintas:
 
 ```mermaid
-graph TD
-    User((Analista)) 
-    
-    subgraph Sevastopol [Interfaz de Control]
-        UI[Vista de Nómina]
-        Cmd[Botón: 'Calcular']
+flowchart TB
+    %% =====================
+    %% Cliente / Navegador
+    %% =====================
+    subgraph Navegador
+        Browser[Navegador del Usuario]
     end
-    
-    subgraph Orchestrator [Motor de Negocio]
-        Rules{Reglas Legales}
-        Calc[Calculadora de Sueldos]
-        Tax[Motor Tributario]
-    end
-    
-    subgraph Database [Libros Contables]
-        Ledger[(Historial Financiero)]
+    %% =====================
+    %% Frontend (Astro + SolidJS)
+    %% =====================
+    subgraph Frontend["Sevastopol (Frontend BFF)"]
+        AstroPages[Páginas Astro SSR + Estático]
+        SolidIslands[Islands SolidJS<br/>Hidratación Cliente]
+        ViewRouter[view-router.ts<br/>Navegación Dinámica]
+        ApiProxy[authenticatedFetch<br/>Rutas Proxy API /api/*]
+        ClientAuth[authenticatedFetch Cliente Auth]
     end
 
-    User -->|Solicita Cálculo| Cmd
-    Cmd -->|Ordena| Rules
-    Rules -->|Valida Normativa| Calc
-    Calc -->|Aplica Impuestos| Tax
-    Tax -->|Registra| Ledger
-    Ledger -.->|Reporta| UI
-    UI -.->|Visualiza| User
+    Browser -->|HTTPS| AstroPages
+    Browser <-->|Fetch + Eventos| SolidIslands
+
+    AstroPages -->|Eventos Personalizados| ViewRouter
+    SolidIslands -->|Importación Dinámica| ViewRouter
+    SolidIslands -->|authenticatedFetch| ApiProxy
+
+
+    %% =====================
+    %% Proxy Backend
+    %% =====================
+    ApiProxy -->|Reenvío Proxy<br/>Puerto 8000| Factory
+
+    %% =====================
+    %% Backend / Orchestrator
+    %% =====================
+    subgraph Backend["Orchestrator (Backend)"]
+        Factory["createApp() Factory Express"]
+        AuthToken[authenticateToken<br/>Validación JWT]
+        Authorize[authorizeRoute<br/>Verificación Permisos]
+        DomainRoutes[Rutas de Dominio<br/>/api/tenant<br/>/api/employees<br/>/api/payroll]
+
+        Factory --> AuthToken
+        AuthToken --> Authorize
+        Authorize --> DomainRoutes
+    end
+
+    %% =====================
+    %% Servicios de Negocio
+    %% =====================
+    subgraph Services["Servicios de Negocio"]
+        Payroll[PayrollEngine PdfService<br/>AuditLogger]
+    end
+
+    DomainRoutes -->|Consultas de Sesión| Payroll
+    AuthToken -.->|Consultas de Sesión| DBSystem
+
+    %% =====================
+    %% Bases de Datos
+    %% =====================
+    subgraph DB["Bases de Datos PostgreSQL"]
+        DBSystem[nostromo_command<br/>BD Sistema]
+        DBCommon[nostromo_common<br/>Parámetros Compartidos]
+        DBTenant[nostromo_600031<br/>nostromo_7654321<br/>Datos Específicos Tenant]
+    end
+
+    Payroll -->|Auditoría y Métricas| DBSystem
+    DomainRoutes -->|Consultas de Parámetros| DBCommon
+    DomainRoutes -->|Datos de Tenant| DBTenant
 ```
 
-Este flujo garantiza que un error en la capa visual jamás afecte los libros contables reales.
+---
+
+## Stack Tecnológico
+
+| Capa               | Tecnología        | Propósito                                              |
+| :----------------- | :---------------- | :----------------------------------------------------- |
+| Framework Frontend | Astro 5.x         | SSR, generación estática, arquitectura islands         |
+| Biblioteca UI      | SolidJS 5.x       | Islands reactivos del lado del cliente con hidratación |
+| Estilos            | Tailwind CSS      | CSS utility-first con soporte para modo oscuro         |
+| Runtime Backend    | Node.js 20+       | Runtime de servidor para Orchestrator                  |
+| Framework Backend  | Express 5.x       | Servidor API HTTP con pipeline de middleware           |
+| Base de Datos      | PostgreSQL        | Persistencia de datos multi-tenant                     |
+| Autenticación      | JWT + Sesiones    | Tokens sin estado con seguimiento de sesiones          |
+| Autorización       | RBAC              | Sistema de Control de Acceso Basado en Roles           |
+| Monitoreo          | Personalizado     | Logs de auditoría + métricas estilo Prometheus         |
+| Generación PDF     | Puppeteer         | Renderizado de PDF del lado del servidor               |
+| Testing            | Jest + Playwright | Pruebas unitarias (backend) + pruebas E2E (frontend)   |
+
+---
+
+## Arquitectura de Base de Datos Multi-Tenant
+
+El sistema implementa **multi-tenancy a nivel de base de datos** con tres tipos distintos de bases de datos, garantizando estricta aislación de datos entre tenants:
+
+```mermaid
+flowchart LR
+    %% =====================
+    %% Flujo de Autenticación
+    %% =====================
+    subgraph Auth["Flujo de Autenticación"]
+        Req[Solicitud Entrante<br/>Cookie: sid=JWT]
+        AuthToken[authenticateToken<br/>Decodificar JWT]
+        TenantResolver[tenantResolver<br/>Validar tenant_id]
+
+        Req --> AuthToken --> TenantResolver
+    end
+
+    %% =====================
+    %% Pools de Conexión
+    %% =====================
+    subgraph Pools["Pools de Conexión"]
+        CentralPool[centralPool<br/>Instancia Singleton]
+        CommonPool[commonPool<br/>Instancia Singleton]
+        TenantFactory["getTenantPool(db)<br/>Factory Pool Cacheado"]
+    end
+
+    TenantResolver -->|Consultas de Sistema| CentralPool
+    TenantResolver -->|Consultas de Parámetros| CommonPool
+    TenantResolver -->|Consultas de Tenant| TenantFactory
+
+    %% =====================
+    %% Servidor PostgreSQL
+    %% =====================
+    subgraph Postgres["Servidor PostgreSQL"]
+        CentralDB[nostromo_command<br/>Base de Datos Central]
+        CommonDB[nostromo_common<br/>Parámetros Comunes]
+        TenantDB1[nostromo_6000431<br/>Datos Tenant 1]
+        TenantDB2[nostromo_7654321<br/>Datos Tenant 2]
+    end
+
+    CentralPool --> CentralDB
+    CommonPool --> CommonDB
+    TenantFactory -->|Pool para Tenant 1| TenantDB1
+    TenantFactory -->|Pool para Tenant 2| TenantDB2
+
+    %% =====================
+    %% Esquemas BD Central
+    %% =====================
+    subgraph SchemasCentral["Esquemas BD Central"]
+        CentralSchemas[
+            command.tenants<br/>
+            command.users<br/>
+            auth.user_sessions
+        ]
+        MonitoringSchemas[
+            monitoring.audit_log<br/>
+            monitoring.system_metrics
+        ]
+    end
+
+    CentralDB --> CentralSchemas
+    CentralDB --> MonitoringSchemas
+
+    %% =====================
+    %% Esquemas BD Común
+    %% =====================
+    subgraph SchemasCommon["Esquemas BD Común"]
+        CommonSchemas[
+            parametros.afp_tasas<br/>
+            parametros.afc<br/>
+            parametros.impuesto_2cat<br/>
+            parametros.indicadores
+        ]
+    end
+
+    CommonDB --> CommonSchemas
+
+    %% =====================
+    %% Esquemas BD Tenant
+    %% =====================
+    subgraph SchemasTenant["Esquemas BD Tenant"]
+        TenantSchemas1[
+            remuneraciones.*<br/>
+            RRHH y Remuneraciones
+        ]
+        TenantSchemas2[
+            operaciones.*<br/>
+            Ventas y Compras
+        ]
+        TenantSchemas3[
+            administracion.*<br/>
+            Configuración Empresa
+        ]
+    end
+
+    TenantDB1 --> TenantSchemas1
+    TenantDB1 --> TenantSchemas2
+    TenantDB1 --> TenantSchemas3
+```
+
+### Roles de Base de Datos
+
+| Nombre Base de Datos | Propósito                                                                                | Patrón de Acceso                           |
+| :------------------- | :--------------------------------------------------------------------------------------- | :----------------------------------------- |
+| `nostromo_command`   | Datos del sistema: tenants, usuarios, sesiones, logs de auditoría, métricas              | Todas las solicitudes autenticadas         |
+| `nostromo_common`    | Parámetros compartidos: tablas de impuestos, tasas AFP, indicadores económicos (UF, UTM) | Solo lectura, consultas temporales         |
+| `nostromo_NNNNNN`    | Datos de negocio específicos del tenant: RRHH, remuneraciones, contabilidad              | Aislación por tenant vía `getTenantPool()` |
+
+---
+
+## Flujo de Autenticación y Autorización
+
+El sistema implementa autenticación basada en JWT con seguimiento de sesiones y RBAC de tres niveles:
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+    participant B as Navegador
+    participant S as "Sevastopol /api/auth/*"
+    participant O as "Orchestrator authRoutes"
+    participant DB as "nostromo_command"
+    participant RBAC as "rbac.canAccess()"
+
+    %% =========================
+    %% LOGIN
+    %% =========================
+    B->>S: POST /api/auth/login (username, password)
+    S->>O: Reenvío Proxy
+    O->>DB: SELECT * FROM users WHERE username = $1
+    DB-->>O: Registro usuario + password_hash
+
+    alt Contraseña válida
+        O->>O: bcrypt.compare(password, hash)
+        O->>O: jwt.sign(userId, username, role, sessionId)
+        O->>DB: INSERT INTO auth.user_sessions
+        O->>DB: auditLog.login(userId) ok=true
+        O-->>S: 200 OK
+        Note over S,B: Set-Cookie sid=JWT HttpOnly Secure
+        S-->>B: 200 OK + Cookie
+    else Contraseña inválida
+        O->>DB: auditLog.login(userId?) ok=false
+        O-->>S: 401 Unauthorized
+        S-->>B: 401 Error
+    end
+
+    %% =========================
+    %% REQUEST AUTENTICADA
+    %% =========================
+    B->>S: GET /api/employees Cookie sid
+    S->>O: Reenvío Proxy + Cookie
+
+    O->>O: authenticateToken(req)
+    O->>O: Decodificar JWT
+    O->>O: Verificar JWT
+    O->>O: set req.user = decoded
+
+    %% =========================
+    %% RBAC
+    %% =========================
+    O->>RBAC: canAccess(role, "/api/employees")
+
+    alt Autorizado
+        RBAC-->>O: true
+        O->>O: Ejecutar manejador de ruta
+        O->>DB: SELECT employees
+        O-->>S: 200 OK + Datos
+        S-->>B: 200 OK + Datos
+    else Prohibido
+        RBAC-->>O: false
+        O->>DB: auditLog.accessDenied(resource)
+        O-->>S: 403 Forbidden
+        S-->>B: 403 Error
+    end
+```
+
+### Roles RBAC
+
+| Rol           | Alcance                                                                  | Rutas Típicas                                          |
+| :------------ | :----------------------------------------------------------------------- | :----------------------------------------------------- |
+| `SUPER_ADMIN` | Acceso completo al sistema, puede gestionar todos los tenants y usuarios | `/api/tenant/*, /api/admin/users/*, /api/monitoring/*` |
+| `ADMIN`       | Administración de tenant, puede gestionar los datos de su tenant         | `/api/accounting/*, /api/employees/*, /api/payroll/*`  |
+| `USER`        | Acceso de solo lectura a reportes y operaciones                          | `/api/reports/*, /api/operations/operations (lectura)` |
+
+---
+
+## Dominios de Negocio
+
+El sistema está organizado en cuatro dominios de negocio principales, cada uno con rutas dedicadas y vistas UI:
+
+```mermaid
+flowchart TB
+
+    %% =========================
+    %% Dominio Operaciones
+    %% =========================
+    subgraph Ops["Dominio Operaciones"]
+        OpsRoutes["
+            /api/operations/operations
+            /api/operations/sales
+            /api/accounting"
+        ]
+        OpsView[OperationsViewIsland]
+        OpsRoutes --> OpsView
+    end
+
+    %% =========================
+    %% Dominio Remuneraciones
+    %% =========================
+    subgraph Remu["Dominio Remuneraciones"]
+        RemuRoutes[
+            /api/employees
+            /api/contracts
+            /api/attendance
+            /api/remuneraciones/payroll
+            /api/vacations
+            /api/permissions
+            /api/spare_contracts
+            /api/pay_contracts
+        ]
+
+        RemuViews[
+            EmployeesViewIsland
+            ContractsViewIsland
+            AttendanceViewIsland
+            PayrollViewIsland
+            VacationsViewIsland
+            PermissionsViewIsland
+        ]
+
+        RemuServices[
+            PayrollEngine.calculate
+            SocialLawsCalculator
+            TaxCalculator
+            HealthPlanCalculator
+        ]
+
+        RemuRoutes --> RemuViews
+        RemuRoutes --> RemuServices
+    end
+
+    %% =========================
+    %% Dominio Admin
+    %% =========================
+    subgraph Admin["Dominio Admin"]
+        AdminRoutes[
+            /api/admin/company
+            /api/admin/capital
+            /api/admin/representatives
+            /api/admin/chart-of-accounts
+            /api/admin/system-config
+        ]
+
+        AdminViews[
+            CompanyViewIsland
+            CapitalViewIsland
+            LegalRepresentativesViewIsland
+            ChartOfAccountsViewIsland
+            SystemConfigViewIsland
+        ]
+
+        AdminRoutes --> AdminViews
+    end
+
+    %% =========================
+    %% Dominio Command
+    %% =========================
+    subgraph Command["Dominio Command"]
+        CommandRoutes[
+            /api/tenant/api/tenant-db
+            /api/admin/users
+            /api/sessions
+            /api/monitoring
+        ]
+
+        CommandViews[
+            TenantsViewIsland
+            SessionsViewIsland
+            MonitoringViewIsland
+        ]
+
+        CommandRoutes --> CommandViews
+    end
+```
+
+### Responsabilidades de Dominios
+
+| Dominio        | Propósito                                                                            | Entidades Clave                                                                              |
+| :------------- | :----------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------- |
+| Command        | Administración del sistema, gestión de tenants, gestión de usuarios, monitoreo       | `Tenant`, `TenantDatabase`, `User`, `Session`, `AuditLog`, `SystemMetrics`                   |
+| Admin          | Configuración de empresa, estructura legal, plan de cuentas                          | `CompanyConfig`, `LegalRep`, `CapitalEntry`, `Account`, `SystemConfig`                       |
+| Remuneraciones | Gestión de RRHH, cálculo de remuneraciones, cumplimiento legislación laboral chilena | `Employee`, `Contract`, `Attendance`, `Payroll`, `Vacation`, `IsapreContract`, `APVContract` |
+| Operaciones    | Operaciones contables, integración SII, ventas y compras                             | `Operation`, `Sale`, `Purchase`, `ResumenOperaciones`                                        |
+
+---
+
+## Patrones Arquitectónicos Clave
+
+### Patrón Backend-for-Frontend (BFF)
+
+Sevastopol actúa como una capa BFF pura sin lógica de negocio. Todas las rutas API en Sevastopol son proxies simples:
+
+<Code code={`// sevastopol/src/pages/api/tenant.ts
+import { createProxy } from "@/lib/proxyUtils";
+
+export const { GET, POST, PUT, DELETE } = createProxy("/api/tenant");`} lang="ts" title="sevastopol/src/pages/api/tenant.ts" />
+
+La utilidad `createProxy` reenvía todas las solicitudes al Orchestrator en `localhost:8000` con credenciales incluidas.
+
+---
+
+## Principio Hybrid Core
+
+El Orchestrator sigue un patrón **Hybrid Core** para la lógica de negocio:
+
+| Tipo de Operación            | Implementación           | Ejemplo                                                               |
+| :--------------------------- | :----------------------- | :-------------------------------------------------------------------- |
+| Escrituras y Lógica Compleja | TypeScript en servicios  | Cálculos de PayrollEngine, cómputo de impuestos, reglas de validación |
+| Lecturas y Reportes          | Vistas SQL en PostgreSQL | Vistas inteligentes como v_resumen_ventas, v_employee_balance         |
+
+Este patrón asegura:
+
+- **Cálculos complejos** (remuneraciones, impuestos) son testeables en Jest con completa seguridad de tipos
+- **Datasets grandes** (reportes, dashboards) son consultados eficientemente vía vistas SQL optimizadas
+- **Reglas de negocio** permanecen en código de aplicación, no dispersas en procedimientos almacenados
+
+---
+
+## Monitoreo y Observabilidad
+
+El sistema incluye monitoreo comprensivo integrado en el Orchestrator:
+
+### Características de Monitoreo
+
+```Mermaid
+flowchart TB
+
+    %% =========================
+    %% Pipeline de Solicitudes
+    %% =========================
+    subgraph Pipeline["Pipeline de Solicitudes"]
+        Req[Solicitud Entrante]
+        MetricsMW[metricsMiddleware]
+        AuditMW[auditMiddleware]
+        Handler[Manejador de Ruta]
+
+        Req --> MetricsMW
+        MetricsMW --> AuditMW
+        AuditMW --> Handler
+    end
+
+    %% =========================
+    %% Recolección de Métricas
+    %% =========================
+    subgraph Metrics["Recolección de Métricas"]
+        Collector[MetricsCollector<br/>Singleton]
+
+        M1[http_requests_total<br/>http_errors_total]
+        M2[http_active_requests<br/>nodejs_heap_used_bytes]
+        M3[http_request_duration_ms]
+        M4[monitoring.system_metrics]
+
+        Collector --> M1
+        Collector --> M2
+        Collector --> M3
+        Collector --> M4
+    end
+
+    %% =========================
+    %% Registro de Auditoría
+    %% =========================
+    subgraph Audit["Registro de Auditoría"]
+        AuditLogger[AuditLogger<br/>Singleton]
+        Buffer[Cola en Memoria<br/>Buffer por Lotes]
+        AuditDB[monitoring.audit_log]
+
+        AuditLogger --> Buffer
+        Buffer -->|Flush cada 5s| AuditDB
+    end
+
+    %% =========================
+    %% Conexiones entre dominios
+    %% =========================
+    MetricsMW -->|Rastrear métricas| Collector
+    Collector -->|Flush cada 60s| M4
+
+    Handler -->|Registrar operaciones| AuditLogger
+```
+
+- **Rastreo Automático de Solicitudes**: Tiempos de respuesta, códigos de estado, tasas de error
+- **Métricas de Salud del Sistema**: Uso de memoria, lag del event loop, estadísticas de pool de BD
+- **Pista de Auditoría**: Todas las operaciones de modificación (INSERT/UPDATE/DELETE) registradas con contexto de usuario
+- **Endpoint en Tiempo Real**: `GET /metrics` expone métricas actuales como JSON
