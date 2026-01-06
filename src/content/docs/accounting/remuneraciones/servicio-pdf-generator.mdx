@@ -24,7 +24,7 @@ El proceso sigue un patrón estricto de **Separación de Responsabilidades** par
 flowchart LR
     Data[Datos de Negocio] --> Service[Domain Service]
     Service -->|Context Object| Generator[HtmlGenerator]
-    Generator -->|HTML String| PDF[PdfService (Puppeteer)]
+    Generator -->|HTML String| PDF["PdfService (Puppeteer)"]
     PDF -->|Buffer/Stream| Storage[File System / S3]
     Storage -->|URL| UI[Cliente / Browser]
 ```
