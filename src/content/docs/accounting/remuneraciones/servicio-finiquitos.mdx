@@ -1,34 +1,58 @@
 ---
 title: Servicio de Finiquitos
-description: Cálculo de indemnizaciones y término de relación laboral.
+description: Gestión del término de la relación laboral, cálculo de indemnizaciones y emisión de documentos legales.
 sidebar:
   order: 8
-updated: 2025-12-28
+updated: 2026-01-05
 ---
 
-import { Steps, LinkCard } from "@astrojs/starlight/components";
+import { Steps, LinkCard, Aside } from "@astrojs/starlight/components";
 
-El **Servicio de Finiquitos** administra el ciclo de vida del término de contrato, asegurando el cumplimiento de la normativa legal (artículos 161, 159, etc. del Código del Trabajo).
+El **Servicio de Finiquitos** administra el ciclo de vida del término de contrato, asegurando el cumplimiento de la normativa legal (artículos 161, 159, 177, etc. del Código del Trabajo). Provee las herramientas para calcular indemnizaciones, simular escenarios de desvinculación y generar el documento legal final con pleno poder liberatorio.
 
 <LinkCard
   title="📘 Ver Implementación Técnica"
-  description="FiniquitoService: Simulación, generación y código fuente"
+  description="FiniquitoService: Simulación, cálculo y PDF Generator"
   href="/orchestrator/services/finiquitoservice/"
 />
+
+## Generación de Documento Legal (PDF) 🏛️
+
+El sistema genera un **Finiquito de Contrato de Trabajo** diseñado para cumplir estrictamente con los requisitos del **Artículo 177 del Código del Trabajo** para su ratificación ante un ministro de fe (Notario / Inspector).
+
+### Componentes de Compliance
+
+El documento PDF generado incluye automáticamente:
+
+1.  **Identificación Completa**: Datos del Empleador (incluyendo Representante Legal y RUT) y del Trabajador.
+2.  **Causal de Término**: Sección explicativa que cita la causal legal (ej: _"Necesidades de la Empresa"_) y su fundamento normativo (ej: _"Art. 161 inc 1"_).
+3.  **Desglose de Haberes**: Tabla detallada separando claramente:
+    - **Indemnizaciones** (Años de Servicio, Aviso Previo - No Imponibles).
+    - **Haberes Normales** (Feriado Proporcional - Imponible/Tributable si aplica).
+    - **Descuentos** (Préstamos, AFC).
+
+### Poder Liberatorio y Firma
+
+Para garantizar la validez legal y proteger al empleador, el documento incluye las siguientes cláusulas críticas:
+
+- **Declaración de Voluntad**: Cláusula donde el trabajador declara recibir los montos a entera satisfacción.
+- **Poder Liberatorio**: Texto explícito donde se otorga "el más amplio, completo y total finiquito", extinguiendo obligaciones pendientes.
+- **Bloque de Firma de Ministro de Fe**: Espacio reservado para la ratificación notarial obligatoria.
+
+:::caution[Reserva de Derechos]
+El sistema incluye, por diseño, un recuadro específico para la **Reserva de Derechos**. Esto permite que el trabajador escriba de puño y letra cualquier reclamo pendiente (ej: "Me reservo el derecho a demandar horas extra") sin invalidar el pago de las indemnizaciones aceptadas, conforme a la jurisprudencia actual.
+:::
 
 ## Motor de Cálculo
 
 El cálculo de un finiquito considera tres pilares fundamentales:
 
-1. **Feriado Proporcional**:
-   Pago de los días de vacaciones ganados y no gozados (incluyendo proporción de días inhábiles).
+1.  **Feriado Proporcional**:
+    Pago de los días de vacaciones ganados y no gozados (incluyendo proporción de días inhábiles).
 
-2. **Indemnización por Años de Servicio**:
-   Si aplica la causal, se paga un mes por año de antigüedad (tope 11 años), sobre una base que incluye sueldo y variables (tope 90 UF).
+2.  **Indemnización por Años de Servicio (IAS)**:
+    Si aplica la causal, se paga un mes por año de antigüedad (tope 11 años), sobre una base que incluye sueldo y variables (tope 90 UF).
+    - _Regla de Redondeo_: Fracción superior a 6 meses sube a un año completo.
 
-3. **Aviso Previo**:
-   Indemnización sustitutiva si el despido no fue avisado con 30 días de anticipación.
-
-## Simulación
-
-El sistema permite **Simular** finiquitos para proyectar costos de desvinculación sin afectar la contabilidad ni generar documentos legales.
+3.  **Aviso Previo**:
+    Indemnización sustitutiva (1 mes tope 90 UF) si el despido no fue avisado con 30 días de anticipación.

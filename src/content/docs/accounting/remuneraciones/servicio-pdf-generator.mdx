@@ -1,0 +1,82 @@
+---
+title: Generación Documental (PDF Service)
+description: Arquitectura centralizada para la emisión de documentos legales y tributarios en formato PDF.
+sidebar:
+  label: 🖨️ Motor PDF
+  order: 99
+updated: 2026-01-05
+---
+
+import {
+  Steps,
+  FileTree,
+  LinkCard,
+  CardGrid,
+} from "@astrojs/starlight/components";
+
+El sistema utiliza un motor de generación documental unificado (`PdfService`) que garantiza consistencia visual, validez legal y trazabilidad en todos los documentos emitidos (Liquidaciones, Contratos, Finiquitos).
+
+## Arquitectura de Generación
+
+El proceso sigue un patrón estricto de **Separación de Responsabilidades** para desacoplar los datos de la presentación visual.
+
+```mermaid
+flowchart LR
+    Data[Datos de Negocio] --> Service[Domain Service]
+    Service -->|Context Object| Generator[HtmlGenerator]
+    Generator -->|HTML String| PDF[PdfService (Puppeteer)]
+    PDF -->|Buffer/Stream| Storage[File System / S3]
+    Storage -->|URL| UI[Cliente / Browser]
+```
+
+### Componentes Clave
+
+1.  **Domain Service** (`ContractService`, `FiniquitoService`): Recopila datos de múltiples fuentes (Empleado, Empresa, Cálculos) y construye un **Contexto de Datos** seguro y tipado.
+2.  **HtmlGenerator**: Plantillas TypeScript que reciben el Contexto y generan HTML puro con estilos embebidos (CSS). No contienen lógica de negocio, solo de presentación.
+3.  **PdfService**: Wrapper sobre `puppeteer` (headless Chrome) que renderiza el HTML a PDF con configuraciones de papel y márgenes estándar (Carta / A4).
+
+## Documentos Soportados
+
+El motor alimenta los siguientes subsistemas documentales:
+
+<CardGrid>
+  <LinkCard
+    title="📜 Contratos Laborales"
+    href="/accounting/remuneraciones/servicio-contratos/"
+    description="Contratos indefinidos y plazo fijo con cláusulas dinámicas de Jornada."
+  />
+  <LinkCard
+    title="💰 Liquidaciones de Sueldo"
+    href="/accounting/remuneraciones/servicio-liquidaciones/"
+    description="Comprobantes de pago mensual con detalle de haberes y descuentos."
+  />
+  <LinkCard
+    title="⚖️ Finiquitos (Art. 177)"
+    href="/accounting/remuneraciones/servicio-finiquitos/"
+    description="Documentos de término de relación laboral con poder liberatorio."
+  />
+</CardGrid>
+
+## Patrones de Diseño
+
+### 1. Compliance Infalible 🛡️
+
+El generador no es solo un "impresor". Actúa como una **Barrera de Compliance**.
+Si los datos del empleado (ej: AFP, Salud) o del contrato (ej: Jornada) no son válidos según la normativa laboral, el sistema **bloquea la generación** y reporta el error. Esto previene la emisión de documentos legales nulos o defectuosos.
+
+### 2. Self-Healing & Regeneración 🔄
+
+Los documentos no son estáticos. El sistema implementa **Regeneración On-Demand**:
+
+- Si un archivo físico se pierde o daña, el endpoint de descarga detecta la ausencia y lo regenera al vuelo usando los datos actuales.
+- Permite forzar la regeneración (`?force=true`) para reflejar correcciones de última hora (ej: corrección de error tipográfico en nombre) sin ensuciar la base de datos con versiones obsoletas.
+
+### 3. Seguridad de Sesión
+
+La descarga de documentos utiliza la sesión autenticada del navegador (cookies `HttpOnly`), asegurando que solo usuarios con permisos activos puedan acceder a los archivos sensibles protegidos por leyes de privacidad.
+
+## Estándares Visuales
+
+- **Tipografía**: Open Sans (Cuerpo) y Merriweather (Títulos Legales).
+- **Papel**: Carta (Letter) con márgenes de 2.5cm.
+- **Elementos Gráficos**: Solo tablas y líneas simples para máxima compatibilidad y sobriedad legal. No se utilizan imágenes pesadas ni colores que no impriman bien en blanco y negro.
