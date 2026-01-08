@@ -10,3 +10,24 @@
 body {
   font-family: var(--sl-font);
 }
+
+/* Deshabilitar zoom/pan en diagramas Mermaid */
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevenir interacción de zoom */
+.mermaid .zoom,
+.mermaid .pan,
+.mermaid [class*="zoom"],
+.mermaid [class*="pan"] {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Asegurar que el contenedor no tenga scroll innecesario */
+.mermaid {
+  overflow: visible;
+  touch-action: auto;
+}
