@@ -18,7 +18,7 @@ Construido sobre **Astro Starlight**, Jean d'Arc sirve como la fuente de verdad 
 
 ## 🤖 Agente Jean d'Arc
 
-> *"El Bibliotecario y Arquitecto de Información"*
+> *El Bibliotecario y Arquitecto de Información*
 
 Este proyecto es gestionado por el **Agente Jean d'Arc**, una inteligencia especializada encargada de mantener la consistencia, el orden y la veracidad de la documentación.
 
