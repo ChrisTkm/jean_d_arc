@@ -1,4 +1,4 @@
-![Jean d'Arc Banner](public/banner.png)
+![Jean d'Arc Banner](public/banner.svg)
 
 # 📚 Project Jean d'Arc
 
@@ -6,7 +6,7 @@
 
 > **🚀 Sitio en vivo:** [https://jean-d-arc.pages.dev/](https://jean-d-arc.pages.dev/)
 
-[![Built with Astro](https://astro.build/actions/button)](https://astro.build)
+[![Built with Astro](https://img.shields.io/badge/Built%20with-Astro-BC52EE?logo=astro&logoColor=white)](https://astro.build)
 [![Starlight](https://img.shields.io/badge/Doc-Starlight-ff5e00?style=flat-square&logo=astro)](https://starlight.astro.build/)
 [![Agent](https://img.shields.io/badge/Agent-Jean%20d'Arc-blueviolet?style=flat-square&logo=github)](.github/copilot-instructions.md)
 
