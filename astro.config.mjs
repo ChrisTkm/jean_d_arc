@@ -33,6 +33,10 @@ export default defineConfig({
           ]
         },
         {
+          label: '🤖 Agentes AI',
+          autogenerate: { directory: 'agentes' }
+        },
+        {
           label: 'Sistema Contable',
           autogenerate: { directory: 'accounting' }
         },
