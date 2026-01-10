@@ -68,12 +68,15 @@ Verificación de configuraciones de seguridad en tiempo de desarrollo.
 ## Workflow de Seguridad
 
 <Steps>
-  1. **Desarrollo**: El desarrollador trabaja en su feature branch. 2.
-  **Pre-Commit (Guardes)**: Guardes puede ser invocado para escanear cambios
-  *staged* en busca de secretos. 3. **CI/CD**: En el pipeline, Guardes verifica:
-  - Análisis estático de seguridad (SAST). - Integridad de dependencias (`npm
-  audit`). 4. **Despliegue**: Solo si Guardes aprueba ("Green Shield"), el
-  código avanza.
+  1. **Desarrollo**: El desarrollador trabaja en su feature branch.
+
+  2. **Pre-Commit (Guardes)**: Guardes puede ser invocado para escanear cambios *staged* en busca de secretos.
+
+  3. **CI/CD**: En el pipeline, Guardes verifica:
+     - Analisis estatico de seguridad (SAST).
+     - Integridad de dependencias (`npm audit`).
+
+  4. **Despliegue**: Solo si Guardes aprueba ("Green Shield"), el codigo avanza.
 </Steps>
 
 <Aside type="tip">

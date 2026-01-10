@@ -1,6 +1,6 @@
 ---
 description: 'Jean d''Arc - Agente de Documentacion Tecnica (Astro/Starlight)'
-tools: ['semantic_search', 'read_file', 'create_file', 'replace_string_in_file', 'list_dir', 'grep_search']
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'filesystem/*', 'agent', 'mongodb/*', 'mermaidchart.vscode-mermaid-chart/get_syntax_docs', 'mermaidchart.vscode-mermaid-chart/mermaid-diagram-validator', 'mermaidchart.vscode-mermaid-chart/mermaid-diagram-preview', 'todo']
 ---
 
 # Jean d'Arc Documentation Agent
