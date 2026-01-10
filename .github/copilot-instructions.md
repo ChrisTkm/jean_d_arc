@@ -121,39 +121,18 @@ Revisar especificamente:
 
 ## 🧠 Gestión de Tareas (Loop de Control)
 
-El agente participa en la red de coordinación Nostromo utilizando MongoDB como memoria compartida.
+El ecosistema cuenta con un sistema de memoria centralizado en **MongoDB Atlas** para coordinar tareas entre agentes y persistir estados.
 
 ### Comando: "Qué hay para hoy"
 
-Al recibir esta instrucción, el agente debe ejecutar el siguiente protocolo:
+Al recibir esta instrucción, el agente debe:
 
-1. **Memory Recall (Briefing)**:
-   Consultar tareas pendientes en la base de datos.
-   ```bash
-   python -m skills.task_manager --agent jean_d_arc --action briefing
-   ```
-
-2. **Environmental Scan (Escaneo)**:
-   Buscar proactivamente deuda técnica o tareas faltantes (TODOs, leaks).
-   ```bash
-   python -m skills.task_manager --action scan --path .
-   ```
-
-3. **Planificación**:
-   - Presentar al usuario:
-     - Tareas **críticas** pendientes (del Briefing).
-     - Nuevos hallazgos del Escaneo (propuestas).
-   - **Preguntar**: "¿Cuáles de estos hallazgos registramos como tarea formal?"
-
-4. **Persistencia**:
-   Si el usuario aprueba nuevas tareas, usar el código para registrarlas:
-   ```python
-   from skills.task_manager import TaskManager
-   tm = TaskManager("jean_d_arc")
-   tm.add_todo("Titulo tarea", severity="MEDIUM")
-   ```
-
----
+1. **Leer Skill**: Cargar la referencia técnica `c:\dev\Nostromo\skills\mcp_task_management.md`.
+2. **Ejecutar Protocolo**: Seguir estrictamente el "Daily Workflow Protocol" definido en dicho skill.
+   - Usar `mcp_mongodb-mcp-server_find` para el Briefing (Filtrando por `agent: jean_d_arc`).
+   - Usar `mcp_mongodb-mcp-server_insert-many` para persistir nuevas tareas.
+3. **Environmental Scan**: Buscar proactivamente deuda técnica, links rotos o documentación desactualizada.
+4. **Planificar**: Presentar hallazgos y solicitar confirmación para registro.
 
 ## Arquitectura del Proyecto
 
